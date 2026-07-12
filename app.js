@@ -249,6 +249,21 @@ function drawLine(id,pts,colors){
  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${h-p}"/><path d="${path}" class="line"/>${pts.map((pt,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(pt.y)}" r="4"><title>${pt.label}: ${pt.y}</title></circle>`).join("")}<text class="labeltxt" x="${p}" y="18">${max.toFixed(2)}</text><text class="labeltxt" x="${p}" y="${h-5}">${min.toFixed(2)}</text></svg>`;
 }
 
+function trendMeta(rows,key,decimals,unit){
+ const vals=rows.filter(r=>r&&r[key]!==null&&Number.isFinite(Number(r[key])));
+ if(!vals.length)return {html:'<span class="change neutral">No prior reading</span>',label:'No prior reading'};
+ if(vals.length<2)return {html:'<span class="change neutral">First reading</span>',label:'First reading'};
+ const current=Number(vals[vals.length-1][key]);
+ const previous=Number(vals[vals.length-2][key]);
+ const diff=current-previous;
+ const threshold=Math.pow(10,-decimals)/2;
+ if(Math.abs(diff)<=threshold)return {html:'<span class="change stable">→ Stable</span>',label:'Stable'};
+ const sign=diff>0?'+':'';
+ const cls=diff>0?'up':'down';
+ const arrow=diff>0?'↑':'↓';
+ return {html:`<span class="change ${cls}">${arrow} ${sign}${diff.toFixed(decimals)} ${unit} since last</span>`,label:`${diff>0?'Up':'Down'} ${Math.abs(diff).toFixed(decimals)} ${unit}`};
+}
+
 function renderMajorElements(rows){
  const clean=rows.filter(r=>r && ([r.alk,r.ca,r.mg].some(v=>v!==null && Number.isFinite(Number(v)))));
  const el=document.getElementById("majorElementsChart");
@@ -256,20 +271,27 @@ function renderMajorElements(rows){
  if(!el||!summary)return;
  const lastFor=key=>[...clean].reverse().find(r=>r[key]!==null&&Number.isFinite(Number(r[key])));
  const alkRow=lastFor("alk"),caRow=lastFor("ca"),mgRow=lastFor("mg");
- const stat=(label,row,key,unit,color,target,decimals)=>`<div class="major-stat"><span>${label}</span><strong style="color:${color}">${row?Number(row[key]).toFixed(decimals)+" "+unit:"—"}</strong><small>Target ${target}</small></div>`;
+ const stat=(label,row,key,unit,color,target,decimals)=>{
+  const trend=trendMeta(clean,key,decimals,unit);
+  return `<div class="major-stat"><span>${label}</span><strong style="color:${color}">${row?Number(row[key]).toFixed(decimals)+" "+unit:"—"}</strong>${trend.html}<small>Target ${target}</small></div>`;
+ };
  summary.innerHTML=stat("Alkalinity",alkRow,"alk","dKH","var(--teal)","7.5–9 dKH",1)+stat("Calcium",caRow,"ca","ppm","var(--orange)","400–460 ppm",0)+stat("Magnesium",mgRow,"mg","ppm","var(--purple)","1280–1420 ppm",0);
  if(!clean.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see major-element trends.</div>';return}
  const series=[
-  {key:"alk",color:"#52d2c7",min:6.5,max:10,label:"Alkalinity"},
-  {key:"ca",color:"#ff9e55",min:360,max:500,label:"Calcium"},
-  {key:"mg",color:"#b895ff",min:1150,max:1500,label:"Magnesium"}
+  {key:"alk",color:"#52d2c7",fill:"rgba(82,210,199,.10)",min:6.5,max:10,targetMin:7.5,targetMax:9,label:"Alkalinity"},
+  {key:"ca",color:"#ff9e55",fill:"rgba(255,158,85,.08)",min:360,max:500,targetMin:400,targetMax:460,label:"Calcium"},
+  {key:"mg",color:"#b895ff",fill:"rgba(184,149,255,.08)",min:1150,max:1500,targetMin:1280,targetMax:1420,label:"Magnesium"}
  ];
  const w=700,h=240,left=38,right=18,top=25,bottom=34,n=Math.max(1,clean.length-1);
  const x=i=>left+(w-left-right)*(i/n);
  const y=(v,ser)=>h-bottom-(h-top-bottom)*Math.max(0,Math.min(1,(v-ser.min)/(ser.max-ser.min)));
- let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends, each normalized to its own reef scale">`;
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends with target ranges">`;
  for(let i=0;i<=4;i++){const gy=top+(h-top-bottom)*i/4;svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}
- svg+=`<text class="major-axis-label" x="${left}" y="14">HIGH</text><text class="major-axis-label" x="${left}" y="${h-8}">LOW</text>`;
+ series.forEach(ser=>{
+  const yTop=y(ser.targetMax,ser),yBottom=y(ser.targetMin,ser);
+  svg+=`<rect x="${left}" y="${yTop}" width="${w-left-right}" height="${Math.max(2,yBottom-yTop)}" fill="${ser.fill}" rx="4"><title>${ser.label} target range</title></rect>`;
+ });
+ svg+=`<text class="major-axis-label" x="${left}" y="14">TARGET BANDS + TRENDS</text>`;
  series.forEach(ser=>{
   const pts=clean.map((r,i)=>({i,v:r[ser.key]===null?null:Number(r[ser.key]),date:r.date})).filter(q=>Number.isFinite(q.v));
   if(!pts.length)return;
@@ -284,10 +306,14 @@ function renderNutrients(rows){
  const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
  const el=document.getElementById("nutrientChart");
  const summary=document.getElementById("nutrientSummary");
- const latestRow=[...clean].reverse().find(r=>r.no3!==null || r.po4!==null);
- const no3Latest=latestRow&&latestRow.no3!==null&&Number.isFinite(Number(latestRow.no3))?Number(latestRow.no3):null;
- const po4Latest=latestRow&&latestRow.po4!==null&&Number.isFinite(Number(latestRow.po4))?Number(latestRow.po4):null;
- summary.innerHTML=`<div class="nutrient-stat"><span>Latest Nitrate</span><strong style="color:var(--blue)">${no3Latest===null?"—":no3Latest.toFixed(1)+" ppm"}</strong><small>Target 5–15 ppm</small></div><div class="nutrient-stat"><span>Latest Phosphate</span><strong style="color:var(--gold)">${po4Latest===null?"—":po4Latest.toFixed(3)+" ppm"}</strong><small>Target 0.03–0.10 ppm</small></div>`;
+ if(!el||!summary)return;
+ const no3Row=[...clean].reverse().find(r=>r.no3!==null&&Number.isFinite(Number(r.no3)));
+ const po4Row=[...clean].reverse().find(r=>r.po4!==null&&Number.isFinite(Number(r.po4)));
+ const no3Latest=no3Row?Number(no3Row.no3):null;
+ const po4Latest=po4Row?Number(po4Row.po4):null;
+ const no3Trend=trendMeta(clean,"no3",1,"ppm");
+ const po4Trend=trendMeta(clean,"po4",3,"ppm");
+ summary.innerHTML=`<div class="nutrient-stat"><span>Nitrate</span><strong style="color:var(--blue)">${no3Latest===null?"—":no3Latest.toFixed(1)+" ppm"}</strong>${no3Trend.html}<small>Target 5–15 ppm</small></div><div class="nutrient-stat"><span>Phosphate</span><strong style="color:var(--gold)">${po4Latest===null?"—":po4Latest.toFixed(3)+" ppm"}</strong>${po4Trend.html}<small>Target 0.03–0.10 ppm</small></div>`;
  const no3=clean.map((r,i)=>({i,v:r.no3===null?null:Number(r.no3),date:r.date})).filter(x=>Number.isFinite(x.v));
  const po4=clean.map((r,i)=>({i,v:r.po4===null?null:Number(r.po4),date:r.date})).filter(x=>Number.isFinite(x.v));
  if(!no3.length&&!po4.length){el.innerHTML='<div class="empty">Add nitrate or phosphate readings to see nutrient trends.</div>';return}
@@ -296,8 +322,12 @@ function renderNutrients(rows){
  const po4Max=Math.max(.12,...po4.map(x=>x.v))*1.05;
  const x=i=>left+(w-left-right)*(i/n),yNo3=v=>h-bottom-(h-top-bottom)*(v/no3Max),yPo4=v=>h-bottom-(h-top-bottom)*(v/po4Max);
  const path=(arr,yfn)=>arr.map((q,j)=>(j?"L":"M")+x(q.i)+","+yfn(q.v)).join(" ");
- let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Nitrate and phosphate trends">`;
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Nitrate and phosphate trends with target ranges">`;
  for(let i=0;i<=4;i++){const y=top+(h-top-bottom)*i/4;svg+=`<line class="nutrient-grid" x1="${left}" y1="${y}" x2="${w-right}" y2="${y}"/>`;}
+ const no3BandTop=yNo3(15),no3BandBottom=yNo3(5);
+ const po4BandTop=yPo4(.10),po4BandBottom=yPo4(.03);
+ svg+=`<rect x="${left}" y="${no3BandTop}" width="${w-left-right}" height="${Math.max(2,no3BandBottom-no3BandTop)}" fill="rgba(103,184,255,.10)" rx="4"><title>Nitrate target 5–15 ppm</title></rect>`;
+ svg+=`<rect x="${left}" y="${po4BandTop}" width="${w-left-right}" height="${Math.max(2,po4BandBottom-po4BandTop)}" fill="rgba(241,200,107,.10)" rx="4"><title>Phosphate target 0.03–0.10 ppm</title></rect>`;
  svg+=`<text class="nutrient-axis-no3" x="${left}" y="14">NO₃ ppm</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-right}" y="14">PO₄ ppm</text>`;
  svg+=`<text class="nutrient-axis-no3" x="4" y="${top+4}">${no3Max.toFixed(1)}</text><text class="nutrient-axis-no3" x="18" y="${h-bottom+4}">0</text>`;
  svg+=`<text class="nutrient-axis-po4" text-anchor="end" x="${w-3}" y="${top+4}">${po4Max.toFixed(3)}</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-18}" y="${h-bottom+4}">0</text>`;

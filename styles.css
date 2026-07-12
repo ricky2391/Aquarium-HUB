@@ -232,3 +232,19 @@ th{background:#12303d}
   .health-ring-copy strong{font-size:36px}
   .major-chart,.nutrient-chart{min-height:190px}
 }
+
+
+/* v4 trend summaries and target-range visualization */
+.change{display:inline-flex;align-items:center;width:max-content;max-width:100%;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:850;line-height:1.2;white-space:normal}
+.change.up{color:#7ee0a2;background:rgba(126,224,162,.11)}
+.change.down{color:#ff927e;background:rgba(255,146,126,.11)}
+.change.stable{color:#f1c86b;background:rgba(241,200,107,.11)}
+.change.neutral{color:var(--muted);background:rgba(255,255,255,.05)}
+.major-stat,.nutrient-stat{display:flex;flex-direction:column;align-items:flex-start}
+.major-stat small,.nutrient-stat small{margin-top:6px}
+.major-chart svg rect,.nutrient-chart svg rect{pointer-events:none}
+@media(max-width:700px){
+ .major-stat{display:flex;align-items:flex-start}
+ .major-stat strong{text-align:left}
+ .change{font-size:9.5px}
+}

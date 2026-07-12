@@ -23,3 +23,6 @@ Dashboard foundation completed:
 - Maintenance tasks
 - Tank, livestock, equipment, and tester navigation
 - Backup import/export and photo storage safeguards
+
+
+v4 changes: Added change-since-last indicators and shaded target ranges to Nutrients and Major Elements dashboard cards.
