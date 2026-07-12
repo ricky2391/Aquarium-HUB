@@ -55,18 +55,15 @@
   <div class="card"><div class="section-title"><h3>Maintenance</h3><span>Current month</span></div><div style="font-size:38px;font-weight:900;color:var(--teal)" id="maintenanceScore">—</div><div style="color:var(--muted);margin-top:6px">Completed checklist items.</div></div>
   <div class="card"><div class="section-title"><h3>Current AFR</h3><span>Daily dose</span></div><div style="font-size:38px;font-weight:900;color:var(--blue)" id="afrSummary">—</div><div style="color:var(--muted);margin-top:6px">Pulled from the latest saved reading.</div></div>
 </div>
-<div class="grid two" style="margin-top:16px">
-        <div class="card"><div class="section-title"><h3>Alkalinity trend</h3><span>Last 14 readings</span></div><div class="chart" id="alkChart"></div></div>
+<div class="grid two dashboard-trend-grid" style="margin-top:16px">
+        <div class="card major-card"><div class="section-title"><div><h3>Major Elements</h3><span>Alkalinity, calcium, and magnesium on independent scales</span></div><span class="major-legend"><i class="alk-dot"></i> Alk <i class="ca-dot"></i> Ca <i class="mg-dot"></i> Mg</span></div><div id="majorSummary" class="major-summary"></div><div class="chart major-chart" id="majorElementsChart"></div></div>
         <div class="card nutrient-card"><div class="section-title"><div><h3>Nutrients</h3><span>Nitrate and phosphate, shown on independent scales</span></div><span class="nutrient-legend"><i class="no3-dot"></i> NO₃ <i class="po4-dot"></i> PO₄</span></div><div id="nutrientSummary" class="nutrient-summary"></div><div class="chart nutrient-chart" id="nutrientChart"></div></div>
       </div>
-      <div class="grid two" style="margin-top:16px">
-        <div class="card"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
-        <div class="card"><div class="section-title"><h3>Automatic averages</h3><span>All saved readings</span></div><div id="averages"></div></div>
-      </div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
     </section>
 
     <section id="readings" class="page">
-      <div class="hero"><div><h2>Parameters</h2><p>Log test results, review averages, and watch your trends.</p></div><button class="btn primary" onclick="openReadingForm()">Add reading</button></div>
+      <div class="hero"><div><h2>Parameters</h2><p>Log test results, compare current values, and watch your trends.</p></div><button class="btn primary" onclick="openReadingForm()">Add reading</button></div>
       <div class="card" id="readingForm" style="display:none;margin-bottom:16px">
         <div class="section-title"><h3>New reading</h3><button class="btn" onclick="closeReadingForm()">Close</button></div>
         <div class="form-grid">

@@ -220,7 +220,6 @@ function renderDashboard(){
  Object.values(targets).forEach(t=>{const v=l?l[t.key]:null;const c=document.createElement("div");c.className="card kpi";c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;k.appendChild(c)});
  const ok=l&&Object.values(targets).every(t=>{const v=Number(l[t.key]);return Number.isFinite(v)&&v>=t.min&&v<=t.max});
  const sb=document.getElementById("statusBadge");if(sb){sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral")}
- document.getElementById("averages").innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${fmt(mean(t.key),t.key)} ${t.unit} average</div></div><span class="badge">${state.readings.filter(r=>Number.isFinite(Number(r[t.key]))).length} tests</span></div>`).join("");
  const pending=state.tasks.filter(t=>!t.done).slice(0,5);document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks complete.</div>';document.getElementById("taskCount").textContent=`${state.tasks.filter(t=>!t.done).length} remaining`;
  document.getElementById("currentAfr").textContent=l&&l.afr?`${l.afr} mL/day`:"Not set";
  const health=tankHealthScore();
@@ -239,7 +238,7 @@ function renderDashboard(){
  const doneCount=state.tasks.filter(t=>t.done).length;
  document.getElementById("maintenanceScore").textContent=Math.round((doneCount/Math.max(1,state.tasks.length))*100)+"%";
  document.getElementById("afrSummary").textContent=l&&l.afr?`${l.afr} mL`:"—";
- drawLine("alkChart",state.readings.slice(-14).map((r,i)=>({x:i,y:Number(r.alk),label:r.date})).filter(p=>Number.isFinite(p.y)),["#52d2c7"]);
+ renderMajorElements(state.readings.slice(-14));
  renderNutrients(state.readings.slice(-14));
 }
 function drawLine(id,pts,colors){
@@ -249,6 +248,38 @@ function drawLine(id,pts,colors){
  const path=pts.map((pt,i)=>(i?"L":"M")+x(i)+","+y(pt.y)).join(" ");
  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${h-p}"/><path d="${path}" class="line"/>${pts.map((pt,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(pt.y)}" r="4"><title>${pt.label}: ${pt.y}</title></circle>`).join("")}<text class="labeltxt" x="${p}" y="18">${max.toFixed(2)}</text><text class="labeltxt" x="${p}" y="${h-5}">${min.toFixed(2)}</text></svg>`;
 }
+
+function renderMajorElements(rows){
+ const clean=rows.filter(r=>r && ([r.alk,r.ca,r.mg].some(v=>v!==null && Number.isFinite(Number(v)))));
+ const el=document.getElementById("majorElementsChart");
+ const summary=document.getElementById("majorSummary");
+ if(!el||!summary)return;
+ const lastFor=key=>[...clean].reverse().find(r=>r[key]!==null&&Number.isFinite(Number(r[key])));
+ const alkRow=lastFor("alk"),caRow=lastFor("ca"),mgRow=lastFor("mg");
+ const stat=(label,row,key,unit,color,target,decimals)=>`<div class="major-stat"><span>${label}</span><strong style="color:${color}">${row?Number(row[key]).toFixed(decimals)+" "+unit:"—"}</strong><small>Target ${target}</small></div>`;
+ summary.innerHTML=stat("Alkalinity",alkRow,"alk","dKH","var(--teal)","7.5–9 dKH",1)+stat("Calcium",caRow,"ca","ppm","var(--orange)","400–460 ppm",0)+stat("Magnesium",mgRow,"mg","ppm","var(--purple)","1280–1420 ppm",0);
+ if(!clean.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see major-element trends.</div>';return}
+ const series=[
+  {key:"alk",color:"#52d2c7",min:6.5,max:10,label:"Alkalinity"},
+  {key:"ca",color:"#ff9e55",min:360,max:500,label:"Calcium"},
+  {key:"mg",color:"#b895ff",min:1150,max:1500,label:"Magnesium"}
+ ];
+ const w=700,h=240,left=38,right=18,top=25,bottom=34,n=Math.max(1,clean.length-1);
+ const x=i=>left+(w-left-right)*(i/n);
+ const y=(v,ser)=>h-bottom-(h-top-bottom)*Math.max(0,Math.min(1,(v-ser.min)/(ser.max-ser.min)));
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends, each normalized to its own reef scale">`;
+ for(let i=0;i<=4;i++){const gy=top+(h-top-bottom)*i/4;svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}
+ svg+=`<text class="major-axis-label" x="${left}" y="14">HIGH</text><text class="major-axis-label" x="${left}" y="${h-8}">LOW</text>`;
+ series.forEach(ser=>{
+  const pts=clean.map((r,i)=>({i,v:r[ser.key]===null?null:Number(r[ser.key]),date:r.date})).filter(q=>Number.isFinite(q.v));
+  if(!pts.length)return;
+  const path=pts.map((q,j)=>(j?"L":"M")+x(q.i)+","+y(q.v,ser)).join(" ");
+  svg+=`<path d="${path}" fill="none" stroke="${ser.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v,ser)}" r="3.5" fill="${ser.color}"><title>${q.date}: ${ser.label} ${q.v}</title></circle>`).join("");
+ });
+ svg+='</svg>';el.innerHTML=svg;
+}
+
 function renderNutrients(rows){
  const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
  const el=document.getElementById("nutrientChart");
