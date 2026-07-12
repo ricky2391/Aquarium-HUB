@@ -217,8 +217,21 @@ function tankHealthScore(){
 }
 function renderDashboard(){
  const l=latest(); const k=document.getElementById("kpis");k.innerHTML="";
- Object.values(targets).forEach(t=>{const v=l?l[t.key]:null;const c=document.createElement("div");c.className="card kpi";c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;k.appendChild(c)});
- const ok=l&&Object.values(targets).every(t=>{const v=Number(l[t.key]);return Number.isFinite(v)&&v>=t.min&&v<=t.max});
+ // Each dashboard parameter card uses that parameter's newest saved result.
+ // This allows partial tests to update immediately without waiting for a full-panel reading.
+ Object.values(targets).forEach(t=>{
+  const newest=latestForKey(t.key);
+  const v=newest?newest[t.key]:null;
+  const c=document.createElement("div");
+  c.className="card kpi";
+  c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;
+  k.appendChild(c);
+ });
+ const ok=Object.values(targets).every(t=>{
+  const newest=latestForKey(t.key);
+  const v=newest?Number(newest[t.key]):NaN;
+  return Number.isFinite(v)&&v>=t.min&&v<=t.max;
+ });
  const sb=document.getElementById("statusBadge");if(sb){sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral")}
  const pending=state.tasks.filter(t=>!t.done).slice(0,5);document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks complete.</div>';document.getElementById("taskCount").textContent=`${state.tasks.filter(t=>!t.done).length} remaining`;
  document.getElementById("currentAfr").textContent=l&&l.afr?`${l.afr} mL/day`:"Not set";
@@ -269,42 +282,69 @@ function renderMajorElements(rows){
  const summary=document.getElementById("majorSummary");
  if(!el||!summary)return;
  const config=[
-  {key:"alk",label:"Alkalinity",unit:"dKH",color:"#52d2c7",soft:"rgba(82,210,199,.12)",min:6.5,max:10,targetMin:7.5,targetMax:9,decimals:1},
-  {key:"ca",label:"Calcium",unit:"ppm",color:"#ff9e55",soft:"rgba(255,158,85,.12)",min:360,max:500,targetMin:400,targetMax:460,decimals:0},
-  {key:"mg",label:"Magnesium",unit:"ppm",color:"#b895ff",soft:"rgba(184,149,255,.12)",min:1150,max:1500,targetMin:1280,targetMax:1420,decimals:0}
+  {key:"alk",label:"Alkalinity",short:"Alk",unit:"dKH",color:"#4fd6d0",soft:"rgba(79,214,208,.12)",min:6,max:11,targetMin:7,targetMax:9,decimals:1},
+  {key:"ca",label:"Calcium",short:"Ca",unit:"ppm",color:"#ff9d45",soft:"rgba(255,157,69,.10)",min:300,max:600,targetMin:400,targetMax:460,decimals:0},
+  {key:"mg",label:"Magnesium",short:"Mg",unit:"ppm",color:"#a875ff",soft:"rgba(168,117,255,.10)",min:900,max:1800,targetMin:1280,targetMax:1420,decimals:0}
  ];
- const historyFor=key=>rows.filter(r=>r&&r[key]!==null&&Number.isFinite(Number(r[key]))).sort((a,b)=>readingDate(a)-readingDate(b)).slice(-10);
+ const chronological=[...rows].filter(Boolean).sort((a,b)=>readingDate(a)-readingDate(b));
+ const historyFor=key=>chronological.filter(r=>r[key]!==null&&Number.isFinite(Number(r[key]))).slice(-12);
  const formatDateShort=r=>{const d=readingDate(r);return d?d.toLocaleDateString([], {month:"short",day:"numeric"}):""};
  summary.innerHTML=config.map(c=>{
   const h=historyFor(c.key),last=h[h.length-1],value=last?Number(last[c.key]):null,trend=trendMeta(h,c.key,c.decimals,c.unit);
-  return `<div class="major-stat" style="--element-color:${c.color}"><span>${c.label}</span><strong>${value===null?"—":value.toFixed(c.decimals)+" "+c.unit}</strong>${trend.html}<small>${last?"Latest: "+formatDateShort(last):"No saved reading"} • Target ${c.targetMin}–${c.targetMax} ${c.unit}</small></div>`;
- }).join("");
- const cards=config.map(c=>{
-  const h=historyFor(c.key);
-  if(!h.length)return `<div class="element-trend-card"><div class="element-trend-head"><span style="color:${c.color}">${c.label}</span><small>No readings</small></div><div class="empty element-empty">Add a ${c.label.toLowerCase()} reading.</div></div>`;
-  const w=640,hgt=150,left=42,right=20,top=18,bottom=28;
-  const x=i=>left+(w-left-right)*(i/Math.max(1,h.length-1));
-  const y=v=>hgt-bottom-(hgt-top-bottom)*Math.max(0,Math.min(1,(v-c.min)/(c.max-c.min)));
-  const pts=h.map((r,i)=>({i,v:Number(r[c.key]),date:formatDateShort(r)}));
-  const bandTop=y(c.targetMax),bandBottom=y(c.targetMin);
-  let path="";
-  if(pts.length===1){path=`M${x(0)-1},${y(pts[0].v)} L${x(0)+1},${y(pts[0].v)}`;}
-  else{path=pts.map((q,i)=>(i?"L":"M")+x(i)+","+y(q.v)).join(" ");}
-  const latest=pts[pts.length-1];
-  return `<div class="element-trend-card" style="--element-color:${c.color}">
-   <div class="element-trend-head"><span>${c.label}</span><small>${latest.v.toFixed(c.decimals)} ${c.unit} latest</small></div>
-   <svg viewBox="0 0 ${w} ${hgt}" role="img" aria-label="${c.label} trend">
-    <rect x="${left}" y="${bandTop}" width="${w-left-right}" height="${Math.max(2,bandBottom-bandTop)}" fill="${c.soft}" rx="5"><title>Target ${c.targetMin}–${c.targetMax} ${c.unit}</title></rect>
-    ${[0,1,2,3,4].map(i=>{const gy=top+(hgt-top-bottom)*i/4;return `<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}).join("")}
-    <text class="element-scale" x="4" y="${top+4}">${c.max}</text><text class="element-scale" x="4" y="${hgt-bottom+4}">${c.min}</text>
-    <path d="${path}" fill="none" stroke="${c.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    ${pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v)}" r="4" fill="${c.color}"><title>${q.date}: ${q.v.toFixed(c.decimals)} ${c.unit}</title></circle>`).join("")}
-    <text class="element-date" x="${left}" y="${hgt-5}">${pts[0].date}</text><text class="element-date" text-anchor="end" x="${w-right}" y="${hgt-5}">${latest.date}</text>
-   </svg>
+  const previous=h.length>1?h[h.length-2]:null;
+  return `<div class="major-stat" style="--element-color:${c.color}">
+   <span><i style="background:${c.color}"></i>${c.label}</span>
+   <strong>${value===null?"—":value.toFixed(c.decimals)} <em>${value===null?"":c.unit}</em></strong>
+   ${trend.html}
+   <small>${previous?`vs last (${formatDateShort(previous)}) • `:""}Target: ${c.targetMin}–${c.targetMax} ${c.unit}</small>
   </div>`;
  }).join("");
- el.innerHTML=`<div class="element-trend-list">${cards}</div>`;
+ const allDates=[...new Set(config.flatMap(c=>historyFor(c.key).map(r=>{
+  const d=readingDate(r); return d?d.toISOString().slice(0,10):"";
+ })).filter(Boolean))].sort().slice(-12);
+ if(!allDates.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see trends.</div>';return}
+ const dateIndex=new Map(allDates.map((d,i)=>[d,i]));
+ const w=760,h=300,left=54,right=92,top=42,bottom=52,n=Math.max(1,allDates.length-1);
+ const x=i=>left+(w-left-right)*(i/n);
+ const yFor=c=>v=>h-bottom-(h-top-bottom)*Math.max(0,Math.min(1,(v-c.min)/(c.max-c.min)));
+ const pointSets=config.map(c=>{
+  const y=yFor(c);
+  const pts=historyFor(c.key).map(r=>{
+   const d=readingDate(r),iso=d?d.toISOString().slice(0,10):"";
+   return {i:dateIndex.get(iso),v:Number(r[c.key]),date:formatDateShort(r)};
+  }).filter(q=>Number.isInteger(q.i));
+  return {c,y,pts};
+ });
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends">`;
+ for(let i=0;i<=4;i++){const gy=top+(h-top-bottom)*i/4;svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}
+ // Individual target bands use their own scales; subtle opacity keeps the chart readable.
+ pointSets.forEach(({c,y})=>{
+  const bandTop=y(c.targetMax),bandBottom=y(c.targetMin);
+  svg+=`<rect x="${left}" y="${bandTop}" width="${w-left-right}" height="${Math.max(2,bandBottom-bandTop)}" fill="${c.soft}" rx="4"><title>${c.label} target ${c.targetMin}–${c.targetMax} ${c.unit}</title></rect>`;
+ });
+ svg+=`<text class="major-axis alk-axis" x="${left}" y="18">Alk (dKH)</text>`;
+ svg+=`<text class="major-axis ca-axis" text-anchor="end" x="${w-right+42}" y="18">Ca (ppm)</text>`;
+ svg+=`<text class="major-axis mg-axis" text-anchor="end" x="${w-3}" y="18">Mg (ppm)</text>`;
+ // Axis labels: alkalinity left, calcium near right, magnesium far right.
+ [11,9,7,6].forEach(v=>svg+=`<text class="major-axis alk-axis" text-anchor="end" x="${left-8}" y="${yFor(config[0])(v)+4}">${v}</text>`);
+ [600,500,400,300].forEach(v=>svg+=`<text class="major-axis ca-axis" text-anchor="start" x="${w-right+8}" y="${yFor(config[1])(v)+4}">${v}</text>`);
+ [1800,1500,1200,900].forEach(v=>svg+=`<text class="major-axis mg-axis" text-anchor="start" x="${w-45}" y="${yFor(config[2])(v)+4}">${v}</text>`);
+ pointSets.forEach(({c,y,pts})=>{
+  if(!pts.length)return;
+  const path=pts.length===1?`M${x(pts[0].i)-1},${y(pts[0].v)} L${x(pts[0].i)+1},${y(pts[0].v)}`:pts.map((q,i)=>(i?"L":"M")+x(q.i)+","+y(q.v)).join(" ");
+  svg+=`<path d="${path}" fill="none" stroke="${c.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v)}" r="4" fill="${c.color}" stroke="#0a202a" stroke-width="2"><title>${q.date}: ${c.label} ${q.v.toFixed(c.decimals)} ${c.unit}</title></circle>`).join("");
+ });
+ const tickIndices=allDates.length<=6?allDates.map((_,i)=>i):[0,Math.round(n/2),n];
+ [...new Set(tickIndices)].forEach(i=>{
+  const d=new Date(allDates[i]+"T12:00:00");
+  svg+=`<text class="major-date" text-anchor="middle" x="${x(i)}" y="${h-18}">${d.toLocaleDateString([], {month:"short",day:"numeric"})}</text>`;
+ });
+ svg+=`<g class="major-chart-legend" transform="translate(${left},${h-2})">${config.map((c,i)=>`<g transform="translate(${i*190},0)"><line x1="0" y1="-4" x2="24" y2="-4" stroke="${c.color}" stroke-width="4" stroke-linecap="round"/><circle cx="12" cy="-4" r="4" fill="${c.color}"/><text x="32" y="0">${c.label} (${c.unit})</text></g>`).join("")}</g>`;
+ svg+='</svg>';
+ el.innerHTML=svg;
 }
+
 function renderNutrients(rows){
  const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
  const el=document.getElementById("nutrientChart");

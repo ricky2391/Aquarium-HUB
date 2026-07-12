@@ -265,3 +265,27 @@ th{background:#12303d}
  .element-trend-card svg{height:112px}
  .element-trend-head{align-items:flex-start;flex-direction:column;gap:2px}
 }
+
+
+/* Major Elements v6: aligned latest values + one combined three-series graph */
+.major-card{overflow:hidden}
+.major-summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:4px 0 16px!important}
+.major-summary .major-stat{display:flex!important;flex-direction:column!important;align-items:flex-start!important;min-width:0!important;padding:14px!important;border:1px solid var(--line)!important;border-top:3px solid var(--element-color)!important;border-radius:15px!important;background:rgba(255,255,255,.025)!important}
+.major-summary .major-stat span{display:flex!important;align-items:center!important;gap:7px!important;color:var(--text)!important;font-size:12px!important;text-transform:none!important;letter-spacing:0!important;font-weight:800!important}
+.major-summary .major-stat span i{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto}
+.major-summary .major-stat strong{display:block!important;margin-top:8px!important;font-size:28px!important;line-height:1!important;color:var(--element-color)!important;white-space:nowrap!important}
+.major-summary .major-stat strong em{font-size:13px;font-style:normal;color:var(--text);font-weight:700}
+.major-summary .major-stat .change{margin-top:9px!important}
+.major-summary .major-stat small{margin-top:7px!important;line-height:1.45!important;color:var(--muted)!important;font-size:11px!important}
+.major-chart{min-height:280px!important;padding:2px 0 0!important;overflow:hidden}
+.major-chart svg{display:block;width:100%;height:auto;min-height:260px;overflow:visible}
+.major-axis,.major-date,.major-chart-legend text{font-size:10px;font-weight:750;fill:#8ea6af}
+.major-axis.alk-axis{fill:#4fd6d0}.major-axis.ca-axis{fill:#ff9d45}.major-axis.mg-axis{fill:#a875ff}
+.major-date{fill:#78909a}.major-chart-legend text{fill:#a9bec6;font-size:11px}
+@media(max-width:700px){
+ .major-summary{grid-template-columns:1fr!important;gap:10px!important}
+ .major-summary .major-stat{padding:13px 14px!important}
+ .major-summary .major-stat strong{font-size:26px!important}
+ .major-chart{min-height:245px!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ .major-chart svg{width:720px!important;max-width:none!important;min-height:245px!important}
+}

@@ -26,3 +26,6 @@ Dashboard foundation completed:
 
 
 v4 changes: Added change-since-last indicators and shaded target ranges to Nutrients and Major Elements dashboard cards.
+
+
+V7 update: Dashboard parameter cards now update independently from the latest saved reading for each parameter. Major Elements remains a single combined three-line chart with element-specific scales and colors.

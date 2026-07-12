@@ -1,4 +1,3 @@
-
 const pages=[["dashboard","Dashboard"],["readings","Readings"],["maintenance","Maintenance"],["tank","Tank"],["testers","Testers"]];
 
 function svgData(kind,title,accent="#52d2c7"){
@@ -15,14 +14,14 @@ function svgData(kind,title,accent="#52d2c7"){
 }
 
 const targets={
- alk:{label:"Alkalinity",unit:"dKH",min:7,max:9,key:"alk"},
- ca:{label:"Calcium",unit:"ppm",min:400,max:460,key:"ca"},
- mg:{label:"Magnesium",unit:"ppm",min:1280,max:1420,key:"mg"},
- no3:{label:"Nitrate",unit:"ppm",min:5,max:15,key:"no3"},
- po4:{label:"Phosphate",unit:"ppm",min:.03,max:.10,key:"po4"},
- ph:{label:"pH",unit:"",min:7.9,max:8.4,key:"ph"},
- sal:{label:"Salinity",unit:"ppt",min:34,max:36,key:"sal"},
- temp:{label:"Temperature",unit:"°F",min:76,max:79,key:"temp"}
+ alk:{label:"Alkalinity",unit:"dKH",min:7,max:9,key:"alk",weight:16,testDays:3},
+ ca:{label:"Calcium",unit:"ppm",min:400,max:460,key:"ca",weight:9,testDays:14},
+ mg:{label:"Magnesium",unit:"ppm",min:1280,max:1420,key:"mg",weight:7,testDays:30},
+ no3:{label:"Nitrate",unit:"ppm",min:5,max:15,key:"no3",weight:10,testDays:7},
+ po4:{label:"Phosphate",unit:"ppm",min:.03,max:.10,key:"po4",weight:10,testDays:7},
+ ph:{label:"pH",unit:"",min:7.9,max:8.4,key:"ph",weight:12,testDays:7},
+ sal:{label:"Salinity",unit:"ppt",min:34,max:36,key:"sal",weight:18,testDays:7},
+ temp:{label:"Temperature",unit:"°F",min:76,max:79,key:"temp",weight:18,testDays:7}
 };
 const defaultTasks=[
  {title:"25-gallon water change",meta:"Sunday • Match temperature and salinity; test full panel 1–2 hours later"},
@@ -95,27 +94,64 @@ const testerSources={
  "HI780":"https://hannainst.com/marine-ph-tester-hi780.html",
  "HI98319":"https://hannainst.com/marine-salinity-tester-hi98319.html"
 };
-function pagePreview(url){return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=900`;}
 
-const testers=[
-{code:"HI772",name:"Marine Alkalinity Checker",kind:"tester",accent:"#52d2c7",summary:"Measures alkalinity directly in dKH.",workflow:"Fill a clean cuvette to 10 mL, zero as C1, add exactly 1 mL reagent, invert gently, wipe the cuvette, and read C2.",tips:"Use a dedicated 1 mL syringe, keep bubbles out, and test at the same time of day."},
-{code:"HI758U",name:"Marine Calcium Checker",kind:"tester",accent:"#67b8ff",summary:"Measures calcium in ppm using a very small sample volume.",workflow:"Prepare the C1 blank with reagent A and RODI, zero the checker, add exactly 0.1 mL tank water, add reagent B, mix, and read.",tips:"The 0.1 mL tank sample is the critical step. Use a clean dedicated pipette tip."},
-{code:"HI783",name:"Marine Magnesium Checker",kind:"tester",accent:"#b78bf1",summary:"Measures magnesium in ppm.",workflow:"Follow the current reagent-kit sequence for the C1 blank and C2 sample.",tips:"Use the quick guide supplied with the reagent lot because component order can differ between versions."},
-{code:"HI782",name:"Marine Nitrate High Range Checker",kind:"tester",accent:"#f1c86b",summary:"Measures nitrate in ppm in a range suitable for many reef aquariums.",workflow:"Zero a 10 mL sample, add the reagent packet, mix for the specified time, and run the timed reading.",tips:"Fully dissolve the reagent and avoid fingerprints or microbubbles."},
-{code:"HI736",name:"Phosphorus Ultra Low Range Checker",kind:"tester",accent:"#7fd3a3",summary:"Reads phosphorus in ppb; the app converts it automatically to phosphate ppm.",workflow:"Zero a 10 mL sample, add the packet, shake for 2 minutes, then use the 3-minute timed reading.",tips:"Phosphate ppm = phosphorus ppb × 3.066 ÷ 1000. Example: 20 ppb phosphorus = 0.061 ppm phosphate."},
-{code:"HI780",name:"Marine pH Tester",kind:"tester",accent:"#ff927e",summary:"Digital pH probe for spot checks.",workflow:"Rinse with RODI, blot gently, immerse in a sample, and wait for a stable result.",tips:"Keep the probe hydrated and calibrate with fresh buffer solutions."},
-{code:"HI98319",name:"Marine Salinity Tester",kind:"tester",accent:"#68d9e8",summary:"Digital salinity meter that can display ppt or specific gravity.",workflow:"Rinse the probe, immerse in the sample, stir gently, and wait for the result to stabilize.",tips:"Calibrate with 35.00 ppt standard and make sure no bubbles cling to the probe."}
-];
+const testers=[{"code": "HI772", "name": "Marine Alkalinity Checker", "image": "./images/hanna_hi772.jpg", "key": "alk", "unit": "dKH", "summary": "Measures alkalinity directly in dKH and is the primary test used to fine-tune All-For-Reef.", "range": "0.0–20.0 dKH", "reagent": "HI772-26", "frequency": "2–3× weekly while adjusting AFR", "steps": ["Rinse the cuvette with tank water, then fill exactly to the 10 mL line.", "Wipe the cuvette and insert it for the C1 zero reading.", "Add exactly 1.0 mL of HI772 reagent.", "Cap and invert gently several times without creating bubbles.", "Wipe the cuvette again, keep the same orientation, and take the C2 reading."], "tips": ["Use a dedicated 1 mL syringe.", "Test at the same time of day.", "Remove fingerprints and bubbles before both readings."], "mistakes": ["Inaccurate 1 mL reagent volume", "Changing cuvette orientation between C1 and C2", "Testing immediately after dosing into the same area"]}, {"code": "HI758U", "name": "Marine Calcium Checker", "image": "./images/hanna_hi758.jpg", "key": "ca", "unit": "ppm", "summary": "Measures calcium using a very small 0.1 mL aquarium-water sample.", "range": "200–600 ppm", "reagent": "HI758-26", "frequency": "Weekly initially; every 2–4 weeks once stable", "steps": ["Add 1 mL reagent A to a clean cuvette.", "Add RODI water to the 10 mL line, mix, wipe, and zero as C1.", "Add exactly 0.1 mL of aquarium water using the supplied micropipette.", "Add one packet of reagent B.", "Cap and shake vigorously for the specified time, wipe, and read C2."], "tips": ["The 0.1 mL sample volume is the most important accuracy step.", "Use only clean RODI for the blank.", "Keep the micropipette tip free of salt residue."], "mistakes": ["Using 1 mL tank water instead of 0.1 mL", "Poor micropipette technique", "Residual calcium or salt in the cuvette"]}, {"code": "HI783", "name": "Marine Magnesium Checker", "image": "./images/hanna_hi783.jpg", "key": "mg", "unit": "ppm", "summary": "Measures magnesium, which helps stabilize calcium and alkalinity chemistry.", "range": "1000–1800 ppm", "reagent": "HI783-25", "frequency": "Weekly during setup; monthly once stable", "steps": ["Use clean cuvettes, syringes, and pipette tips.", "Prepare the C1 blank exactly as shown in the current reagent-kit quick guide.", "Zero the checker with the C1 cuvette.", "Prepare the C2 sample using the stated aquarium-water and reagent volumes.", "Mix completely, wipe the cuvette, and take the final reading."], "tips": ["Follow the instructions packaged with the current reagent lot.", "Measure every liquid carefully.", "Rinse tools immediately after testing."], "mistakes": ["Following instructions from an older reagent version", "Cross-contaminating the sample syringe", "Incomplete mixing"]}, {"code": "HI782", "name": "Marine Nitrate High Range Checker", "image": "./images/hanna_hi782.jpg", "key": "no3", "unit": "ppm", "summary": "Measures nitrate in a reef-friendly range without manual color matching.", "range": "0.0–75.0 ppm", "reagent": "HI782-25", "frequency": "Weekly", "steps": ["Fill a clean cuvette with 10 mL of aquarium water.", "Wipe the cuvette and take the C1 zero reading.", "Add one HI782 reagent packet.", "Cap and shake/mix for the full instructed period.", "Use the timed reading mode and keep the cuvette clean before C2."], "tips": ["Get all powder into the cuvette.", "Start timing promptly.", "Tap away microbubbles before reading."], "mistakes": ["Reagent powder left in the packet", "Shortened mixing time", "Dirty or scratched cuvette"]}, {"code": "HI736", "name": "Phosphorus Ultra Low Range Checker", "image": "./images/hanna_hi736.jpg", "key": "ppb", "unit": "ppb P", "summary": "Reads ultra-low phosphorus in ppb. Aquarium Hub converts it automatically to phosphate ppm.", "range": "0–200 ppb phosphorus", "reagent": "HI736-25", "frequency": "Weekly or after changing GFO", "steps": ["Fill a clean cuvette with 10 mL aquarium water.", "Wipe it and take the C1 zero reading.", "Add one HI736 reagent packet.", "Shake continuously for 2 minutes.", "Hold the button to start the 3-minute countdown, then read the phosphorus result."], "tips": ["Enter the ppb result into the Readings page.", "Conversion used: ppb phosphorus × 3.066 ÷ 1000.", "Example: 20 ppb phosphorus = 0.061 ppm phosphate."], "mistakes": ["Entering the result directly as phosphate ppm", "Waiting too long before starting the timer", "Powder stuck around the neck or cap"]}, {"code": "HI780", "name": "Marine pH Tester", "image": "", "key": "ph", "unit": "pH", "summary": "A digital probe used for quick pH spot checks alongside the Seneye trend.", "range": "6.3–8.6 pH", "reagent": "pH 7.01 / 10.01 buffers", "frequency": "Weekly", "steps": ["Rinse the probe with RODI water.", "Blot gently—do not rub the glass sensor.", "Immerse the probe in a clean aquarium-water sample.", "Stir gently and wait until the reading stabilizes.", "Rinse and return the cap with storage solution."], "tips": ["Keep the probe hydrated.", "Calibrate with fresh buffers.", "Do not store the probe in RODI water."], "mistakes": ["Allowing the probe to dry", "Using expired or contaminated calibration buffer", "Rubbing the sensing bulb"]}, {"code": "HI98319", "name": "Marine Salinity Tester", "image": "./images/hanna_hi98319.jpg", "key": "sal", "unit": "ppt", "summary": "Measures salinity digitally in ppt or specific gravity.", "range": "0.0–70.0 ppt", "reagent": "35.00 ppt calibration solution", "frequency": "Every water change and weekly", "steps": ["Rinse the probe with RODI water.", "Immerse the probe in the aquarium-water sample.", "Stir gently to release any trapped bubbles.", "Wait for the reading to stabilize.", "Rinse after use and dry the exterior."], "tips": ["Calibrate with 35.00 ppt standard.", "Match new saltwater to the aquarium before a water change.", "Use ppt for the clearest comparison."], "mistakes": ["Air bubbles on the sensor", "Calibrating with tank water", "Testing a very small sample that changes temperature quickly"]}];
 
+const verifiedProductImages={"AI Nero 3": "./images/nero3.jpg", "Maxspect Gyre XF330 Cloud ×2": "./images/gyre_xf330.jpg", "AquaMaxx HF-M HOB Multi Filter": "./images/aquamaxx_hfm_logo_free.jpg", "AquaMaxx FR-S reactor": "./images/aquamaxx_frs_logo_free.jpg", "Helio 200W PTC heater": "./images/helio_heater.jpg", "Seneye": "./images/seneye.jpg"};
+const verifiedTesterImages={"HI772": "./images/hanna_hi772.jpg", "HI758U": "./images/hanna_hi758.jpg", "HI783": "./images/hanna_hi783.jpg", "HI782": "./images/hanna_hi782.jpg", "HI736": "./images/hanna_hi736.jpg", "HI98319": "./images/hanna_hi98319.jpg"};
+const memoryStorage={};
+function safeGet(key,fallback){
+ try{
+  const value=window.localStorage.getItem(key);
+  return value===null?fallback:value;
+ }catch(err){
+  console.warn("Persistent storage is unavailable; using this session only.",err);
+  return Object.prototype.hasOwnProperty.call(memoryStorage,key)?memoryStorage[key]:fallback;
+ }
+}
+function safeSet(key,value){
+ memoryStorage[key]=String(value);
+ try{
+  window.localStorage.setItem(key,String(value));
+  return true;
+ }catch(err){
+  console.warn("Persistent storage is unavailable; data will remain for this open session.",err);
+  return false;
+ }
+}
+function safeJson(key,fallback){
+ try{return JSON.parse(safeGet(key,JSON.stringify(fallback)))}catch(err){console.warn("Invalid saved data reset for",key,err);return fallback}
+}
 let state={
- readings:JSON.parse(localStorage.getItem("reefReadings")||"[]"),
- tasks:JSON.parse(localStorage.getItem("reefTasks")||JSON.stringify(defaultTasks.map((x,i)=>({...x,done:false,id:i})))),
+ readings:safeJson("reefReadings",[]),
+ tasks:safeJson("reefTasks",defaultTasks.map((x,i)=>({...x,done:false,id:i}))),
 };
-function persist(){localStorage.setItem("reefReadings",JSON.stringify(state.readings));localStorage.setItem("reefTasks",JSON.stringify(state.tasks))}
+function persist(showWarning=false){
+ const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
+ const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
+ if(showWarning&&(!readingsSaved||!tasksSaved)){
+  alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
+ }
+ return true;
+}
 function showPage(id){
+ const page=document.getElementById(id);if(!page){console.warn("Unknown page:",id);return false}
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
  document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
- window.scrollTo({top:0,behavior:"smooth"});
+ window.scrollTo({top:0,behavior:"smooth"});return true;
+}
+function goToSection(pageId,sectionId){
+ if(!showPage(pageId))return;
+ setTimeout(()=>{const el=document.getElementById(sectionId)||document.getElementById(pageId);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})},80);
+}
+function itemQuantity(name){
+ const match=String(name).match(/[×x]\s*(\d+)/i);
+ return match?Number(match[1]):1;
+}
+function livestockCount(group){return livestock.filter(x=>x.group===group).reduce((sum,x)=>sum+itemQuantity(x.name),0)}
+function latestFullTest(){
+ const keys=["alk","ca","mg","no3","po4","ph","sal","temp"];
+ return [...state.readings].filter(r=>keys.every(k=>Number.isFinite(Number(r[k])))).sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")))[0]||null;
 }
 function initNav(){
  ["nav","mobileTabs"].forEach(cid=>{const c=document.getElementById(cid);pages.forEach(([id,label])=>{const b=document.createElement("button");b.textContent=label;b.dataset.page=id;b.onclick=()=>showPage(id);if(id==="dashboard")b.classList.add("active");c.appendChild(b)})});
@@ -124,16 +160,99 @@ function latest(){return [...state.readings].sort((a,b)=>new Date(b.date+"T"+b.t
 function mean(key){const v=state.readings.map(r=>Number(r[key])).filter(Number.isFinite);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
 function fmt(v,key){if(v==null||v==="")return "—";if(key==="po4")return Number(v).toFixed(3);if(["alk","ph","sal","temp"].includes(key))return Number(v).toFixed(2).replace(/0+$/,"").replace(/\.$/,"");return Math.round(v)}
 function statusClass(v,t){if(v==null)return "";return v>=t.min&&v<=t.max?"good":(v<t.min*.9||v>t.max*1.1?"bad":"warn")}
+function readingDate(r){
+ const d=new Date(`${r.date||""}T${r.time||"12:00"}`);
+ return Number.isNaN(d.getTime())?null:d;
+}
+function parameterHistory(key){
+ return state.readings
+  .filter(r=>Number.isFinite(Number(r[key]))&&readingDate(r))
+  .sort((a,b)=>readingDate(a)-readingDate(b));
+}
+function rangeConditionScore(value,t){
+ if(value>=t.min&&value<=t.max)return 100;
+ const span=t.max-t.min;
+ const distance=value<t.min?(t.min-value)/span:(value-t.max)/span;
+ if(distance<=.15)return 75;
+ if(distance<=.40)return 50;
+ if(distance<=.75)return 20;
+ return 0;
+}
+function trendDeduction(history,t){
+ if(history.length<2)return 0;
+ const current=Number(history[history.length-1][t.key]);
+ const previous=Number(history[history.length-2][t.key]);
+ const change=current-previous;
+ const span=t.max-t.min;
+ if(!Number.isFinite(change)||span<=0)return 0;
+ const movement=Math.abs(change)/span;
+ const center=(t.min+t.max)/2;
+ const movingAway=Math.abs(current-center)>Math.abs(previous-center);
+ if(!movingAway)return 0;
+ if(movement>=.50)return 25;
+ if(movement>=.25)return 15;
+ if(movement>=.10)return 5;
+ return 0;
+}
+function freshnessCap(lastReading,t){
+ const d=readingDate(lastReading);if(!d)return 0;
+ const ageDays=Math.max(0,(Date.now()-d.getTime())/86400000);
+ if(ageDays<=t.testDays)return 100;
+ if(ageDays<=t.testDays*2)return 85;
+ return 60;
+}
+function tankHealthScore(){
+ let earned=0,availableWeight=0;
+ Object.values(targets).forEach(t=>{
+  const history=parameterHistory(t.key);
+  if(!history.length)return;
+  const last=history[history.length-1];
+  const value=Number(last[t.key]);
+  let score=rangeConditionScore(value,t)-trendDeduction(history,t);
+  score=Math.max(0,Math.min(score,freshnessCap(last,t)));
+  earned+=score*t.weight;
+  availableWeight+=t.weight;
+ });
+ return availableWeight?Math.round(earned/availableWeight):null;
+}
 function renderDashboard(){
  const l=latest(); const k=document.getElementById("kpis");k.innerHTML="";
- Object.values(targets).forEach(t=>{const v=l?l[t.key]:null;const c=document.createElement("div");c.className="card kpi";c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;k.appendChild(c)});
- const ok=l&&Object.values(targets).every(t=>{const v=Number(l[t.key]);return Number.isFinite(v)&&v>=t.min&&v<=t.max});
- const sb=document.getElementById("statusBadge");sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral");
- document.getElementById("averages").innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${fmt(mean(t.key),t.key)} ${t.unit} average</div></div></div>`).join("");
+ // Each dashboard parameter card uses that parameter's newest saved result.
+ // This allows partial tests to update immediately without waiting for a full-panel reading.
+ Object.values(targets).forEach(t=>{
+  const newest=latestForKey(t.key);
+  const v=newest?newest[t.key]:null;
+  const c=document.createElement("div");
+  c.className="card kpi";
+  c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;
+  k.appendChild(c);
+ });
+ const ok=Object.values(targets).every(t=>{
+  const newest=latestForKey(t.key);
+  const v=newest?Number(newest[t.key]):NaN;
+  return Number.isFinite(v)&&v>=t.min&&v<=t.max;
+ });
+ const sb=document.getElementById("statusBadge");if(sb){sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral")}
  const pending=state.tasks.filter(t=>!t.done).slice(0,5);document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks complete.</div>';document.getElementById("taskCount").textContent=`${state.tasks.filter(t=>!t.done).length} remaining`;
  document.getElementById("currentAfr").textContent=l&&l.afr?`${l.afr} mL/day`:"Not set";
- drawLine("alkChart",state.readings.slice(-14).map((r,i)=>({x:i,y:Number(r.alk),label:r.date})).filter(p=>Number.isFinite(p.y)),["#52d2c7"]);
- drawMulti("nutrientChart",state.readings.slice(-14),[{key:"no3",color:"#67b8ff",scale:1},{key:"po4",color:"#f1c86b",scale:100}]);
+ const health=tankHealthScore();
+ const healthDisplay=health==null?0:health;
+ const healthScoreEl=document.getElementById("healthScore");
+ if(healthScoreEl)healthScoreEl.textContent=healthDisplay+"%";
+ const ring=document.getElementById("healthRingLarge");if(ring)ring.style.setProperty("--score",healthDisplay);
+ const healthLabel=health==null?"Waiting for readings":health>=90?"Excellent":health>=75?"Good":health>=55?"Needs Attention":"At Risk";
+ document.getElementById("healthLabel").textContent=healthLabel;
+ document.getElementById("glanceStatus").textContent=health==null?"Waiting for readings":health>=75?"All critical levels stable":"Review water parameters";
+ const full=latestFullTest();document.getElementById("lastFullTest").textContent=full?`${full.date}${full.time?" • "+full.time:""}`:"No complete test saved";
+ document.getElementById("healthUpdated").textContent=l?`Updated: ${l.date}${l.time?" • "+l.time:""}`:"Updated: No readings";
+ document.getElementById("glanceFish").textContent=livestockCount("Fish");
+ document.getElementById("glanceInverts").textContent=livestockCount("Invertebrate");
+ document.getElementById("glanceCorals").textContent=livestockCount("Coral");
+ const doneCount=state.tasks.filter(t=>t.done).length;
+ document.getElementById("maintenanceScore").textContent=Math.round((doneCount/Math.max(1,state.tasks.length))*100)+"%";
+ document.getElementById("afrSummary").textContent=l&&l.afr?`${l.afr} mL`:"—";
+ renderMajorElements(state.readings.slice(-14));
+ renderNutrients(state.readings.slice(-14));
 }
 function drawLine(id,pts,colors){
  const el=document.getElementById(id);if(!pts.length){el.innerHTML='<div class="empty">Add readings to see a trend.</div>';return}
@@ -142,33 +261,176 @@ function drawLine(id,pts,colors){
  const path=pts.map((pt,i)=>(i?"L":"M")+x(i)+","+y(pt.y)).join(" ");
  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${h-p}"/><path d="${path}" class="line"/>${pts.map((pt,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(pt.y)}" r="4"><title>${pt.label}: ${pt.y}</title></circle>`).join("")}<text class="labeltxt" x="${p}" y="18">${max.toFixed(2)}</text><text class="labeltxt" x="${p}" y="${h-5}">${min.toFixed(2)}</text></svg>`;
 }
-function drawMulti(id,rows,series){
- const pts=rows.map((r,i)=>({i,...r}));const vals=[];series.forEach(s=>pts.forEach(p=>{const v=Number(p[s.key]);if(Number.isFinite(v))vals.push(v*s.scale)}));
- const el=document.getElementById(id);if(!vals.length){el.innerHTML='<div class="empty">Add nitrate and phosphorus readings.</div>';return}
- const w=700,h=240,p=30,min=0,max=Math.max(...vals,1),x=i=>p+(w-2*p)*(i/Math.max(1,pts.length-1)),y=v=>h-p-(h-2*p)*(v/max);
- let svg=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/>`;
- series.forEach(s=>{const valid=pts.map((pt,i)=>({i,v:Number(pt[s.key])*s.scale,date:pt.date})).filter(q=>Number.isFinite(q.v));if(valid.length){svg+=`<path d="${valid.map((q,j)=>(j?"L":"M")+x(q.i)+","+y(q.v)).join(" ")}" fill="none" stroke="${s.color}" stroke-width="3"/>`}});
- svg+=`<text class="labeltxt" x="${p}" y="18">NO₃ ppm • PO₄ ×100</text></svg>`;el.innerHTML=svg;
+
+function trendMeta(rows,key,decimals,unit){
+ const vals=rows.filter(r=>r&&r[key]!==null&&Number.isFinite(Number(r[key])));
+ if(!vals.length)return {html:'<span class="change neutral">No prior reading</span>',label:'No prior reading'};
+ if(vals.length<2)return {html:'<span class="change neutral">First reading</span>',label:'First reading'};
+ const current=Number(vals[vals.length-1][key]);
+ const previous=Number(vals[vals.length-2][key]);
+ const diff=current-previous;
+ const threshold=Math.pow(10,-decimals)/2;
+ if(Math.abs(diff)<=threshold)return {html:'<span class="change stable">→ Stable</span>',label:'Stable'};
+ const sign=diff>0?'+':'';
+ const cls=diff>0?'up':'down';
+ const arrow=diff>0?'↑':'↓';
+ return {html:`<span class="change ${cls}">${arrow} ${sign}${diff.toFixed(decimals)} ${unit} since last</span>`,label:`${diff>0?'Up':'Down'} ${Math.abs(diff).toFixed(decimals)} ${unit}`};
 }
-function openReadingForm(){document.getElementById("readingForm").style.display="block";const d=new Date();rDate.value=d.toISOString().slice(0,10);rTime.value=d.toTimeString().slice(0,5)}
-function closeReadingForm(){document.getElementById("readingForm").style.display="none"}
-function updateConversion(){rPo4.value=rPpb.value?(Number(rPpb.value)*3.066/1000).toFixed(3):""}
+
+function renderMajorElements(rows){
+ const el=document.getElementById("majorElementsChart");
+ const summary=document.getElementById("majorSummary");
+ if(!el||!summary)return;
+ const config=[
+  {key:"alk",label:"Alkalinity",short:"Alk",unit:"dKH",color:"#4fd6d0",soft:"rgba(79,214,208,.12)",min:6,max:11,targetMin:7,targetMax:9,decimals:1},
+  {key:"ca",label:"Calcium",short:"Ca",unit:"ppm",color:"#ff9d45",soft:"rgba(255,157,69,.10)",min:300,max:600,targetMin:400,targetMax:460,decimals:0},
+  {key:"mg",label:"Magnesium",short:"Mg",unit:"ppm",color:"#a875ff",soft:"rgba(168,117,255,.10)",min:900,max:1800,targetMin:1280,targetMax:1420,decimals:0}
+ ];
+ const chronological=[...rows].filter(Boolean).sort((a,b)=>readingDate(a)-readingDate(b));
+ const historyFor=key=>chronological.filter(r=>r[key]!==null&&Number.isFinite(Number(r[key]))).slice(-12);
+ const formatDateShort=r=>{const d=readingDate(r);return d?d.toLocaleDateString([], {month:"short",day:"numeric"}):""};
+ summary.innerHTML=config.map(c=>{
+  const h=historyFor(c.key),last=h[h.length-1],value=last?Number(last[c.key]):null,trend=trendMeta(h,c.key,c.decimals,c.unit);
+  const previous=h.length>1?h[h.length-2]:null;
+  return `<div class="major-stat" style="--element-color:${c.color}">
+   <span><i style="background:${c.color}"></i>${c.label}</span>
+   <strong>${value===null?"—":value.toFixed(c.decimals)} <em>${value===null?"":c.unit}</em></strong>
+   ${trend.html}
+   <small>${previous?`vs last (${formatDateShort(previous)}) • `:""}Target: ${c.targetMin}–${c.targetMax} ${c.unit}</small>
+  </div>`;
+ }).join("");
+ const allDates=[...new Set(config.flatMap(c=>historyFor(c.key).map(r=>{
+  const d=readingDate(r); return d?d.toISOString().slice(0,10):"";
+ })).filter(Boolean))].sort().slice(-12);
+ if(!allDates.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see trends.</div>';return}
+ const dateIndex=new Map(allDates.map((d,i)=>[d,i]));
+ const w=760,h=300,left=54,right=92,top=42,bottom=52,n=Math.max(1,allDates.length-1);
+ const x=i=>left+(w-left-right)*(i/n);
+ const yFor=c=>v=>h-bottom-(h-top-bottom)*Math.max(0,Math.min(1,(v-c.min)/(c.max-c.min)));
+ const pointSets=config.map(c=>{
+  const y=yFor(c);
+  const pts=historyFor(c.key).map(r=>{
+   const d=readingDate(r),iso=d?d.toISOString().slice(0,10):"";
+   return {i:dateIndex.get(iso),v:Number(r[c.key]),date:formatDateShort(r)};
+  }).filter(q=>Number.isInteger(q.i));
+  return {c,y,pts};
+ });
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends">`;
+ for(let i=0;i<=4;i++){const gy=top+(h-top-bottom)*i/4;svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}
+ // Individual target bands use their own scales; subtle opacity keeps the chart readable.
+ pointSets.forEach(({c,y})=>{
+  const bandTop=y(c.targetMax),bandBottom=y(c.targetMin);
+  svg+=`<rect x="${left}" y="${bandTop}" width="${w-left-right}" height="${Math.max(2,bandBottom-bandTop)}" fill="${c.soft}" rx="4"><title>${c.label} target ${c.targetMin}–${c.targetMax} ${c.unit}</title></rect>`;
+ });
+ svg+=`<text class="major-axis alk-axis" x="${left}" y="18">Alk (dKH)</text>`;
+ svg+=`<text class="major-axis ca-axis" text-anchor="end" x="${w-right+42}" y="18">Ca (ppm)</text>`;
+ svg+=`<text class="major-axis mg-axis" text-anchor="end" x="${w-3}" y="18">Mg (ppm)</text>`;
+ // Axis labels: alkalinity left, calcium near right, magnesium far right.
+ [11,9,7,6].forEach(v=>svg+=`<text class="major-axis alk-axis" text-anchor="end" x="${left-8}" y="${yFor(config[0])(v)+4}">${v}</text>`);
+ [600,500,400,300].forEach(v=>svg+=`<text class="major-axis ca-axis" text-anchor="start" x="${w-right+8}" y="${yFor(config[1])(v)+4}">${v}</text>`);
+ [1800,1500,1200,900].forEach(v=>svg+=`<text class="major-axis mg-axis" text-anchor="start" x="${w-45}" y="${yFor(config[2])(v)+4}">${v}</text>`);
+ pointSets.forEach(({c,y,pts})=>{
+  if(!pts.length)return;
+  const path=pts.length===1?`M${x(pts[0].i)-1},${y(pts[0].v)} L${x(pts[0].i)+1},${y(pts[0].v)}`:pts.map((q,i)=>(i?"L":"M")+x(q.i)+","+y(q.v)).join(" ");
+  svg+=`<path d="${path}" fill="none" stroke="${c.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v)}" r="4" fill="${c.color}" stroke="#0a202a" stroke-width="2"><title>${q.date}: ${c.label} ${q.v.toFixed(c.decimals)} ${c.unit}</title></circle>`).join("");
+ });
+ const tickIndices=allDates.length<=6?allDates.map((_,i)=>i):[0,Math.round(n/2),n];
+ [...new Set(tickIndices)].forEach(i=>{
+  const d=new Date(allDates[i]+"T12:00:00");
+  svg+=`<text class="major-date" text-anchor="middle" x="${x(i)}" y="${h-18}">${d.toLocaleDateString([], {month:"short",day:"numeric"})}</text>`;
+ });
+ svg+=`<g class="major-chart-legend" transform="translate(${left},${h-2})">${config.map((c,i)=>`<g transform="translate(${i*190},0)"><line x1="0" y1="-4" x2="24" y2="-4" stroke="${c.color}" stroke-width="4" stroke-linecap="round"/><circle cx="12" cy="-4" r="4" fill="${c.color}"/><text x="32" y="0">${c.label} (${c.unit})</text></g>`).join("")}</g>`;
+ svg+='</svg>';
+ el.innerHTML=svg;
+}
+
+function renderNutrients(rows){
+ const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
+ const el=document.getElementById("nutrientChart");
+ const summary=document.getElementById("nutrientSummary");
+ if(!el||!summary)return;
+ const no3Row=[...clean].reverse().find(r=>r.no3!==null&&Number.isFinite(Number(r.no3)));
+ const po4Row=[...clean].reverse().find(r=>r.po4!==null&&Number.isFinite(Number(r.po4)));
+ const no3Latest=no3Row?Number(no3Row.no3):null;
+ const po4Latest=po4Row?Number(po4Row.po4):null;
+ const no3Trend=trendMeta(clean,"no3",1,"ppm");
+ const po4Trend=trendMeta(clean,"po4",3,"ppm");
+ summary.innerHTML=`<div class="nutrient-stat"><span>Nitrate</span><strong style="color:var(--blue)">${no3Latest===null?"—":no3Latest.toFixed(1)+" ppm"}</strong>${no3Trend.html}<small>Target 5–15 ppm</small></div><div class="nutrient-stat"><span>Phosphate</span><strong style="color:var(--gold)">${po4Latest===null?"—":po4Latest.toFixed(3)+" ppm"}</strong>${po4Trend.html}<small>Target 0.03–0.10 ppm</small></div>`;
+ const no3=clean.map((r,i)=>({i,v:r.no3===null?null:Number(r.no3),date:r.date})).filter(x=>Number.isFinite(x.v));
+ const po4=clean.map((r,i)=>({i,v:r.po4===null?null:Number(r.po4),date:r.date})).filter(x=>Number.isFinite(x.v));
+ if(!no3.length&&!po4.length){el.innerHTML='<div class="empty">Add nitrate or phosphate readings to see nutrient trends.</div>';return}
+ const w=700,h=240,left=42,right=48,top=24,bottom=32,n=Math.max(1,clean.length-1);
+ const no3Max=Math.max(20,...no3.map(x=>x.v))*1.05;
+ const po4Max=Math.max(.12,...po4.map(x=>x.v))*1.05;
+ const x=i=>left+(w-left-right)*(i/n),yNo3=v=>h-bottom-(h-top-bottom)*(v/no3Max),yPo4=v=>h-bottom-(h-top-bottom)*(v/po4Max);
+ const path=(arr,yfn)=>arr.map((q,j)=>(j?"L":"M")+x(q.i)+","+yfn(q.v)).join(" ");
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Nitrate and phosphate trends with target ranges">`;
+ for(let i=0;i<=4;i++){const y=top+(h-top-bottom)*i/4;svg+=`<line class="nutrient-grid" x1="${left}" y1="${y}" x2="${w-right}" y2="${y}"/>`;}
+ const no3BandTop=yNo3(15),no3BandBottom=yNo3(5);
+ const po4BandTop=yPo4(.10),po4BandBottom=yPo4(.03);
+ svg+=`<rect x="${left}" y="${no3BandTop}" width="${w-left-right}" height="${Math.max(2,no3BandBottom-no3BandTop)}" fill="rgba(103,184,255,.10)" rx="4"><title>Nitrate target 5–15 ppm</title></rect>`;
+ svg+=`<rect x="${left}" y="${po4BandTop}" width="${w-left-right}" height="${Math.max(2,po4BandBottom-po4BandTop)}" fill="rgba(241,200,107,.10)" rx="4"><title>Phosphate target 0.03–0.10 ppm</title></rect>`;
+ svg+=`<text class="nutrient-axis-no3" x="${left}" y="14">NO₃ ppm</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-right}" y="14">PO₄ ppm</text>`;
+ svg+=`<text class="nutrient-axis-no3" x="4" y="${top+4}">${no3Max.toFixed(1)}</text><text class="nutrient-axis-no3" x="18" y="${h-bottom+4}">0</text>`;
+ svg+=`<text class="nutrient-axis-po4" text-anchor="end" x="${w-3}" y="${top+4}">${po4Max.toFixed(3)}</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-18}" y="${h-bottom+4}">0</text>`;
+ if(no3.length)svg+=`<path d="${path(no3,yNo3)}" fill="none" stroke="#67b8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${no3.map(q=>`<circle cx="${x(q.i)}" cy="${yNo3(q.v)}" r="3.5" fill="#67b8ff"><title>${q.date}: NO3 ${q.v} ppm</title></circle>`).join("")}`;
+ if(po4.length)svg+=`<path d="${path(po4,yPo4)}" fill="none" stroke="#f1c86b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${po4.map(q=>`<circle cx="${x(q.i)}" cy="${yPo4(q.v)}" r="3.5" fill="#f1c86b"><title>${q.date}: PO4 ${q.v} ppm</title></circle>`).join("")}`;
+ svg+='</svg>';el.innerHTML=svg;
+}
+function readingField(id){return document.getElementById(id)}
+function openReadingForm(){
+ readingField("readingForm").style.display="block";
+ const d=new Date();
+ readingField("rDate").value=d.toISOString().slice(0,10);
+ readingField("rTime").value=d.toTimeString().slice(0,5);
+}
+function closeReadingForm(){readingField("readingForm").style.display="none"}
+function updateConversion(){
+ const ppb=readingField("rPpb");
+ const po4=readingField("rPo4");
+ po4.value=ppb.value?(Number(ppb.value)*3.066/1000).toFixed(3):"";
+}
 function saveReading(){
- const r={id:Date.now(),date:rDate.value,time:rTime.value,alk:num(rAlk.value),ca:num(rCa.value),mg:num(rMg.value),no3:num(rNo3.value),ppb:num(rPpb.value),po4:num(rPo4.value),ph:num(rPh.value),sal:num(rSal.value),temp:num(rTemp.value),afr:num(rAfr.value),notes:rNotes.value};
- if(!r.date){alert("Please choose a date.");return} state.readings.push(r);persist();closeReadingForm();renderAll();
+ const r={
+  id:Date.now(),
+  date:readingField("rDate").value,
+  time:readingField("rTime").value,
+  alk:num(readingField("rAlk").value),
+  ca:num(readingField("rCa").value),
+  mg:num(readingField("rMg").value),
+  no3:num(readingField("rNo3").value),
+  ppb:num(readingField("rPpb").value),
+  po4:num(readingField("rPo4").value),
+  ph:num(readingField("rPh").value),
+  sal:num(readingField("rSal").value),
+  temp:num(readingField("rTemp").value),
+  afr:num(readingField("rAfr").value),
+  notes:readingField("rNotes").value.trim()
+ };
+ if(!r.date){alert("Please choose a date.");return}
+ const measured=[r.alk,r.ca,r.mg,r.no3,r.ppb,r.po4,r.ph,r.sal,r.temp,r.afr].filter(v=>v!==null);
+ if(!measured.length){alert("Enter at least one test result before saving.");return}
+ if(measured.some(v=>!Number.isFinite(v))){alert("One or more results are not valid numbers.");return}
+ state.readings.push(r);
+ persist(true);
+ ["rAlk","rCa","rMg","rNo3","rPpb","rPo4","rPh","rSal","rTemp","rAfr","rNotes"].forEach(id=>readingField(id).value="");
+ closeReadingForm();
+ renderAll();
+ showPage("readings");
 }
-function num(v){return v===""?null:Number(v)}
+function num(v){if(v==null||String(v).trim()==="")return null;const n=Number(v);return Number.isFinite(n)?n:NaN}
 function renderReadings(){
  const rows=[...state.readings].sort((a,b)=>new Date(b.date+"T"+b.time)-new Date(a.date+"T"+a.time));
  document.getElementById("readingRows").innerHTML=rows.length?rows.map(r=>`<tr><td>${r.date}<br><span style="color:var(--muted)">${r.time||""}</span></td><td>${fmt(r.alk,"alk")}</td><td>${fmt(r.ca,"ca")}</td><td>${fmt(r.mg,"mg")}</td><td>${fmt(r.no3,"no3")}</td><td>${fmt(r.ppb,"ppb")}</td><td>${fmt(r.po4,"po4")}</td><td>${fmt(r.ph,"ph")}</td><td>${fmt(r.sal,"sal")}</td><td>${fmt(r.temp,"temp")}</td><td>${r.afr??"—"}</td><td>${r.notes||""}</td><td><button class="btn danger" onclick="deleteReading(${r.id})">Delete</button></td></tr>`).join(""):'<tr><td colspan="13" class="empty">No readings yet.</td></tr>';
 }
-function deleteReading(id){if(confirm("Delete this reading?")){state.readings=state.readings.filter(r=>r.id!==id);persist();renderAll()}}
+function deleteReading(id){if(confirm("Delete this reading?")){state.readings=state.readings.filter(r=>r.id!==id);persist(true);renderAll()}}
 function taskHtml(t){return `<div class="task ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${t.id})"><div><div class="task-title">${t.title}</div><div class="task-meta">${t.meta}</div></div></div>`}
 function renderTasks(){document.getElementById("taskList").innerHTML=state.tasks.map(taskHtml).join("")}
-function toggleTask(id){const t=state.tasks.find(x=>x.id===id);if(t)t.done=!t.done;persist();renderAll()}
-function resetTasks(){state.tasks=defaultTasks.map((x,i)=>({...x,done:false,id:i}));persist();renderAll()}
-function photoStore(){return JSON.parse(localStorage.getItem("reefPhotos")||"{}")}
-function savePhotoStore(s){localStorage.setItem("reefPhotos",JSON.stringify(s))}
+function toggleTask(id){const t=state.tasks.find(x=>x.id===id);if(t){t.done=!t.done;persist(true);renderAll()}}
+function resetTasks(){if(confirm("Reset all maintenance tasks for the month?")){state.tasks=defaultTasks.map((x,i)=>({...x,done:false,id:i}));persist(true);renderAll()}}
+function photoStore(){return safeJson("reefPhotos",{})}
+function savePhotoStore(s){return safeSet("reefPhotos",JSON.stringify(s))}
 function mediaKey(group,name){return `${group}:${name}`}
 function placeholderFor(group,name){
  const n=name.toLowerCase();
@@ -209,10 +471,10 @@ function setItemPhoto(event,key){
  const file=event.target.files[0]; if(!file)return;
  if(file.size>5*1024*1024){alert("Please choose an image under 5 MB.");event.target.value="";return}
  const reader=new FileReader();
- reader.onload=()=>{const store=photoStore();store[key]=reader.result;savePhotoStore(store);renderAll()};
+ reader.onload=()=>{const store=photoStore();store[key]=reader.result;const saved=savePhotoStore(store);renderAll();event.target.value="";if(!saved)alert("The photo is available in this open session, but permanent browser storage is blocked.")};
  reader.readAsDataURL(file);
 }
-function removeItemPhoto(key){const s=photoStore();delete s[key];savePhotoStore(s);renderAll()}
+function removeItemPhoto(key){const s=photoStore();delete s[key];const saved=savePhotoStore(s);renderAll();if(!saved)alert("The photo was removed for this open session, but permanent browser storage is blocked.")}
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function escapeAttr(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
 function factsHtml(facts){
@@ -224,7 +486,7 @@ function livestockCard(x){
  const src=custom||svgData(x.kind,x.name,x.accent);
  const inputId=`photo-${btoa(unescape(encodeURIComponent(mediaKey("livestock",x.name)))).replace(/=/g,"")}`;
  return `<article class="profile-card">
-   <div class="profile-image remote-photo"><img data-wiki="${escapeHtml(wiki||"")}" class="${custom?"":"loading"}" src="${src}" alt="${escapeHtml(x.name)}"></div>
+   <div class="profile-image remote-photo"><img data-wiki="${escapeHtml(wiki||x.scientific||x.name)}" src="${src}" alt="${escapeHtml(x.name)}" onerror="this.onerror=null;this.src=svgData(\'${x.kind}\',\'${escapeAttr(x.name)}\',\'${x.accent}\')"></div>
    <div class="profile-content">
     <div class="profile-kicker">${escapeHtml(x.group)}${x.scientific?` • ${escapeHtml(x.scientific)}`:""}</div>
     <h4>${escapeHtml(x.name)}</h4>
@@ -240,7 +502,7 @@ function livestockCard(x){
       <input class="photo-input" id="${inputId}" type="file" accept="image/*" capture="environment" onchange="setItemPhoto(event,'${escapeAttr(mediaKey("livestock",x.name))}')">
       ${custom?`<button class="btn danger" onclick="removeItemPhoto('${escapeAttr(mediaKey("livestock",x.name))}')">Use generic image</button>`:""}
     </div>
-    <a class="source-link" target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/${encodeURIComponent(wiki||x.scientific)}">Photo/source details</a>
+    <a class="source-link" target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/${encodeURIComponent(wiki||x.scientific)}">Species reference</a>
     <div class="ref-image-note">Real reference photo loads from Wikipedia/Wikimedia when online. Your own photo always takes priority.</div>
    </div>
  </article>`;
@@ -248,10 +510,10 @@ function livestockCard(x){
 function equipmentCard(x){
  const custom=photoStore()[mediaKey("equipment",x.name)];
  const source=equipmentSources[x.name];
- const src=custom||(source?pagePreview(source):svgData("equipment",x.name,x.accent));
+ const src=custom||verifiedProductImages[x.name]||svgData("equipment",x.name,x.accent);
  const inputId=`photo-${btoa(unescape(encodeURIComponent(mediaKey("equipment",x.name)))).replace(/=/g,"")}`;
  return `<article class="profile-card">
-   <div class="profile-image"><img src="${src}" alt="${escapeHtml(x.name)}"></div>
+   <div class="profile-image"><img src="${src}" alt="${escapeHtml(x.name)}" onerror="this.onerror=null;this.src=svgData(\'equipment\',\'${escapeAttr(x.name)}\',\'${x.accent}\')"></div>
    <div class="profile-content">
     <div class="profile-kicker">${escapeHtml(x.group)}</div>
     <h4>${escapeHtml(x.name)}</h4>
@@ -268,47 +530,110 @@ function equipmentCard(x){
    </div>
  </article>`;
 }
-function testerCard(t){
- const key=mediaKey("tester",`${t.code} — ${t.name}`),custom=photoStore()[key],source=testerSources[t.code],src=custom||(source?pagePreview(source):svgData("tester",t.code,t.accent));
- const inputId=`photo-${btoa(unescape(encodeURIComponent(key))).replace(/=/g,"")}`;
- return `<article class="profile-card">
-  <div class="profile-image"><img src="${src}" alt="${escapeHtml(t.code+" "+t.name)}"></div>
-  <div class="profile-content">
-    <div class="profile-kicker">${escapeHtml(t.code)}</div>
-    <h4>${escapeHtml(t.name)}</h4>
-    <div class="profile-summary">${escapeHtml(t.summary)}</div>
-    <details class="details" open><summary>Quick instructions</summary>
-      <p><strong>Workflow:</strong> ${escapeHtml(t.workflow)}</p>
-      <p><strong>Accuracy tips:</strong> ${escapeHtml(t.tips)}</p>
-    </details>
-    <div class="media-actions">
-      <label class="btn primary" for="${inputId}">${custom?"Change your photo":"Add your photo"}</label>
-      <input class="photo-input" id="${inputId}" type="file" accept="image/*" capture="environment" onchange="setItemPhoto(event,'${escapeAttr(key)}')">
-      ${custom?`<button class="btn danger" onclick="removeItemPhoto('${escapeAttr(key)}')">Use official preview</button>`:""}
-    </div>
-    ${source?`<a class="source-link" target="_blank" rel="noopener" href="${source}">Open Hanna product page</a>`:""}
-    <div class="ref-image-note">Online preview of the official Hanna page; your own photo always takes priority.</div>
-  </div>
- </article>`;
-}
-function loadLivestockPhotos(){
+
+function loadRemotePhotos(){
  document.querySelectorAll('img[data-wiki]').forEach(img=>{
-  const title=img.dataset.wiki;if(!title||img.dataset.loaded)return;
-  img.dataset.loaded='1';
+  const title=img.dataset.wiki;
+  if(!title||img.dataset.remoteLoaded||String(img.src).startsWith("data:image")===false)return;
+  img.dataset.remoteLoaded="1";
   fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
-   .then(r=>r.ok?r.json():Promise.reject())
-   .then(d=>{const u=d.thumbnail&&d.thumbnail.source;if(u){img.src=u;img.classList.remove('loading')}})
-   .catch(()=>img.classList.remove('loading'));
+   .then(r=>r.ok?r.json():Promise.reject(new Error("Photo lookup failed")))
+   .then(d=>{const url=d.thumbnail&&d.thumbnail.source;if(url)img.src=url})
+   .catch(()=>{});
  });
 }
 function renderTank(){
  document.getElementById("targetList").innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${t.min}–${t.max} ${t.unit}</div></div></div>`).join("");
- document.getElementById("livestock").innerHTML=livestock.map(livestockCard).join("");
+ const groups=[
+  {name:"Fish",id:"fish-section",title:"Fish"},
+  {name:"Invertebrate",id:"invertebrate-section",title:"Invertebrates"},
+  {name:"Coral",id:"coral-section",title:"Corals"}
+ ];
+ document.getElementById("livestock").innerHTML=groups.map(g=>`<section class="livestock-section" id="${g.id}"><h4 class="livestock-group-title">${g.title}</h4><div class="media-grid">${livestock.filter(x=>x.group===g.name).map(livestockCard).join("")}</div></section>`).join("");
  document.getElementById("equipment").innerHTML=equipment.map(equipmentCard).join("");
- setTimeout(loadLivestockPhotos,0);
+ loadRemotePhotos();
 }
-function renderTesters(){document.getElementById("testerList").innerHTML=testers.map(testerCard).join("")}
-function exportData(){const bundle={...state,photos:photoStore()};const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="reef-control-center-backup.json";a.click()}
-function importData(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(d.readings)state.readings=d.readings;if(d.tasks)state.tasks=d.tasks;if(d.photos)savePhotoStore(d.photos);persist();renderAll();alert("Backup imported.")}catch{alert("That file could not be imported.")}};rd.readAsText(f)}
+function latestForKey(key){
+ const rows=[...state.readings].filter(r=>Number.isFinite(Number(r[key]))).sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")));
+ return rows[0]||null;
+}
+function averageForKey(key){
+ const vals=state.readings.map(r=>Number(r[key])).filter(Number.isFinite);
+ return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+}
+function daysSince(dateString){
+ if(!dateString)return null;
+ return Math.floor((Date.now()-new Date(dateString+"T12:00:00").getTime())/86400000);
+}
+function testerCard(t){
+ const latestRow=latestForKey(t.key);
+ const avg=averageForKey(t.key);
+ const lastValue=latestRow?latestRow[t.key]:null;
+ const customKey=mediaKey("tester",`${t.code} — ${t.name}`);
+ const custom=photoStore()[customKey];
+ const image=custom||t.image||verifiedTesterImages[t.code]||svgData("tester",t.code,t.accent||"#52d2c7");
+ const lastLabel=latestRow?latestRow.date:"Never";
+ const count=state.readings.filter(r=>Number.isFinite(Number(r[t.key]))).length;
+ return `<article class="tester-card">
+   <div class="tester-hero"><img src="${image}" alt="${escapeHtml(t.code+" "+t.name)}" onerror="this.onerror=null;this.src=svgData('tester','${escapeAttr(t.code)}','#52d2c7')"></div>
+   <div class="tester-body">
+    <span class="tester-code">${escapeHtml(t.code)}</span>
+    <h3>${escapeHtml(t.name)}</h3>
+    <div class="tester-summary">${escapeHtml(t.summary)}</div>
+    <div class="tester-metrics">
+      <div class="tester-metric"><b>Latest</b><span>${lastValue==null?"—":fmt(lastValue,t.key)} ${escapeHtml(t.unit)}</span></div>
+      <div class="tester-metric"><b>Average</b><span>${avg==null?"—":fmt(avg,t.key)} ${escapeHtml(t.unit)}</span></div>
+      <div class="tester-metric"><b>Tests</b><span>${count}</span></div>
+      <div class="tester-metric"><b>Last tested</b><span>${escapeHtml(lastLabel)}</span></div>
+      <div class="tester-metric"><b>Range</b><span>${escapeHtml(t.range)}</span></div>
+      <div class="tester-metric"><b>Reagent</b><span>${escapeHtml(t.reagent)}</span></div>
+    </div>
+    <div class="tester-section"><h4>Recommended frequency</h4><div class="tester-summary">${escapeHtml(t.frequency)}</div></div>
+    <details class="details"><summary>Step-by-step instructions</summary><div class="steps">${t.steps.map(s=>`<div class="step">${escapeHtml(s)}</div>`).join("")}</div></details>
+    <details class="details"><summary>Accuracy tips</summary><ul>${t.tips.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>
+    <details class="details"><summary>Common mistakes</summary><div class="warning-list">${t.mistakes.map(x=>`<div class="warning-item">⚠ ${escapeHtml(x)}</div>`).join("")}</div></details>
+    <div class="quick-actions">
+      <button class="btn primary" onclick="showPage('readings');openReadingForm()">Log reading</button>
+      <label class="btn">Use your photo<input class="photo-input" type="file" accept="image/*" capture="environment" onchange="setItemPhoto(event,'${escapeAttr(customKey)}')"></label>
+      ${custom?`<button class="btn danger" onclick="removeItemPhoto('${escapeAttr(customKey)}')">Restore product photo</button>`:""}
+    </div>
+   </div>
+  </article>`;
+}
+function renderTesters(){
+ const list=document.getElementById("testerList");
+ list.innerHTML=testers.map(testerCard).join("");
+ const sessions=state.readings.length;
+ document.getElementById("testsLogged").textContent=sessions;
+ const sorted=[...state.readings].sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")));
+ document.getElementById("lastTestDate").textContent=sorted[0]?sorted[0].date:"—";
+ const priorities=testers.map(t=>({t,last:latestForKey(t.key),days:daysSince(latestForKey(t.key)?.date)}));
+ priorities.sort((a,b)=>(b.days??9999)-(a.days??9999));
+ document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
+}
+function exportData(){
+ const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,photos:photoStore()};
+ const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function importData(e){
+ const input=e.target,f=input.files&&input.files[0];if(!f)return;
+ const rd=new FileReader();
+ rd.onload=()=>{try{
+  const d=JSON.parse(rd.result);
+  if(!d||!Array.isArray(d.readings)||!Array.isArray(d.tasks))throw new Error("Invalid backup format");
+  state.readings=d.readings;state.tasks=d.tasks;
+  if(d.photos&&typeof d.photos==="object")savePhotoStore(d.photos);
+  persist(true);renderAll();alert("Backup imported.");
+ }catch(err){console.error(err);alert("That file is not a valid Aquarium Hub backup.")}finally{input.value=""}};
+ rd.onerror=()=>{alert("That backup file could not be read.");input.value=""};
+ rd.readAsText(f);
+}
 function renderAll(){renderDashboard();renderReadings();renderTasks();renderTank();renderTesters()}
-initNav();renderAll();
+function appSelfCheck(){
+ const required=["dashboard","readings","maintenance","tank","testers","kpis","readingForm","readingRows","taskList","livestock","equipment","testerList","healthScore"];
+ const missing=required.filter(id=>!document.getElementById(id));
+ return {ok:missing.length===0,missing,readings:state.readings.length,tasks:state.tasks.length};
+}
+try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}

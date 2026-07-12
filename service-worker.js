@@ -1,4 +1,4 @@
-const CACHE_NAME="aquarium-hub-v5-major-elements";
+const CACHE_NAME = "aquarium-hub-v7-latest-parameter-cards";
 const ASSETS=[
   './',
   './index.html',
