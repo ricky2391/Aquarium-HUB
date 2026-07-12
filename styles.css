@@ -248,3 +248,20 @@ th{background:#12303d}
  .major-stat strong{text-align:left}
  .change{font-size:9.5px}
 }
+
+/* Major Elements v5: three independent, correctly colored trends */
+.major-summary .major-stat{border-top:3px solid var(--element-color)}
+.major-summary .major-stat strong{color:var(--element-color)!important}
+.element-trend-list{display:grid;gap:12px}
+.element-trend-card{border:1px solid var(--line);border-radius:14px;padding:11px 12px 8px;background:rgba(255,255,255,.022);overflow:hidden}
+.element-trend-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.element-trend-head span{font-size:12px;font-weight:850;color:var(--element-color)}
+.element-trend-head small{font-size:11px;color:var(--muted)}
+.element-trend-card svg{display:block;width:100%;height:126px;overflow:visible}
+.element-scale,.element-date{fill:#8ea6af;font-size:9px}
+.element-empty{min-height:90px;display:grid;place-items:center}
+@media(max-width:650px){
+ .major-summary{grid-template-columns:1fr!important}
+ .element-trend-card svg{height:112px}
+ .element-trend-head{align-items:flex-start;flex-direction:column;gap:2px}
+}

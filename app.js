@@ -265,43 +265,46 @@ function trendMeta(rows,key,decimals,unit){
 }
 
 function renderMajorElements(rows){
- const clean=rows.filter(r=>r && ([r.alk,r.ca,r.mg].some(v=>v!==null && Number.isFinite(Number(v)))));
  const el=document.getElementById("majorElementsChart");
  const summary=document.getElementById("majorSummary");
  if(!el||!summary)return;
- const lastFor=key=>[...clean].reverse().find(r=>r[key]!==null&&Number.isFinite(Number(r[key])));
- const alkRow=lastFor("alk"),caRow=lastFor("ca"),mgRow=lastFor("mg");
- const stat=(label,row,key,unit,color,target,decimals)=>{
-  const trend=trendMeta(clean,key,decimals,unit);
-  return `<div class="major-stat"><span>${label}</span><strong style="color:${color}">${row?Number(row[key]).toFixed(decimals)+" "+unit:"—"}</strong>${trend.html}<small>Target ${target}</small></div>`;
- };
- summary.innerHTML=stat("Alkalinity",alkRow,"alk","dKH","var(--teal)","7.5–9 dKH",1)+stat("Calcium",caRow,"ca","ppm","var(--orange)","400–460 ppm",0)+stat("Magnesium",mgRow,"mg","ppm","var(--purple)","1280–1420 ppm",0);
- if(!clean.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see major-element trends.</div>';return}
- const series=[
-  {key:"alk",color:"#52d2c7",fill:"rgba(82,210,199,.10)",min:6.5,max:10,targetMin:7.5,targetMax:9,label:"Alkalinity"},
-  {key:"ca",color:"#ff9e55",fill:"rgba(255,158,85,.08)",min:360,max:500,targetMin:400,targetMax:460,label:"Calcium"},
-  {key:"mg",color:"#b895ff",fill:"rgba(184,149,255,.08)",min:1150,max:1500,targetMin:1280,targetMax:1420,label:"Magnesium"}
+ const config=[
+  {key:"alk",label:"Alkalinity",unit:"dKH",color:"#52d2c7",soft:"rgba(82,210,199,.12)",min:6.5,max:10,targetMin:7.5,targetMax:9,decimals:1},
+  {key:"ca",label:"Calcium",unit:"ppm",color:"#ff9e55",soft:"rgba(255,158,85,.12)",min:360,max:500,targetMin:400,targetMax:460,decimals:0},
+  {key:"mg",label:"Magnesium",unit:"ppm",color:"#b895ff",soft:"rgba(184,149,255,.12)",min:1150,max:1500,targetMin:1280,targetMax:1420,decimals:0}
  ];
- const w=700,h=240,left=38,right=18,top=25,bottom=34,n=Math.max(1,clean.length-1);
- const x=i=>left+(w-left-right)*(i/n);
- const y=(v,ser)=>h-bottom-(h-top-bottom)*Math.max(0,Math.min(1,(v-ser.min)/(ser.max-ser.min)));
- let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alkalinity, calcium, and magnesium trends with target ranges">`;
- for(let i=0;i<=4;i++){const gy=top+(h-top-bottom)*i/4;svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}
- series.forEach(ser=>{
-  const yTop=y(ser.targetMax,ser),yBottom=y(ser.targetMin,ser);
-  svg+=`<rect x="${left}" y="${yTop}" width="${w-left-right}" height="${Math.max(2,yBottom-yTop)}" fill="${ser.fill}" rx="4"><title>${ser.label} target range</title></rect>`;
- });
- svg+=`<text class="major-axis-label" x="${left}" y="14">TARGET BANDS + TRENDS</text>`;
- series.forEach(ser=>{
-  const pts=clean.map((r,i)=>({i,v:r[ser.key]===null?null:Number(r[ser.key]),date:r.date})).filter(q=>Number.isFinite(q.v));
-  if(!pts.length)return;
-  const path=pts.map((q,j)=>(j?"L":"M")+x(q.i)+","+y(q.v,ser)).join(" ");
-  svg+=`<path d="${path}" fill="none" stroke="${ser.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v,ser)}" r="3.5" fill="${ser.color}"><title>${q.date}: ${ser.label} ${q.v}</title></circle>`).join("");
- });
- svg+='</svg>';el.innerHTML=svg;
+ const historyFor=key=>rows.filter(r=>r&&r[key]!==null&&Number.isFinite(Number(r[key]))).sort((a,b)=>readingDate(a)-readingDate(b)).slice(-10);
+ const formatDateShort=r=>{const d=readingDate(r);return d?d.toLocaleDateString([], {month:"short",day:"numeric"}):""};
+ summary.innerHTML=config.map(c=>{
+  const h=historyFor(c.key),last=h[h.length-1],value=last?Number(last[c.key]):null,trend=trendMeta(h,c.key,c.decimals,c.unit);
+  return `<div class="major-stat" style="--element-color:${c.color}"><span>${c.label}</span><strong>${value===null?"—":value.toFixed(c.decimals)+" "+c.unit}</strong>${trend.html}<small>${last?"Latest: "+formatDateShort(last):"No saved reading"} • Target ${c.targetMin}–${c.targetMax} ${c.unit}</small></div>`;
+ }).join("");
+ const cards=config.map(c=>{
+  const h=historyFor(c.key);
+  if(!h.length)return `<div class="element-trend-card"><div class="element-trend-head"><span style="color:${c.color}">${c.label}</span><small>No readings</small></div><div class="empty element-empty">Add a ${c.label.toLowerCase()} reading.</div></div>`;
+  const w=640,hgt=150,left=42,right=20,top=18,bottom=28;
+  const x=i=>left+(w-left-right)*(i/Math.max(1,h.length-1));
+  const y=v=>hgt-bottom-(hgt-top-bottom)*Math.max(0,Math.min(1,(v-c.min)/(c.max-c.min)));
+  const pts=h.map((r,i)=>({i,v:Number(r[c.key]),date:formatDateShort(r)}));
+  const bandTop=y(c.targetMax),bandBottom=y(c.targetMin);
+  let path="";
+  if(pts.length===1){path=`M${x(0)-1},${y(pts[0].v)} L${x(0)+1},${y(pts[0].v)}`;}
+  else{path=pts.map((q,i)=>(i?"L":"M")+x(i)+","+y(q.v)).join(" ");}
+  const latest=pts[pts.length-1];
+  return `<div class="element-trend-card" style="--element-color:${c.color}">
+   <div class="element-trend-head"><span>${c.label}</span><small>${latest.v.toFixed(c.decimals)} ${c.unit} latest</small></div>
+   <svg viewBox="0 0 ${w} ${hgt}" role="img" aria-label="${c.label} trend">
+    <rect x="${left}" y="${bandTop}" width="${w-left-right}" height="${Math.max(2,bandBottom-bandTop)}" fill="${c.soft}" rx="5"><title>Target ${c.targetMin}–${c.targetMax} ${c.unit}</title></rect>
+    ${[0,1,2,3,4].map(i=>{const gy=top+(hgt-top-bottom)*i/4;return `<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;}).join("")}
+    <text class="element-scale" x="4" y="${top+4}">${c.max}</text><text class="element-scale" x="4" y="${hgt-bottom+4}">${c.min}</text>
+    <path d="${path}" fill="none" stroke="${c.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.v)}" r="4" fill="${c.color}"><title>${q.date}: ${q.v.toFixed(c.decimals)} ${c.unit}</title></circle>`).join("")}
+    <text class="element-date" x="${left}" y="${hgt-5}">${pts[0].date}</text><text class="element-date" text-anchor="end" x="${w-right}" y="${hgt-5}">${latest.date}</text>
+   </svg>
+  </div>`;
+ }).join("");
+ el.innerHTML=`<div class="element-trend-list">${cards}</div>`;
 }
-
 function renderNutrients(rows){
  const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
  const el=document.getElementById("nutrientChart");
