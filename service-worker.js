@@ -1,4 +1,4 @@
-const CACHE_NAME='aquarium-hub-dashboard-refactor-v1';
+const CACHE_NAME = "aquarium-hub-dashboard-v2";
 const ASSETS=[
   './',
   './index.html',

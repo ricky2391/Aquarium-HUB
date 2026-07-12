@@ -240,7 +240,7 @@ function renderDashboard(){
  document.getElementById("maintenanceScore").textContent=Math.round((doneCount/Math.max(1,state.tasks.length))*100)+"%";
  document.getElementById("afrSummary").textContent=l&&l.afr?`${l.afr} mL`:"—";
  drawLine("alkChart",state.readings.slice(-14).map((r,i)=>({x:i,y:Number(r.alk),label:r.date})).filter(p=>Number.isFinite(p.y)),["#52d2c7"]);
- drawMulti("nutrientChart",state.readings.slice(-14),[{key:"no3",color:"#67b8ff",scale:1},{key:"po4",color:"#f1c86b",scale:100}]);
+ renderNutrients(state.readings.slice(-14));
 }
 function drawLine(id,pts,colors){
  const el=document.getElementById(id);if(!pts.length){el.innerHTML='<div class="empty">Add readings to see a trend.</div>';return}
@@ -249,13 +249,30 @@ function drawLine(id,pts,colors){
  const path=pts.map((pt,i)=>(i?"L":"M")+x(i)+","+y(pt.y)).join(" ");
  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${h-p}"/><path d="${path}" class="line"/>${pts.map((pt,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(pt.y)}" r="4"><title>${pt.label}: ${pt.y}</title></circle>`).join("")}<text class="labeltxt" x="${p}" y="18">${max.toFixed(2)}</text><text class="labeltxt" x="${p}" y="${h-5}">${min.toFixed(2)}</text></svg>`;
 }
-function drawMulti(id,rows,series){
- const pts=rows.map((r,i)=>({i,...r}));const vals=[];series.forEach(s=>pts.forEach(p=>{const v=Number(p[s.key]);if(Number.isFinite(v))vals.push(v*s.scale)}));
- const el=document.getElementById(id);if(!vals.length){el.innerHTML='<div class="empty">Add nitrate and phosphorus readings.</div>';return}
- const w=700,h=240,p=30,min=0,max=Math.max(...vals,1),x=i=>p+(w-2*p)*(i/Math.max(1,pts.length-1)),y=v=>h-p-(h-2*p)*(v/max);
- let svg=`<svg viewBox="0 0 ${w} ${h}"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/>`;
- series.forEach(s=>{const valid=pts.map((pt,i)=>({i,v:Number(pt[s.key])*s.scale,date:pt.date})).filter(q=>Number.isFinite(q.v));if(valid.length){svg+=`<path d="${valid.map((q,j)=>(j?"L":"M")+x(q.i)+","+y(q.v)).join(" ")}" fill="none" stroke="${s.color}" stroke-width="3"/>`}});
- svg+=`<text class="labeltxt" x="${p}" y="18">NO₃ ppm • PO₄ ×100</text></svg>`;el.innerHTML=svg;
+function renderNutrients(rows){
+ const clean=rows.filter(r=>r && (r.no3!==null || r.po4!==null));
+ const el=document.getElementById("nutrientChart");
+ const summary=document.getElementById("nutrientSummary");
+ const latestRow=[...clean].reverse().find(r=>r.no3!==null || r.po4!==null);
+ const no3Latest=latestRow&&latestRow.no3!==null&&Number.isFinite(Number(latestRow.no3))?Number(latestRow.no3):null;
+ const po4Latest=latestRow&&latestRow.po4!==null&&Number.isFinite(Number(latestRow.po4))?Number(latestRow.po4):null;
+ summary.innerHTML=`<div class="nutrient-stat"><span>Latest Nitrate</span><strong style="color:var(--blue)">${no3Latest===null?"—":no3Latest.toFixed(1)+" ppm"}</strong><small>Target 5–15 ppm</small></div><div class="nutrient-stat"><span>Latest Phosphate</span><strong style="color:var(--gold)">${po4Latest===null?"—":po4Latest.toFixed(3)+" ppm"}</strong><small>Target 0.03–0.10 ppm</small></div>`;
+ const no3=clean.map((r,i)=>({i,v:r.no3===null?null:Number(r.no3),date:r.date})).filter(x=>Number.isFinite(x.v));
+ const po4=clean.map((r,i)=>({i,v:r.po4===null?null:Number(r.po4),date:r.date})).filter(x=>Number.isFinite(x.v));
+ if(!no3.length&&!po4.length){el.innerHTML='<div class="empty">Add nitrate or phosphate readings to see nutrient trends.</div>';return}
+ const w=700,h=240,left=42,right=48,top=24,bottom=32,n=Math.max(1,clean.length-1);
+ const no3Max=Math.max(20,...no3.map(x=>x.v))*1.05;
+ const po4Max=Math.max(.12,...po4.map(x=>x.v))*1.05;
+ const x=i=>left+(w-left-right)*(i/n),yNo3=v=>h-bottom-(h-top-bottom)*(v/no3Max),yPo4=v=>h-bottom-(h-top-bottom)*(v/po4Max);
+ const path=(arr,yfn)=>arr.map((q,j)=>(j?"L":"M")+x(q.i)+","+yfn(q.v)).join(" ");
+ let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Nitrate and phosphate trends">`;
+ for(let i=0;i<=4;i++){const y=top+(h-top-bottom)*i/4;svg+=`<line class="nutrient-grid" x1="${left}" y1="${y}" x2="${w-right}" y2="${y}"/>`;}
+ svg+=`<text class="nutrient-axis-no3" x="${left}" y="14">NO₃ ppm</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-right}" y="14">PO₄ ppm</text>`;
+ svg+=`<text class="nutrient-axis-no3" x="4" y="${top+4}">${no3Max.toFixed(1)}</text><text class="nutrient-axis-no3" x="18" y="${h-bottom+4}">0</text>`;
+ svg+=`<text class="nutrient-axis-po4" text-anchor="end" x="${w-3}" y="${top+4}">${po4Max.toFixed(3)}</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-18}" y="${h-bottom+4}">0</text>`;
+ if(no3.length)svg+=`<path d="${path(no3,yNo3)}" fill="none" stroke="#67b8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${no3.map(q=>`<circle cx="${x(q.i)}" cy="${yNo3(q.v)}" r="3.5" fill="#67b8ff"><title>${q.date}: NO3 ${q.v} ppm</title></circle>`).join("")}`;
+ if(po4.length)svg+=`<path d="${path(po4,yPo4)}" fill="none" stroke="#f1c86b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${po4.map(q=>`<circle cx="${x(q.i)}" cy="${yPo4(q.v)}" r="3.5" fill="#f1c86b"><title>${q.date}: PO4 ${q.v} ppm</title></circle>`).join("")}`;
+ svg+='</svg>';el.innerHTML=svg;
 }
 function readingField(id){return document.getElementById(id)}
 function openReadingForm(){

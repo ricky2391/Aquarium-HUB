@@ -25,23 +25,27 @@
   <main>
     <section id="dashboard" class="page active">
       <section class="reef-glance" aria-label="Reef at a Glance">
-  <div class="reef-glance-head"><div><h3>Reef at a Glance</h3><p>Your 65 Gallon Reef</p></div><div class="reef-glance-menu">⋮</div></div>
+  <div class="reef-glance-head">
+    <div><span class="eyebrow">SYSTEM OVERVIEW</span><h3>Reef at a Glance</h3><p>Your 65-gallon mixed reef</p></div>
+    <span class="live-pill"><i></i> Live dashboard</span>
+  </div>
   <div class="reef-glance-main">
     <div class="health-panel">
-      <div class="health-ring-large" id="healthRingLarge"><div class="health-ring-copy"><small>TANK HEALTH</small><strong id="healthScore">0%</strong><span id="healthLabel">Waiting for readings</span></div></div>
-      <div class="health-trend" id="healthTrend">↗ Weighted reef health</div>
-      <div class="health-updated" id="healthUpdated">Updated: No readings</div>
+      <div class="health-ring-large" id="healthRingLarge">
+        <div class="health-ring-copy"><small>TANK HEALTH</small><strong id="healthScore">0%</strong><span id="healthLabel">Waiting for readings</span></div>
+      </div>
+      <div class="health-meta"><span id="healthTrend">Weighted reef health</span><span id="healthUpdated">Updated: No readings</span></div>
     </div>
     <div class="glance-right">
       <div class="glance-stats">
-        <button class="glance-tile" onclick="goToSection('tank','tank')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span><span class="glance-label">Total Volume</span><span class="glance-number">65</span><span class="glance-unit">Gallons</span></span></button>
-        <button class="glance-tile" onclick="goToSection('tank','fish-section')" aria-label="Open fish livestock"><span class="glance-icon">🐠</span><span><span class="glance-label">Fish</span><span class="glance-number" id="glanceFish">0</span><span class="glance-unit">Fish</span></span></button>
-        <button class="glance-tile" onclick="goToSection('tank','invertebrate-section')" aria-label="Open invertebrate livestock"><span class="glance-icon">⭐</span><span><span class="glance-label">Invertebrates</span><span class="glance-number" id="glanceInverts">0</span><span class="glance-unit">Inverts</span></span></button>
-        <button class="glance-tile" onclick="goToSection('tank','coral-section')" aria-label="Open coral livestock"><span class="glance-icon">🪸</span><span><span class="glance-label">Corals</span><span class="glance-number" id="glanceCorals">0</span><span class="glance-unit">Corals</span></span></button>
+        <button class="glance-tile volume" onclick="goToSection('tank','tank')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile fish" onclick="goToSection('tank','fish-section')" aria-label="Open fish livestock"><span class="glance-icon">🐠</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Fish <span id="glanceFish">0</span></strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile invert" onclick="goToSection('tank','invertebrate-section')" aria-label="Open invertebrate livestock"><span class="glance-icon">⭐</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Invertebrates <span id="glanceInverts">0</span></strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile coral" onclick="goToSection('tank','coral-section')" aria-label="Open coral livestock"><span class="glance-icon">🪸</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Corals <span id="glanceCorals">0</span></strong></span><span class="tile-arrow">›</span></button>
       </div>
       <div class="glance-footer">
-        <button class="glance-footer-btn" onclick="goToSection('readings','latest-readings-card')"><b>📅 Last Full Test</b><span id="lastFullTest">No complete test saved</span></button>
-        <div class="glance-footer-btn"><b>🛡 System Status</b><span id="glanceStatus">Waiting for readings</span></div>
+        <button class="glance-footer-btn" onclick="goToSection('readings','latest-readings-card')"><span class="footer-icon">📅</span><span><b>Last Full Test</b><small id="lastFullTest">No complete test saved</small></span><span class="tile-arrow">›</span></button>
+        <div class="glance-footer-btn status"><span class="footer-icon">🛡️</span><span><b>System Status</b><small id="glanceStatus">Waiting for readings</small></span></div>
       </div>
     </div>
   </div>
@@ -53,7 +57,7 @@
 </div>
 <div class="grid two" style="margin-top:16px">
         <div class="card"><div class="section-title"><h3>Alkalinity trend</h3><span>Last 14 readings</span></div><div class="chart" id="alkChart"></div></div>
-        <div class="card"><div class="section-title"><h3>Nutrients</h3><span>Nitrate + phosphate</span></div><div class="chart" id="nutrientChart"></div></div>
+        <div class="card nutrient-card"><div class="section-title"><div><h3>Nutrients</h3><span>Nitrate and phosphate, shown on independent scales</span></div><span class="nutrient-legend"><i class="no3-dot"></i> NO₃ <i class="po4-dot"></i> PO₄</span></div><div id="nutrientSummary" class="nutrient-summary"></div><div class="chart nutrient-chart" id="nutrientChart"></div></div>
       </div>
       <div class="grid two" style="margin-top:16px">
         <div class="card"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
