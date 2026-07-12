@@ -1,8 +1,10 @@
-const CACHE_NAME='aquarium-hub-function-audit-v5';
+const CACHE_NAME='aquarium-hub-dashboard-refactor-v1';
 const ASSETS=[
   './',
   './index.html',
   './manifest.webmanifest',
+  './styles.css',
+  './app.js',
   './images/all_for_reef.jpg',
   './images/aquamaxx_frs_logo_free.jpg',
   './images/aquamaxx_hfm_logo_free.jpg',

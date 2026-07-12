@@ -1,16 +1,25 @@
-Aquarium Hub — Finished Testing Tab Review Build
+Aquarium Hub — Dashboard Refactor v1
 
-Changes:
-- Finished Hanna Testing center
-- Bundled tester product images
-- Latest reading, average, count, last-tested date, range, and reagent cards
-- Step-by-step instructions for each tester
-- Accuracy tips and common mistakes
-- Quick Log Reading buttons
-- Automatic recommended-next-test summary
-- Corrected logo-free AquaMaxx FR-S reactor image
-- Offline PWA support
+GitHub upload instructions:
+Upload all files and folders in this package to the root of the Aquarium-HUB repository, replacing the existing versions.
 
-Upload every file and folder in this ZIP to the existing Netlify site.
+Project structure:
+- index.html: page structure only
+- styles.css: visual styling and responsive layout
+- app.js: application data, dashboard logic, navigation, forms, storage, and rendering
+- service-worker.js: offline cache
+- manifest.webmanifest: installable-app metadata
+- images/: bundled product and tester images
 
-Function audit v5: storage, readings, tasks, photos, import/export, navigation, and initialization hardened.
+Compatibility:
+- Existing localStorage keys are unchanged, so saved readings and maintenance tasks remain compatible.
+- The current visual design and dashboard features are preserved.
+- The service-worker cache name was changed so GitHub Pages loads the refactored files instead of an older cached build.
+
+Dashboard foundation completed:
+- Reef at a Glance and weighted tank-health scoring
+- Parameter readings, averages, trends, and test dates
+- Reading entry and phosphorus-to-phosphate conversion
+- Maintenance tasks
+- Tank, livestock, equipment, and tester navigation
+- Backup import/export and photo storage safeguards
