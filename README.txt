@@ -14,3 +14,5 @@ v18: Added live Tropic Marin Pro-Reef salt estimate to the water-change logger. 
 
 
 v19: Salt calculator now displays estimated US cups only (about 1/2 cup per gallon at 35 ppt, scaled for selected salinity). Removed the mixing reminder from the logger area.
+
+v20: Updated the current livestock roster and profile data. Dashboard totals now show 9 fish, 5 invertebrates, and 2 corals. Added purchase dates, purchase/current sizes, yellow tang growth, status, care details, and coral profile fields; removed livestock no longer present.
