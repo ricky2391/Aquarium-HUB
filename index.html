@@ -48,6 +48,14 @@
       </div>
     </div>
   </div>
+  <div class="reef-glance-actions" aria-label="Quick actions">
+    <span class="reef-glance-actions-label">Quick actions</span>
+    <div class="quick-action-grid">
+      <button class="btn primary" onclick="showPage('readings');openReadingForm()">＋ Add reading</button>
+      <button class="btn" onclick="showPage('maintenance');document.getElementById('waterChangeGallons')?.focus()">💧 Log water change</button>
+      <button class="btn" onclick="showPage('maintenance');toggleObservationPanel(true)">＋ Add observation</button>
+    </div>
+  </div>
 </section>
 <div class="grid kpis" id="kpis" style="margin-top:16px"></div>
 <div class="grid two" style="margin-top:16px">
@@ -75,15 +83,7 @@
 </div>
         <div class="card nutrient-card"><div class="section-title"><div><h3>Nutrients</h3><span>Nitrate and phosphate, shown on independent scales</span></div><span class="nutrient-legend"><i class="no3-dot"></i> NO₃ <i class="po4-dot"></i> PO₄</span></div><div id="nutrientSummary" class="nutrient-summary"></div><div class="chart nutrient-chart" id="nutrientChart"></div></div>
       </div>
-      <div class="card dashboard-quick-actions" style="margin-top:16px">
-        <div class="section-title"><h3>Quick actions</h3><span>Common reef tasks</span></div>
-        <div class="quick-action-grid">
-          <button class="btn primary" onclick="showPage('readings');openReadingForm()">＋ Add reading</button>
-          <button class="btn" onclick="showPage('maintenance');document.getElementById('waterChangeGallons')?.focus()">💧 Log water change</button>
-          <button class="btn" onclick="showPage('maintenance');toggleObservationPanel(true)">＋ Add observation</button>
-        </div>
-      </div>
-      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
+      <div class="card" style="margin-top:16px"><div class="section-title"><h3>Today’s tasks</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
     </section>
 
     <section id="readings" class="page">
@@ -119,6 +119,8 @@
           <div id="maintenanceRecommendations" class="recommendation-list"></div>
           <div class="recommendation-history"><details><summary>Completed recommendation history</summary><div id="recommendationHistory"></div></details></div>
         </div>
+
+        <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><div class="schedule-actions"><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div></div><div id="taskList"></div></div>
 
         <div class="card problem-solver-launcher">
           <div class="section-title"><div><h3>Problem Solver</h3><span>Describe a fish, coral, algae, pest, water, or equipment problem</span></div><span class="badge coral">Diagnostic tool</span></div>
@@ -219,8 +221,6 @@
           </div>
           <div id="observationResult"></div>
         </div>
-
-        <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><div class="schedule-actions"><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div></div><div id="taskList"></div></div>
 
         <div class="card observations-library-card">
           <div class="section-title"><div><h3>Observations & action plans</h3><span>Review what you noticed, the recommended solution, and the steps to take</span></div><span class="badge" id="observationCount">0 logged</span></div>

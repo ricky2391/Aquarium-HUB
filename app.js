@@ -392,9 +392,11 @@ function renderDashboard(){
   return Number.isFinite(v)&&v>=t.min&&v<=t.max;
  });
  const sb=document.getElementById("statusBadge");if(sb){sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral")}
- const upcoming7=generatedMaintenanceTasks(7),pending=upcoming7.filter(t=>!t.done).slice(0,5);
- document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks in the next 7 days are complete.</div>';
- document.getElementById("taskCount").textContent=`${upcoming7.filter(t=>!t.done).length} remaining in 7 days`;
+ const todayKey=localISODate(new Date());
+ const todayTasks=generatedMaintenanceTasks(7).filter(t=>t.date===todayKey);
+ const pending=todayTasks.filter(t=>!t.done);
+ document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All of today’s tasks are complete.</div>';
+ document.getElementById("taskCount").textContent=`${pending.length} remaining today`;
  document.getElementById("currentAfr").textContent=l&&l.afr?`${l.afr} mL/day`:"Not set";
  const health=tankHealthScore();
  const healthDisplay=health==null?0:health;
@@ -807,8 +809,7 @@ function renderTasks(){
   const dayTasks=groups[date],remaining=dayTasks.filter(t=>!t.done).length;
   const dateObj=dayTasks[0].dateObj;
   const label=maintenanceDateLabel(dayTasks[0]);
-  const open=maintenanceWindowDays===7||index===0||remaining>0&&index<3;
-  return `<details class="maintenance-day" ${open?"open":""}><summary><span>${label}</span><small>${remaining} remaining • ${dayTasks.length} task${dayTasks.length===1?"":"s"}</small></summary><div class="maintenance-day-tasks">${dayTasks.map(taskHtml).join("")}</div></details>`;
+  return `<details class="maintenance-day"><summary><span>${label}</span><small>${remaining} remaining • ${dayTasks.length} task${dayTasks.length===1?"":"s"}</small></summary><div class="maintenance-day-tasks">${dayTasks.map(taskHtml).join("")}</div></details>`;
  }).join(""):'<div class="empty">No scheduled tasks in this period.</div>';
  const title=document.getElementById("maintenanceWindowTitle"),hint=document.getElementById("maintenanceWindowHint"),button=document.getElementById("maintenanceWindowToggle");
  if(title)title.textContent=maintenanceWindowDays===7?"Next 7 days":"30-day calendar";

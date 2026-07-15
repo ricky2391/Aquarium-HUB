@@ -570,3 +570,8 @@ main > section.page{display:none!important;width:100%;min-width:0}
 main > section.page.active{display:block!important}
 main > section.page:not(.active){visibility:hidden!important;height:0!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important}
 #livestockList,#equipmentList{min-width:0;overflow:hidden}
+
+.reef-glance-actions{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.reef-glance-actions-label{display:block;margin-bottom:10px;color:var(--muted);font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.reef-glance-actions .quick-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:560px){.reef-glance-actions .quick-action-grid{grid-template-columns:1fr}.reef-glance-actions{margin-top:16px;padding-top:14px}}

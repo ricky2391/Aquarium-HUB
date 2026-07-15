@@ -1,4 +1,4 @@
-const CACHE_NAME = "aquarium-hub-v25-clean-tabs";
+const CACHE_NAME = "aquarium-hub-v26-clean-tabs";
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './styles.css?v=25', './app.js?v=25',
   './images/dwarf_yellow_tip_hermit.jpg', './images/aquamaxx_frs_logo_free.jpg',
