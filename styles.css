@@ -448,3 +448,28 @@ th{background:#12303d}
  .compact-scheduled{grid-template-columns:22px minmax(0,1fr)!important;grid-template-areas:'check content' 'type type'!important}
  .compact-scheduled input{grid-area:check}.compact-scheduled>div{grid-area:content}.compact-scheduled .task-type{grid-area:type;justify-self:start;margin-left:31px}
 }
+
+/* v15 adaptive recommendations and observation log */
+.recommendations-card,.observation-card{grid-column:1/-1}
+.recommendation-list{display:grid;gap:10px}
+.recommendation-item{display:grid;grid-template-columns:36px minmax(0,1fr);gap:11px;padding:12px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025)}
+.recommendation-item.urgent{border-color:rgba(255,146,126,.34);background:rgba(255,146,126,.07)}
+.recommendation-item.warning{border-color:rgba(241,200,107,.28);background:rgba(241,200,107,.055)}
+.recommendation-item.good{border-color:rgba(127,224,162,.24);background:rgba(127,224,162,.045)}
+.recommendation-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--panel2);font-size:18px}
+.recommendation-item strong{display:block;font-size:14px}
+.recommendation-item p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.observation-form{display:grid;grid-template-columns:180px minmax(180px,.8fr) minmax(280px,1.6fr) auto;gap:10px;align-items:end}
+.observation-details textarea{min-height:74px}
+.observation-save{min-height:43px;white-space:nowrap}
+.observation-result{margin-top:13px;padding:13px;border-radius:15px;border:1px solid rgba(82,210,199,.22);background:rgba(82,210,199,.07)}
+.observation-result strong{display:block;color:var(--teal)}
+.observation-result p{margin:5px 0 0;color:#d6ecec;line-height:1.5;font-size:13px}
+.observation-history{margin-top:16px}
+.observation-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.observation-row:last-child{border-bottom:0}
+.observation-row strong,.observation-row span,.observation-row small{display:block}
+.observation-row span{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.observation-row small{font-size:10px;color:var(--teal);margin-top:4px}
+@media(max-width:900px){.observation-form{grid-template-columns:1fr 1fr}.observation-details{grid-column:1/-1}.observation-save{grid-column:1/-1}}
+@media(max-width:560px){.recommendations-card,.observation-card{grid-column:auto}.observation-form{grid-template-columns:1fr}.observation-details,.observation-save{grid-column:auto}.observation-row{align-items:flex-start}.recommendation-item{grid-template-columns:32px minmax(0,1fr)}.recommendation-icon{width:32px;height:32px}}

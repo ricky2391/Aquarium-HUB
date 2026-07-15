@@ -1,14 +1,10 @@
-Aquarium HUB — Adaptive Reef Maintenance v14
-
-Upload every file and the images folder to the root of your GitHub Pages repository.
+Aquarium HUB v15
 
 Maintenance updates:
-- Log the actual date and gallons for every water change.
-- Recommendation adjusts from water-change history and latest nitrate/phosphate readings.
-- 7-day schedule expands to 30 days.
-- Calendar uses the device's actual date.
-- Daily livestock/equipment observation.
-- Recurring alkalinity, nutrient, pH, salinity, filtration, ATO, pump, heater, media, and dosing-pump tasks.
-- Water-change history is included in backup export/import.
+- Water-change logger and adaptive recommendations restored.
+- A 30-gallon water change is logged for yesterday during the one-time v15 migration.
+- Recommendation cards are generated from unchecked scheduled tasks, water-change history, readings, service dates, and unresolved observations.
+- Daily observation logger supports algae, pests, fish behavior, coral behavior, water quality, and equipment concerns.
+- Observations can be resolved or deleted and are included in backup export/import.
 
-The water-change recommendation is a planning estimate. Confirm unexpected test results and match replacement water temperature and salinity before changing water.
+Upload all project contents to the root of the GitHub repository, replacing matching files.
