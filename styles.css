@@ -430,3 +430,21 @@ th{background:#12303d}
 .water-change-task .task-type{color:var(--blue)!important;background:rgba(99,184,255,.12)!important}
 @media(max-width:900px){.maintenance-layout{grid-template-columns:1fr}.water-log-form{grid-template-columns:1fr 1fr}.water-notes{grid-column:1/-1}.water-save{grid-column:1/-1}}
 @media(max-width:560px){.water-recommendation-grid{grid-template-columns:1fr}.water-log-form{grid-template-columns:1fr}.water-notes,.water-save{grid-column:auto}.water-recommendation{padding:12px}.water-history-row{align-items:flex-start}.maintenance-layout{gap:12px}}
+
+/* v14: real maintenance baseline, dated nutrient points, compact 30-day calendar */
+.nutrient-date{fill:#9bb5bf;font-size:9px;font-weight:700}
+.maintenance-day{border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.02);margin-bottom:9px;overflow:hidden}
+.maintenance-day summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;cursor:pointer;color:var(--text);font-weight:850}
+.maintenance-day summary::-webkit-details-marker{display:none}
+.maintenance-day summary:after{content:'＋';color:var(--teal);font-size:17px}
+.maintenance-day[open] summary:after{content:'−'}
+.maintenance-day summary small{color:var(--muted);font-size:9px;font-weight:700;margin-left:auto}
+.maintenance-day-tasks{padding:0 9px 9px}
+.compact-scheduled{grid-template-columns:22px minmax(0,1fr) auto!important;margin-bottom:7px!important}
+.compact-scheduled:last-child{margin-bottom:0!important}
+@media(max-width:560px){
+ .maintenance-day summary{align-items:flex-start;flex-wrap:wrap}
+ .maintenance-day summary small{width:100%;margin-left:0}
+ .compact-scheduled{grid-template-columns:22px minmax(0,1fr)!important;grid-template-areas:'check content' 'type type'!important}
+ .compact-scheduled input{grid-area:check}.compact-scheduled>div{grid-area:content}.compact-scheduled .task-type{grid-area:type;justify-self:start;margin-left:31px}
+}

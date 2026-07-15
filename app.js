@@ -25,21 +25,15 @@ const targets={
 };
 const maintenanceTemplates={
   daily:[
-    {title:"Livestock and equipment check",details:"Confirm every fish is present and eating, inspect corals for recession or pests, verify temperature, flow, ATO operation, and leaks.",type:"Daily check",cadence:"daily"}
+    {title:"Daily reef check",details:"Confirm fish are present and eating, inspect coral tissue, verify temperature, flow, ATO, skimmer operation, and check for leaks.",type:"Daily check",cadence:"daily"}
   ],
   weekly:[
-    {weekday:1,title:"Alkalinity test",details:"Test at the same time of day and adjust All-For-Reef only from a clear trend.",type:"Testing"},
-    {weekday:3,title:"Alkalinity test",details:"Compare with the previous reading; avoid correcting a single unexpected result without retesting.",type:"Testing"},
-    {weekday:6,title:"Nutrients, pH, and salinity",details:"Test nitrate, phosphate, pH, and salinity. Inspect trends before changing feeding or media.",type:"Testing"},
-    {weekday:6,title:"Mechanical filtration and skimmer",details:"Replace or rinse filter floss, empty and clean the skimmer cup/neck, and remove trapped detritus.",type:"Filtration"},
-    {weekday:6,title:"Clean glass and inspect rockwork",details:"Clean viewing panels, baste detritus from rockwork, and inspect for algae, vermetids, or damaged coral tissue.",type:"Maintenance"},
-    {weekday:5,title:"ATO and dosing inspection",details:"Check the RODI reservoir, clean exposed sensors, inspect tubing for kinks or siphoning, and confirm dosing output.",type:"Equipment"}
+    {weekday:6,title:"Mechanical filtration and skimmer",details:"Replace or rinse filter floss and clean the skimmer cup/neck if buildup is present.",type:"Filtration"},
+    {weekday:6,title:"Glass, rockwork, and detritus check",details:"Clean viewing panels as needed, baste rockwork, and inspect for algae, vermetids, or damaged tissue.",type:"Maintenance"},
+    {weekday:5,title:"ATO and dosing inspection",details:"Check the RODI reservoir, sensors, tubing, siphon risk, and dosing output.",type:"Equipment"}
   ],
   monthly:[
-    {day:1,title:"Full major-elements test",details:"Test calcium and magnesium along with alkalinity. Review consumption before changing supplementation.",type:"Testing"},
-    {day:8,title:"Clean one circulation pump",details:"Rotate pumps so flow is never fully interrupted. Soak and remove calcium buildup, then confirm quiet operation.",type:"Equipment"},
-    {day:15,title:"Chemical media review",details:"Review phosphate trend and reactor flow. Replace carbon if exhausted; replace GFO only when phosphate trend supports it.",type:"Filtration"},
-    {day:22,title:"Heater, probes, and safety inspection",details:"Verify temperature with a second device, inspect cords and mounts, clean sensors, and test equipment alarms/shutoffs.",type:"Safety"},
+    {day:22,title:"Heater, probes, and safety inspection",details:"Verify temperature with a second device, inspect cords and mounts, clean sensors, and test alarms/shutoffs.",type:"Safety"},
     {day:28,title:"Dosing-pump calibration",details:"Measure actual output with a graduated cylinder and inspect tubing, check valves, and reservoir condition.",type:"Dosing"}
   ]
 };
@@ -78,6 +72,41 @@ function waterChangeRecommendation(){
  if(due<today)due.setTime(today.getTime());
  return {last,gallons,interval,due,date:localISODate(due),reason,percent:Math.round(gallons/systemGallons*100)};
 }
+function addDaysISO(iso,days){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+days);return localISODate(d)}
+function latestReadingText(key){
+ const h=parameterHistory(key);
+ if(!h.length)return "Last reading: None yet";
+ const r=h[h.length-1],t=targets[key];
+ return `Last reading: ${Number(r[key]).toFixed(key==="po4"?3:(key==="ca"||key==="mg"?0:1))} ${t?.unit||""} on ${readingDate(r).toLocaleDateString([], {month:"short",day:"numeric"})}`;
+}
+function dynamicTestingTasks(dateKey){
+ const today=localISODate(new Date()),out=[];
+ const plan=[
+  {key:"alk",offset:0,title:"Alkalinity test",details:"Establish the real alkalinity baseline before changing All-For-Reef."},
+  {key:"sal",offset:0,title:"Salinity and pH test",details:"Confirm salinity after the 30-gallon water change and establish a real pH baseline.",extra:"ph"},
+  {key:"no3",offset:1,title:"Nitrate and phosphate test",details:"Establish the real nutrient baseline before deciding whether reactor media needs adjustment.",extra:"po4"},
+  {key:"ca",offset:2,title:"Calcium and magnesium test",details:"Establish the real major-elements baseline after the water change and new media.",extra:"mg"}
+ ];
+ for(const p of plan){
+  const history=parameterHistory(p.key);
+  let due;
+  if(!history.length)due=addDaysISO(today,p.offset);
+  else {const last=readingDate(history[history.length-1]);due=addDaysISO(localISODate(last),targets[p.key].testDays)}
+  if(dateKey===due){
+   const extraText=p.extra?` • ${latestReadingText(p.extra)}`:"";
+   out.push({title:p.title,details:`${p.details} ${latestReadingText(p.key)}${extraText}`,type:"Testing"});
+  }
+ }
+ return out;
+}
+function serviceDueTasks(dateKey){
+ const out=[],h=state.serviceHistory||{};
+ const add=(field,days,title,details,type)=>{if(h[field]&&dateKey===addDaysISO(h[field],days))out.push({title,details:`${details} Last completed: ${waterChangeDateLabel(h[field])}.`,type})};
+ add("equipmentCleaned",30,"Equipment cleaning review","Inspect pumps, skimmer, filters, and ATO. Clean only equipment that actually has buildup.","Equipment");
+ add("reactorMediaReplaced",30,"Reactor media review","Check carbon age and reactor flow. Test phosphate before deciding whether GFO needs replacement.","Filtration");
+ add("bioMediaReplaced",90,"Biological media inspection","Do not routinely replace established bio media. Inspect for clogging and gently rinse only in removed aquarium water if necessary.","Filtration");
+ return out;
+}
 function generatedMaintenanceTasks(days=30){
  const start=dateAtNoon(new Date()),tasks=[];
  const water=waterChangeRecommendation();
@@ -88,6 +117,8 @@ function generatedMaintenanceTasks(days=30){
   templates.push(...maintenanceTemplates.daily);
   templates.push(...maintenanceTemplates.weekly.filter(t=>t.weekday===date.getDay()));
   templates.push(...maintenanceTemplates.monthly.filter(t=>t.day===date.getDate()));
+  templates.push(...dynamicTestingTasks(dateKey));
+  templates.push(...serviceDueTasks(dateKey));
   if(dateKey===water.date){templates.push({title:`Recommended ${water.gallons}-gallon water change`,details:`About ${water.percent}% of system volume. Match temperature and salinity, siphon detritus, and log the actual amount afterward.`,type:"Water change"})}
   templates.forEach((template,index)=>{
    const id=`${dateKey}|${template.title}|${index}`;
@@ -190,13 +221,32 @@ let state={
  tasks:safeJson("reefTasks",[]),
  taskCompletions:safeJson("reefTaskCompletions",{}),
  waterChanges:safeJson("reefWaterChanges",[]),
+ serviceHistory:safeJson("reefServiceHistory",{}),
 };
+
+function applyV14RealBaseline(){
+ const migrationKey="aquariumHubV14RealBaseline";
+ if(safeGet(migrationKey,"")==="done")return;
+ const today=localISODate(new Date());
+ // The user confirmed prior readings were only test data. Start the real log clean.
+ state.readings=[];
+ state.taskCompletions={};
+ state.waterChanges=[{id:Date.now(),date:today,gallons:30,notes:"Initial real maintenance baseline"}];
+ state.serviceHistory={equipmentCleaned:today,bioMediaReplaced:today,reactorMediaReplaced:today};
+ safeSet("reefReadings",JSON.stringify(state.readings));
+ safeSet("reefTaskCompletions",JSON.stringify(state.taskCompletions));
+ safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
+ safeSet("reefServiceHistory",JSON.stringify(state.serviceHistory));
+ safeSet(migrationKey,"done");
+}
+applyV14RealBaseline();
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
  const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
  const completionsSaved=safeSet("reefTaskCompletions",JSON.stringify(state.taskCompletions));
  const waterChangesSaved=safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
- if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved)){
+ const serviceSaved=safeSet("reefServiceHistory",JSON.stringify(state.serviceHistory));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -479,6 +529,8 @@ function renderNutrients(rows){
  svg+=`<text class="nutrient-axis-po4" text-anchor="end" x="${w-3}" y="${top+4}">${po4Max.toFixed(3)}</text><text class="nutrient-axis-po4" text-anchor="end" x="${w-18}" y="${h-bottom+4}">0</text>`;
  if(no3.length)svg+=`<path d="${path(no3,yNo3)}" fill="none" stroke="#67b8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${no3.map(q=>`<circle cx="${x(q.i)}" cy="${yNo3(q.v)}" r="3.5" fill="#67b8ff"><title>${q.date}: NO3 ${q.v} ppm</title></circle>`).join("")}`;
  if(po4.length)svg+=`<path d="${path(po4,yPo4)}" fill="none" stroke="#f1c86b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${po4.map(q=>`<circle cx="${x(q.i)}" cy="${yPo4(q.v)}" r="3.5" fill="#f1c86b"><title>${q.date}: PO4 ${q.v} ppm</title></circle>`).join("")}`;
+ const labelIndexes=clean.length<=6?clean.map((_,i)=>i):[0,Math.floor((clean.length-1)/2),clean.length-1];
+ [...new Set(labelIndexes)].forEach(i=>{const d=readingDate(clean[i]);if(d)svg+=`<text class="nutrient-date" text-anchor="middle" x="${x(i)}" y="${h-9}">${d.toLocaleDateString([], {month:"short",day:"numeric"})}</text>`});
  svg+='</svg>';el.innerHTML=svg;
 }
 function readingField(id){return document.getElementById(id)}
@@ -537,7 +589,7 @@ function maintenanceDateLabel(task){
 }
 function taskHtml(t){
  const encoded=encodeURIComponent(t.id);
- return `<div class="task scheduled-task ${t.type==="Water change"?"water-change-task":""} ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div class="task-date">${maintenanceDateLabel(t)}</div><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
+ return `<div class="task scheduled-task compact-scheduled ${t.type==="Water change"?"water-change-task":""} ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
 }
 function waterChangeDateLabel(date){
  const d=new Date(date+"T12:00:00");
@@ -572,11 +624,19 @@ function deleteWaterChange(id){
 }
 function renderTasks(){
  const tasks=generatedMaintenanceTasks(maintenanceWindowDays),list=document.getElementById("taskList");
- list.innerHTML=tasks.length?tasks.map(taskHtml).join(""):'<div class="empty">No scheduled tasks in this period.</div>';
+ const groups={};tasks.forEach(t=>(groups[t.date]||(groups[t.date]=[])).push(t));
+ const dates=Object.keys(groups).sort();
+ list.innerHTML=dates.length?dates.map((date,index)=>{
+  const dayTasks=groups[date],remaining=dayTasks.filter(t=>!t.done).length;
+  const dateObj=dayTasks[0].dateObj;
+  const label=maintenanceDateLabel(dayTasks[0]);
+  const open=maintenanceWindowDays===7||index===0||remaining>0&&index<3;
+  return `<details class="maintenance-day" ${open?"open":""}><summary><span>${label}</span><small>${remaining} remaining • ${dayTasks.length} task${dayTasks.length===1?"":"s"}</small></summary><div class="maintenance-day-tasks">${dayTasks.map(taskHtml).join("")}</div></details>`;
+ }).join(""):'<div class="empty">No scheduled tasks in this period.</div>';
  const title=document.getElementById("maintenanceWindowTitle"),hint=document.getElementById("maintenanceWindowHint"),button=document.getElementById("maintenanceWindowToggle");
- if(title)title.textContent=maintenanceWindowDays===7?"Next 7 days":"Next 30 days";
- if(hint)hint.textContent=`${tasks.filter(t=>!t.done).length} remaining • Dates update automatically`;
- if(button)button.textContent=maintenanceWindowDays===7?"Show all 30 days":"Show next 7 days";
+ if(title)title.textContent=maintenanceWindowDays===7?"Next 7 days":"30-day calendar";
+ if(hint)hint.textContent=`${tasks.filter(t=>!t.done).length} remaining • Tap a date to expand`;
+ if(button)button.textContent=maintenanceWindowDays===7?"View 30-day calendar":"Show next 7 days";
  renderWaterChangePlanner();
 }
 function toggleScheduledTask(encodedId){
@@ -771,7 +831,7 @@ function renderTesters(){
  document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
 }
 function exportData(){
- const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,photos:photoStore()};
+ const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,serviceHistory:state.serviceHistory,photos:photoStore()};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -785,6 +845,7 @@ function importData(e){
   state.readings=d.readings;state.tasks=Array.isArray(d.tasks)?d.tasks:[];
   if(d.taskCompletions&&typeof d.taskCompletions==="object")state.taskCompletions=d.taskCompletions;
   if(Array.isArray(d.waterChanges))state.waterChanges=d.waterChanges;
+  if(d.serviceHistory&&typeof d.serviceHistory==="object")state.serviceHistory=d.serviceHistory;
   if(d.photos&&typeof d.photos==="object")savePhotoStore(d.photos);
   persist(true);renderAll();alert("Backup imported.");
  }catch(err){console.error(err);alert("That file is not a valid Aquarium Hub backup.")}finally{input.value=""}};
