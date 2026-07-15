@@ -222,6 +222,7 @@ let state={
  taskCompletions:safeJson("reefTaskCompletions",{}),
  waterChanges:safeJson("reefWaterChanges",[]),
  serviceHistory:safeJson("reefServiceHistory",{}),
+ observations:safeJson("reefObservations",[]),
 };
 
 function applyV14RealBaseline(){
@@ -240,13 +241,30 @@ function applyV14RealBaseline(){
  safeSet(migrationKey,"done");
 }
 applyV14RealBaseline();
+function applyV15MaintenanceMigration(){
+ const migrationKey="aquariumHubV15MaintenanceMigration";
+ if(safeGet(migrationKey,"")==="done")return;
+ const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+ const yesterdayKey=localISODate(yesterday);
+ const baseline=(state.waterChanges||[]).find(w=>Number(w.gallons)===30&&String(w.notes||"").toLowerCase().includes("baseline"));
+ if(baseline){baseline.date=yesterdayKey;baseline.notes="30-gallon water change"}
+ else if(!(state.waterChanges||[]).some(w=>w.date===yesterdayKey&&Number(w.gallons)===30)){
+  state.waterChanges.push({id:Date.now(),date:yesterdayKey,gallons:30,notes:"30-gallon water change"});
+ }
+ state.observations=Array.isArray(state.observations)?state.observations:[];
+ safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
+ safeSet("reefObservations",JSON.stringify(state.observations));
+ safeSet(migrationKey,"done");
+}
+applyV15MaintenanceMigration();
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
  const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
  const completionsSaved=safeSet("reefTaskCompletions",JSON.stringify(state.taskCompletions));
  const waterChangesSaved=safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
  const serviceSaved=safeSet("reefServiceHistory",JSON.stringify(state.serviceHistory));
- if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved)){
+ const observationsSaved=safeSet("reefObservations",JSON.stringify(state.observations||[]));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved||!observationsSaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -622,6 +640,76 @@ function saveWaterChange(){
 function deleteWaterChange(id){
  if(confirm("Delete this water-change entry?")){state.waterChanges=state.waterChanges.filter(w=>Number(w.id)!==Number(id));persist(true);renderAll()}
 }
+
+function observationAdvice(category,subject,details){
+ const text=`${category} ${subject} ${details}`.toLowerCase();
+ if(/not eating|won't eat|wont eat|sinking|labored|rapid breathing|gasp|white stringy|bulging eye|popeye/.test(text))return "Treat this as a fish-health concern. Verify temperature, salinity, ammonia, and oxygenation first; observe breathing, swimming, appetite, feces, and aggression. Avoid adding medication to the display tank until the cause is narrowed down, and prepare a quarantine tank if symptoms persist or worsen.";
+ if(/coral|hammer|frogspawn|octospawn|tissue|recession|bailout|closed|not opening|brown jelly/.test(text))return "Check alkalinity, salinity, temperature, flow, and nearby aggression. Inspect after lights out for pests or tissue damage. Do not make several chemistry changes at once; document the location and take a photo so progression can be compared. Rapid tissue loss or brown-jelly-like material warrants prompt isolation and targeted action.";
+ if(/dinoflag|dino|snot|bubbles/.test(text))return "Confirm the identification before treatment. Test nitrate and phosphate, inspect the growth under white light, and avoid driving nutrients to zero. Prioritize stable nutrients, manual removal, fresh mechanical filtration, and appropriate UV only when the suspected type and tank setup support it.";
+ if(/cyanobacter|cyano|red slime/.test(text))return "Increase detritus removal and check flow without blasting corals. Test nitrate and phosphate, replace dirty mechanical filtration, siphon mats during a water change, and review feeding and dead spots. Correct the cause before considering chemical treatments.";
+ if(/hair algae|green hair|gha|algae/.test(text))return "Test nitrate and phosphate, manually remove what you can, clean detritus traps, verify source water, and review feeding and light exposure. Avoid stripping nutrients to zero; use a gradual nutrient-control plan and track whether the growth is spreading or receding.";
+ if(/aiptasia/.test(text))return "Confirm it is Aiptasia, then use a targeted removal method while avoiding tearing or spreading it. Inspect nearby rockwork for smaller individuals and log follow-up checks.";
+ if(/vermetid/.test(text))return "Inspect for mucus webs and irritated coral tissue. Physically remove or seal the tube opening where accessible, avoid scattering fragments, and recheck the area during feeding.";
+ if(/flatworm|nudibranch|pest|worm/.test(text))return "Photograph and identify the organism before treatment. Inspect affected livestock closely, consider a controlled dip only when appropriate for that animal, and avoid display-wide medication until identification is reasonably certain.";
+ if(/leak|overheat|heater|pump stopped|no flow|ato|salinity swing|equipment/.test(text))return "Handle this as an equipment or stability issue. Verify the reading with a second device, protect oxygenation and temperature, inspect cords and connections, and correct changes gradually. Mark the related maintenance task complete only after the equipment has been tested under normal operation.";
+ return "Document the observation with a photo if possible, check temperature and salinity, review the most recent test results, and watch whether it improves, stays stable, or worsens over the next 24 hours. Use the relevant scheduled task to guide the next check rather than changing several things at once.";
+}
+function saveObservation(){
+ const category=document.getElementById("observationCategory")?.value||"General";
+ const subject=document.getElementById("observationSubject")?.value.trim()||"Tank observation";
+ const details=document.getElementById("observationDetails")?.value.trim()||"";
+ if(!details){alert("Describe what you observed before saving.");return}
+ const recommendation=observationAdvice(category,subject,details);
+ state.observations=Array.isArray(state.observations)?state.observations:[];
+ state.observations.push({id:Date.now(),date:new Date().toISOString(),category,subject,details,recommendation,resolved:false});
+ persist(true);
+ document.getElementById("observationSubject").value="";
+ document.getElementById("observationDetails").value="";
+ renderObservationTools(recommendation);
+ renderMaintenanceRecommendations();
+}
+function toggleObservationResolved(id){
+ const item=(state.observations||[]).find(o=>Number(o.id)===Number(id));if(!item)return;
+ item.resolved=!item.resolved;persist(true);renderObservationTools();renderMaintenanceRecommendations();
+}
+function deleteObservation(id){
+ if(!confirm("Delete this observation?"))return;
+ state.observations=(state.observations||[]).filter(o=>Number(o.id)!==Number(id));persist(true);renderObservationTools();renderMaintenanceRecommendations();
+}
+function renderObservationTools(latestRecommendation=""){
+ const result=document.getElementById("observationResult"),history=document.getElementById("observationHistory");
+ if(result){result.innerHTML=latestRecommendation?`<div class="observation-result"><strong>Recommended next steps</strong><p>${escapeHtml(latestRecommendation)}</p></div>`:""}
+ if(!history)return;
+ const rows=[...(state.observations||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+ history.innerHTML=rows.length?rows.map(o=>`<div class="observation-row"><div><strong>${escapeHtml(o.subject)} • ${escapeHtml(o.category)}</strong><span>${escapeHtml(o.details)}</span><small>${new Date(o.date).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${o.resolved?" • Resolved":" • Active"}</small></div><div><button class="btn compact" onclick="toggleObservationResolved(${Number(o.id)})">${o.resolved?"Reopen":"Resolve"}</button> <button class="btn danger compact" onclick="deleteObservation(${Number(o.id)})">Delete</button></div></div>`).join(""):'<div class="empty compact-empty">No observations logged yet.</div>';
+}
+function maintenanceRecommendations(){
+ const today=localISODate(new Date());
+ const tasks=generatedMaintenanceTasks(7).filter(t=>!t.done);
+ const recs=[];
+ const add=(icon,title,text,level="warning")=>{if(!recs.some(r=>r.title===title))recs.push({icon,title,text,level})};
+ tasks.forEach(t=>{
+  if(t.date!==today&&t.type!=="Water change")return;
+  if(t.type==="Testing")add("🧪",t.title,t.details,"warning");
+  else if(t.type==="Water change")add("💧","Water change due",t.details,"warning");
+  else if(t.type==="Filtration")add("🧽",t.title,`${t.details} Check this off after it is completed so this recommendation clears.`,"warning");
+  else if(t.type==="Equipment"||t.type==="Safety")add("⚙️",t.title,`${t.details} Check this off after confirming normal operation.`,"warning");
+  else if(t.type==="Daily check")add("👁️","Complete today's reef check","Confirm livestock behavior, coral appearance, temperature, flow, ATO, and equipment operation. Log any problem below.","good");
+ });
+ const activeObs=(state.observations||[]).filter(o=>!o.resolved).sort((a,b)=>new Date(b.date)-new Date(a.date));
+ activeObs.slice(0,3).forEach(o=>add("⚠️",`${o.subject}: follow-up`,o.recommendation,"urgent"));
+ const water=waterChangeRecommendation();
+ if(water.date<=today&&!tasks.some(t=>t.type==="Water change"&&t.done))add("💧",`Consider a ${water.gallons}-gallon water change`,water.reason,"warning");
+ if(!recs.length)add("✓","No urgent maintenance recommendations","The currently scheduled tasks are checked off and there are no unresolved observations. Continue normal daily inspection.","good");
+ return recs;
+}
+function renderMaintenanceRecommendations(){
+ const box=document.getElementById("maintenanceRecommendations"),count=document.getElementById("recommendationCount");if(!box)return;
+ const recs=maintenanceRecommendations();
+ box.innerHTML=recs.map(r=>`<div class="recommendation-item ${r.level}"><span class="recommendation-icon">${r.icon}</span><div><strong>${escapeHtml(r.title)}</strong><p>${escapeHtml(r.text)}</p></div></div>`).join("");
+ if(count)count.textContent=`${recs.length} active`;
+}
+
 function renderTasks(){
  const tasks=generatedMaintenanceTasks(maintenanceWindowDays),list=document.getElementById("taskList");
  const groups={};tasks.forEach(t=>(groups[t.date]||(groups[t.date]=[])).push(t));
@@ -831,7 +919,7 @@ function renderTesters(){
  document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
 }
 function exportData(){
- const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,serviceHistory:state.serviceHistory,photos:photoStore()};
+ const bundle={version:2,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,serviceHistory:state.serviceHistory,observations:state.observations,photos:photoStore()};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -846,6 +934,7 @@ function importData(e){
   if(d.taskCompletions&&typeof d.taskCompletions==="object")state.taskCompletions=d.taskCompletions;
   if(Array.isArray(d.waterChanges))state.waterChanges=d.waterChanges;
   if(d.serviceHistory&&typeof d.serviceHistory==="object")state.serviceHistory=d.serviceHistory;
+  if(Array.isArray(d.observations))state.observations=d.observations;
   if(d.photos&&typeof d.photos==="object")savePhotoStore(d.photos);
   persist(true);renderAll();alert("Backup imported.");
  }catch(err){console.error(err);alert("That file is not a valid Aquarium Hub backup.")}finally{input.value=""}};
