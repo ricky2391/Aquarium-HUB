@@ -107,6 +107,12 @@
       <div class="hero"><div><h2>Maintenance</h2><p>Calendar-driven reef care, adaptive recommendations, and observation tracking.</p></div><button class="btn" onclick="resetTasks()">Clear completed</button></div>
 
       <div class="maintenance-layout">
+        <div class="card recommendations-card live-recommendations-card">
+          <div class="section-title"><div><h3>Live reef recommendations</h3><span>Updates instantly when tasks, readings, water changes, or observations change</span></div><span class="badge gold" id="recommendationCount">0 active</span></div>
+          <div id="maintenanceRecommendations" class="recommendation-list"></div>
+          <div class="recommendation-history"><details><summary>Completed recommendation history</summary><div id="recommendationHistory"></div></details></div>
+        </div>
+
         <div class="card water-change-planner">
           <div class="section-title"><div><h3>Water-change planner</h3><span>Recommendations adapt to your history and latest nutrients</span></div><span class="badge">65-gallon system</span></div>
           <div class="water-recommendation-grid">
@@ -124,12 +130,7 @@
           <div class="water-history"><div class="section-title compact-title"><h3>Recent water changes</h3></div><div id="waterChangeHistory"></div></div>
         </div>
 
-        <div class="card recommendations-card">
-          <div class="section-title"><div><h3>Reef recommendations</h3><span>Generated from unchecked tasks, readings, service history, and observations</span></div><span class="badge gold" id="recommendationCount">0 active</span></div>
-          <div id="maintenanceRecommendations" class="recommendation-list"></div>
-        </div>
-
-        <div class="card observation-card">
+        <div class="card observation-card" id="observationPanel" hidden>
           <div class="section-title"><div><h3>Log a problem or observation</h3><span>Record algae, pests, fish behavior, coral behavior, or equipment concerns</span></div></div>
           <div class="observation-form">
             <div class="field"><label>Category</label><select id="observationCategory"><option>General</option><option>Algae</option><option>Pest</option><option>Fish behavior</option><option>Coral behavior</option><option>Water quality</option><option>Equipment</option></select></div>
@@ -141,7 +142,7 @@
           <div class="observation-history"><div class="section-title compact-title"><h3>Recent observations</h3></div><div id="observationHistory"></div></div>
         </div>
 
-        <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div><div id="taskList"></div></div>
+        <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><div class="schedule-actions"><button class="btn observation-plus" onclick="toggleObservationPanel()" aria-label="Add observation">＋ Observation</button><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div></div><div id="taskList"></div></div>
         <div class="grid maintenance-guidance">
           <div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alk readings</dd></div></div>
           <div class="card"><div class="section-title"><h3>Bacteria products</h3><span class="badge gold">Goal-based</span></div><p>MicroBacter7 or MicroBacter CLEAN should not be treated as automatic weekly requirements. Use them only for a defined goal, such as after replacing biological media or during a planned cleaning program, and follow the product label.</p></div>

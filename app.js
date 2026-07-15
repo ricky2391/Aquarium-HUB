@@ -223,6 +223,7 @@ let state={
  waterChanges:safeJson("reefWaterChanges",[]),
  serviceHistory:safeJson("reefServiceHistory",{}),
  observations:safeJson("reefObservations",[]),
+ recommendationHistory:safeJson("reefRecommendationHistory",[]),
 };
 
 function applyV14RealBaseline(){
@@ -252,6 +253,7 @@ function applyV15MaintenanceMigration(){
   state.waterChanges.push({id:Date.now(),date:yesterdayKey,gallons:30,notes:"30-gallon water change"});
  }
  state.observations=Array.isArray(state.observations)?state.observations:[];
+ state.recommendationHistory=Array.isArray(state.recommendationHistory)?state.recommendationHistory:[];
  safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
  safeSet("reefObservations",JSON.stringify(state.observations));
  safeSet(migrationKey,"done");
@@ -264,7 +266,8 @@ function persist(showWarning=false){
  const waterChangesSaved=safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
  const serviceSaved=safeSet("reefServiceHistory",JSON.stringify(state.serviceHistory));
  const observationsSaved=safeSet("reefObservations",JSON.stringify(state.observations||[]));
- if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved||!observationsSaved)){
+ const recommendationHistorySaved=safeSet("reefRecommendationHistory",JSON.stringify(state.recommendationHistory||[]));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved||!observationsSaved||!recommendationHistorySaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -661,27 +664,28 @@ function saveObservation(){
  if(!details){alert("Describe what you observed before saving.");return}
  const recommendation=observationAdvice(category,subject,details);
  state.observations=Array.isArray(state.observations)?state.observations:[];
+ state.recommendationHistory=Array.isArray(state.recommendationHistory)?state.recommendationHistory:[];
  state.observations.push({id:Date.now(),date:new Date().toISOString(),category,subject,details,recommendation,resolved:false});
  persist(true);
  document.getElementById("observationSubject").value="";
  document.getElementById("observationDetails").value="";
- renderObservationTools(recommendation);
- renderMaintenanceRecommendations();
+ renderAll();
+ toggleObservationPanel(false);
 }
 function toggleObservationResolved(id){
  const item=(state.observations||[]).find(o=>Number(o.id)===Number(id));if(!item)return;
- item.resolved=!item.resolved;persist(true);renderObservationTools();renderMaintenanceRecommendations();
+ item.resolved=!item.resolved;persist(true);renderAll();
 }
 function deleteObservation(id){
  if(!confirm("Delete this observation?"))return;
- state.observations=(state.observations||[]).filter(o=>Number(o.id)!==Number(id));persist(true);renderObservationTools();renderMaintenanceRecommendations();
+ state.observations=(state.observations||[]).filter(o=>Number(o.id)!==Number(id));persist(true);renderAll();
 }
 function renderObservationTools(latestRecommendation=""){
  const result=document.getElementById("observationResult"),history=document.getElementById("observationHistory");
  if(result){result.innerHTML=latestRecommendation?`<div class="observation-result"><strong>Recommended next steps</strong><p>${escapeHtml(latestRecommendation)}</p></div>`:""}
  if(!history)return;
  const rows=[...(state.observations||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
- history.innerHTML=rows.length?rows.map(o=>`<div class="observation-row"><div><strong>${escapeHtml(o.subject)} • ${escapeHtml(o.category)}</strong><span>${escapeHtml(o.details)}</span><small>${new Date(o.date).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${o.resolved?" • Resolved":" • Active"}</small></div><div><button class="btn compact" onclick="toggleObservationResolved(${Number(o.id)})">${o.resolved?"Reopen":"Resolve"}</button> <button class="btn danger compact" onclick="deleteObservation(${Number(o.id)})">Delete</button></div></div>`).join(""):'<div class="empty compact-empty">No observations logged yet.</div>';
+ history.innerHTML=rows.length?rows.map(o=>{const q=encodeURIComponent(`${o.subject} ${o.details} reef aquarium`);return `<div class="observation-row"><div><strong>${escapeHtml(o.subject)} • ${escapeHtml(o.category)}</strong><span>${escapeHtml(o.details)}</span><small>${new Date(o.date).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${o.resolved?" • Resolved":" • Active"}</small><div class="research-links"><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Abulkreefsupply.com+${q}">Search BRS</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Areef2reef.com+${q}">Search Reef2Reef</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=${q}">Search web</a></div></div><div><button class="btn compact" onclick="toggleObservationResolved(${Number(o.id)})">${o.resolved?"Reopen":"Resolve"}</button> <button class="btn danger compact" onclick="deleteObservation(${Number(o.id)})">Delete</button></div></div>`}).join(""):'<div class="empty compact-empty">No observations logged yet.</div>';
 }
 function maintenanceRecommendations(){
  const today=localISODate(new Date());
@@ -703,11 +707,34 @@ function maintenanceRecommendations(){
  if(!recs.length)add("✓","No urgent maintenance recommendations","The currently scheduled tasks are checked off and there are no unresolved observations. Continue normal daily inspection.","good");
  return recs;
 }
+function recommendationKey(r){return `${r.title}|${r.text}`}
 function renderMaintenanceRecommendations(){
  const box=document.getElementById("maintenanceRecommendations"),count=document.getElementById("recommendationCount");if(!box)return;
  const recs=maintenanceRecommendations();
- box.innerHTML=recs.map(r=>`<div class="recommendation-item ${r.level}"><span class="recommendation-icon">${r.icon}</span><div><strong>${escapeHtml(r.title)}</strong><p>${escapeHtml(r.text)}</p></div></div>`).join("");
- if(count)count.textContent=`${recs.length} active`;
+ const previous=Array.isArray(state._lastRecommendationKeys)?state._lastRecommendationKeys:[];
+ const current=recs.filter(r=>r.level!=="good").map(recommendationKey);
+ previous.filter(k=>!current.includes(k)).forEach(k=>{
+  const [title]=k.split("|");
+  if(title&&!state.recommendationHistory.some(h=>h.key===k))state.recommendationHistory.unshift({key:k,title,date:new Date().toISOString()});
+ });
+ state._lastRecommendationKeys=current;
+ if(state.recommendationHistory.length>30)state.recommendationHistory=state.recommendationHistory.slice(0,30);
+ safeSet("reefRecommendationHistory",JSON.stringify(state.recommendationHistory));
+ box.innerHTML=recs.map(r=>`<div class="recommendation-item ${r.level}"><span class="recommendation-icon">${r.icon}</span><div><strong>${escapeHtml(r.title)}</strong><p>${escapeHtml(r.text)}</p><details class="recommendation-why"><summary>Why am I recommending this?</summary><div>${escapeHtml(recommendationReason(r))}</div></details></div></div>`).join("");
+ if(count)count.textContent=`${recs.filter(r=>r.level!=="good").length} active`;
+ const history=document.getElementById("recommendationHistory");
+ if(history)history.innerHTML=state.recommendationHistory.length?state.recommendationHistory.slice(0,12).map(h=>`<div class="recommendation-history-row">✓ ${escapeHtml(h.title)} <span style="color:var(--muted)">• ${new Date(h.date).toLocaleDateString([], {month:"short",day:"numeric"})}</span></div>`).join(""):'<div class="empty compact-empty">No completed recommendations yet.</div>';
+}
+function recommendationReason(r){
+ if(/alkalinity|nitrate|phosphate|calcium|magnesium|salinity|pH|test/i.test(r.title))return `${r.text} The app compares the latest saved reading and test date with the target range and testing interval.`;
+ if(/water change/i.test(r.title))return `This is based on your logged water-change amount, the number of days since the last change, and your latest nutrient readings.`;
+ if(/follow-up/i.test(r.title))return `This remains active because the linked observation has not been marked resolved.`;
+ return `This recommendation is active because its related scheduled task is unchecked or overdue. Checking the task will recalculate the list immediately.`;
+}
+function toggleObservationPanel(force){
+ const panel=document.getElementById("observationPanel");if(!panel)return;
+ const show=typeof force==="boolean"?force:panel.hasAttribute("hidden");
+ if(show){panel.removeAttribute("hidden");setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"start"}),30)}else panel.setAttribute("hidden","");
 }
 
 function renderTasks(){
@@ -941,7 +968,7 @@ function importData(e){
  rd.onerror=()=>{alert("That backup file could not be read.");input.value=""};
  rd.readAsText(f);
 }
-function renderAll(){renderDashboard();renderReadings();renderTasks();renderTank();renderTesters()}
+function renderAll(){renderDashboard();renderReadings();renderTasks();renderObservationTools();renderMaintenanceRecommendations();renderTank();renderTesters()}
 function appSelfCheck(){
  const required=["dashboard","readings","maintenance","tank","testers","kpis","readingForm","readingRows","taskList","livestock","equipment","testerList","healthScore"];
  const missing=required.filter(id=>!document.getElementById(id));
