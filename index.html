@@ -123,7 +123,12 @@
           <p class="planner-reason" id="waterChangeReason"></p>
           <div class="water-log-form">
             <div class="field"><label>Date</label><input id="waterChangeDate" type="date"></div>
-            <div class="field"><label>Gallons changed</label><input id="waterChangeGallons" type="number" min="0.1" max="65" step="0.1" inputmode="decimal"></div>
+            <div class="field"><label>Gallons changed</label><input id="waterChangeGallons" type="number" min="0.1" max="65" step="0.1" inputmode="decimal" oninput="updateSaltEstimate()"></div>
+            <div class="field"><label>Target salinity</label><select id="saltTargetPpt" onchange="updateSaltEstimate()"><option value="35" selected>35 ppt</option><option value="34">34 ppt</option><option value="36">36 ppt</option></select></div>
+            <div class="salt-calculator" id="saltCalculator" aria-live="polite">
+              <div class="salt-calculator-head"><span>Tropic Marin Pro-Reef starting amount</span><strong id="saltEstimatePrimary">—</strong></div>
+              <div class="salt-estimate-details" id="saltEstimateDetails">Enter gallons to calculate cups of salt.</div>
+            </div>
             <div class="field water-notes"><label>Notes</label><input id="waterChangeNotes" type="text" placeholder="Detritus removed, matched salinity, etc."></div>
             <button class="btn primary water-save" onclick="saveWaterChange()">Log water change</button>
           </div>

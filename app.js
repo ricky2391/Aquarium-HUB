@@ -618,6 +618,34 @@ function waterChangeDateLabel(date){
  const d=new Date(date+"T12:00:00");
  return Number.isNaN(d.getTime())?date:d.toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"});
 }
+
+function tropicMarinSaltEstimate(gallons,ppt=35){
+ const g=Number(gallons),target=Number(ppt)||35;
+ if(!Number.isFinite(g)||g<=0)return null;
+ // Volume estimate: about 1/2 US cup per gallon at 35 ppt, scaled for target salinity.
+ const cups=g*0.5*(target/35);
+ return {cups,target};
+}
+function formatSaltCups(cups){
+ const rounded=Math.round(Number(cups)*4)/4;
+ const whole=Math.floor(rounded);
+ const fraction=Math.round((rounded-whole)*4);
+ const glyph={1:"¼",2:"½",3:"¾"}[fraction]||"";
+ if(!whole&&glyph)return glyph;
+ return `${whole}${whole&&glyph?" ":""}${glyph}` || "0";
+}
+function updateSaltEstimate(){
+ const gallons=Number(document.getElementById("waterChangeGallons")?.value);
+ const ppt=Number(document.getElementById("saltTargetPpt")?.value||35);
+ const primary=document.getElementById("saltEstimatePrimary"),details=document.getElementById("saltEstimateDetails");
+ if(!primary||!details)return;
+ const estimate=tropicMarinSaltEstimate(gallons,ppt);
+ if(!estimate){primary.textContent="—";details.textContent="Enter gallons to calculate cups of salt.";return}
+ const cupText=formatSaltCups(estimate.cups);
+ primary.textContent=`${cupText} ${Math.abs(estimate.cups-1)<0.001?"cup":"cups"}`;
+ details.textContent=`For ${gallons.toFixed(gallons%1?1:0)} gallons at ${ppt} ppt`;
+}
+
 function renderWaterChangePlanner(){
  const rec=waterChangeRecommendation(),history=[...(state.waterChanges||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
  const amount=document.getElementById("recommendedWaterAmount"),due=document.getElementById("recommendedWaterDate"),reason=document.getElementById("waterChangeReason"),last=document.getElementById("lastWaterChange"),list=document.getElementById("waterChangeHistory");
@@ -629,6 +657,7 @@ function renderWaterChangePlanner(){
  const dateInput=document.getElementById("waterChangeDate"),gallonsInput=document.getElementById("waterChangeGallons");
  if(dateInput&&!dateInput.value)dateInput.value=localISODate(new Date());
  if(gallonsInput&&!gallonsInput.value)gallonsInput.value=rec.gallons;
+ updateSaltEstimate();
 }
 function saveWaterChange(){
  const date=document.getElementById("waterChangeDate")?.value;
@@ -640,6 +669,7 @@ function saveWaterChange(){
  persist(true);
  document.getElementById("waterChangeNotes").value="";
  document.getElementById("waterChangeGallons").value="";
+ updateSaltEstimate();
  renderAll();
 }
 function deleteWaterChange(id){

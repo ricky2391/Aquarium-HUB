@@ -517,3 +517,11 @@ th{background:#12303d}
  .observation-actions{width:100%;justify-content:stretch}
  .observation-actions .btn{flex:1}
 }
+
+.salt-calculator{grid-column:1/-1;padding:14px;border:1px solid rgba(82,210,199,.28);border-radius:15px;background:linear-gradient(135deg,rgba(82,210,199,.10),rgba(103,184,255,.07))}
+.salt-calculator-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.salt-calculator-head span{font-size:12px;color:var(--muted);font-weight:700}
+.salt-calculator-head strong{font-size:21px;color:var(--teal)}
+.salt-estimate-details{margin-top:5px;font-size:13px;font-weight:700;color:var(--ink)}
+.salt-calculator p{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+@media(max-width:560px){.salt-calculator-head{align-items:flex-start;flex-direction:column;gap:4px}.salt-calculator-head strong{font-size:24px}}
