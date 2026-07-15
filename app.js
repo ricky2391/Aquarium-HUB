@@ -610,7 +610,9 @@ function maintenanceDateLabel(task){
 }
 function taskHtml(t){
  const encoded=encodeURIComponent(t.id);
- return `<div class="task scheduled-task compact-scheduled ${t.type==="Water change"?"water-change-task":""} ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
+ const isDaily=t.type==="Daily check"||/daily reef check/i.test(t.title);
+ const observationButton=isDaily?`<button class="btn observation-plus task-observation-button" onclick="event.preventDefault();event.stopPropagation();toggleObservationPanel(true,'${t.date}')">＋ Observation</button>`:"";
+ return `<div class="task scheduled-task compact-scheduled ${t.type==="Water change"?"water-change-task":""} ${isDaily?"daily-reef-task":""} ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div class="task-copy"><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div>${observationButton}</div><span class="task-type">${t.type}</span></div>`;
 }
 function waterChangeDateLabel(date){
  const d=new Date(date+"T12:00:00");
@@ -658,6 +660,7 @@ function observationAdvice(category,subject,details){
  return "Document the observation with a photo if possible, check temperature and salinity, review the most recent test results, and watch whether it improves, stays stable, or worsens over the next 24 hours. Use the relevant scheduled task to guide the next check rather than changing several things at once.";
 }
 function saveObservation(){
+ const observationDate=document.getElementById("observationDate")?.value||localISODate(new Date());
  const category=document.getElementById("observationCategory")?.value||"General";
  const subject=document.getElementById("observationSubject")?.value.trim()||"Tank observation";
  const details=document.getElementById("observationDetails")?.value.trim()||"";
@@ -665,7 +668,9 @@ function saveObservation(){
  const recommendation=observationAdvice(category,subject,details);
  state.observations=Array.isArray(state.observations)?state.observations:[];
  state.recommendationHistory=Array.isArray(state.recommendationHistory)?state.recommendationHistory:[];
- state.observations.push({id:Date.now(),date:new Date().toISOString(),category,subject,details,recommendation,resolved:false});
+ const now=new Date();
+ const time=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:00`;
+ state.observations.push({id:Date.now(),date:`${observationDate}T${time}`,category,subject,details,recommendation,resolved:false});
  persist(true);
  document.getElementById("observationSubject").value="";
  document.getElementById("observationDetails").value="";
@@ -680,12 +685,27 @@ function deleteObservation(id){
  if(!confirm("Delete this observation?"))return;
  state.observations=(state.observations||[]).filter(o=>Number(o.id)!==Number(id));persist(true);renderAll();
 }
+function observationSteps(recommendation){
+ const parts=String(recommendation||"").split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
+ return parts.length?parts.slice(0,6):["Continue observation and record any meaningful change."];
+}
 function renderObservationTools(latestRecommendation=""){
- const result=document.getElementById("observationResult"),history=document.getElementById("observationHistory");
+ const result=document.getElementById("observationResult"),history=document.getElementById("observationHistory"),count=document.getElementById("observationCount");
  if(result){result.innerHTML=latestRecommendation?`<div class="observation-result"><strong>Recommended next steps</strong><p>${escapeHtml(latestRecommendation)}</p></div>`:""}
  if(!history)return;
- const rows=[...(state.observations||[])].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
- history.innerHTML=rows.length?rows.map(o=>{const q=encodeURIComponent(`${o.subject} ${o.details} reef aquarium`);return `<div class="observation-row"><div><strong>${escapeHtml(o.subject)} • ${escapeHtml(o.category)}</strong><span>${escapeHtml(o.details)}</span><small>${new Date(o.date).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${o.resolved?" • Resolved":" • Active"}</small><div class="research-links"><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Abulkreefsupply.com+${q}">Search BRS</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Areef2reef.com+${q}">Search Reef2Reef</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=${q}">Search web</a></div></div><div><button class="btn compact" onclick="toggleObservationResolved(${Number(o.id)})">${o.resolved?"Reopen":"Resolve"}</button> <button class="btn danger compact" onclick="deleteObservation(${Number(o.id)})">Delete</button></div></div>`}).join(""):'<div class="empty compact-empty">No observations logged yet.</div>';
+ const rows=[...(state.observations||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
+ if(count)count.textContent=`${rows.length} logged`;
+ history.innerHTML=rows.length?rows.map(o=>{
+  const q=encodeURIComponent(`${o.subject} ${o.details} reef aquarium`);
+  const steps=observationSteps(o.recommendation);
+  return `<article class="observation-plan ${o.resolved?"resolved":"active"}">
+    <div class="observation-plan-head"><div><span class="observation-status">${o.resolved?"Resolved":"Active"}</span><h4>${escapeHtml(o.subject)}</h4><small>${escapeHtml(o.category)} • ${new Date(o.date).toLocaleString([], {month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}</small></div><div class="observation-actions"><button class="btn compact" onclick="toggleObservationResolved(${Number(o.id)})">${o.resolved?"Reopen":"Mark resolved"}</button><button class="btn danger compact" onclick="deleteObservation(${Number(o.id)})">Delete</button></div></div>
+    <div class="observation-noted"><strong>What you observed</strong><p>${escapeHtml(o.details)}</p></div>
+    <div class="observation-solution"><strong>Recommended solution</strong><p>${escapeHtml(o.recommendation)}</p></div>
+    <div class="observation-steps"><strong>Steps to take</strong><ol>${steps.map(step=>`<li>${escapeHtml(step)}</li>`).join("")}</ol></div>
+    <div class="research-links"><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Abulkreefsupply.com+${q}">Search BRS</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=site%3Areef2reef.com+${q}">Search Reef2Reef</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q=${q}">Search web</a></div>
+  </article>`;
+ }).join(""):'<div class="empty compact-empty">No observations logged yet. Use the + Observation button inside a Daily Reef Check task.</div>';
 }
 function maintenanceRecommendations(){
  const today=localISODate(new Date());
@@ -731,10 +751,14 @@ function recommendationReason(r){
  if(/follow-up/i.test(r.title))return `This remains active because the linked observation has not been marked resolved.`;
  return `This recommendation is active because its related scheduled task is unchecked or overdue. Checking the task will recalculate the list immediately.`;
 }
-function toggleObservationPanel(force){
+function toggleObservationPanel(force,date){
  const panel=document.getElementById("observationPanel");if(!panel)return;
  const show=typeof force==="boolean"?force:panel.hasAttribute("hidden");
- if(show){panel.removeAttribute("hidden");setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"start"}),30)}else panel.setAttribute("hidden","");
+ if(show){
+  panel.removeAttribute("hidden");
+  const dateInput=document.getElementById("observationDate");if(dateInput)dateInput.value=date||localISODate(new Date());
+  setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"start"}),30);
+ }else panel.setAttribute("hidden","");
 }
 
 function renderTasks(){
