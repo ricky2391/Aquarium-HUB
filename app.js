@@ -306,10 +306,10 @@ function renderMajorElements(rows){
   const h=historyFor(c.key),last=h[h.length-1],value=last?Number(last[c.key]):null,trend=trendMeta(h,c.key,c.decimals,c.unit);
   const previous=h.length>1?h[h.length-2]:null;
   return `<div class="major-stat" style="--element-color:${c.color}">
-   <span><i style="background:${c.color}"></i>${c.label}</span>
+   <span><i style="background:${c.color}"></i>${c.short}</span>
    <strong>${value===null?"—":value.toFixed(c.decimals)} <em>${value===null?"":c.unit}</em></strong>
    ${trend.html}
-   <small>${previous?`vs last (${formatDateShort(previous)}) • `:""}Target: ${c.targetMin}–${c.targetMax} ${c.unit}</small>
+   <small>${previous?`Previous: ${formatDateShort(previous)}<br>`:""}Target: ${c.targetMin}–${c.targetMax}</small>
   </div>`;
  }).join("");
 
@@ -319,53 +319,47 @@ function renderMajorElements(rows){
  if(!allDates.length){el.innerHTML='<div class="empty">Add alkalinity, calcium, or magnesium readings to see trends.</div>';return}
 
  const dateIndex=new Map(allDates.map((d,i)=>[d,i]));
- const w=760,h=300,left=52,right=24,top=38,bottom=62,n=Math.max(1,allDates.length-1);
+ const w=700,h=230,left=38,right=14,top=18,bottom=38,n=Math.max(1,allDates.length-1);
  const x=i=>left+(w-left-right)*(i/n);
  const normalized=(c,v)=>Number(v)/c.step;
  const normalizedTargets=config.flatMap(c=>[normalized(c,c.targetMin),normalized(c,c.targetMax)]);
  const normalizedValues=config.flatMap(c=>historyFor(c.key).map(r=>normalized(c,r[c.key])));
  const rawMin=Math.min(...normalizedTargets,...normalizedValues);
  const rawMax=Math.max(...normalizedTargets,...normalizedValues);
- const yMin=Math.floor(rawMin-0.5);
+ const yMin=Math.max(0,Math.floor(rawMin-0.5));
  const yMax=Math.ceil(rawMax+0.5);
  const span=Math.max(1,yMax-yMin);
  const y=v=>h-bottom-(h-top-bottom)*((v-yMin)/span);
 
- const pointSets=config.map(c=>{
-  const pts=historyFor(c.key).map(r=>{
-   const d=readingDate(r),iso=d?d.toISOString().slice(0,10):"";
-   return {i:dateIndex.get(iso),raw:Number(r[c.key]),scaled:normalized(c,r[c.key]),date:formatDateShort(r)};
-  }).filter(q=>Number.isInteger(q.i));
-  return {c,pts};
- });
+ const pointSets=config.map(c=>({c,pts:historyFor(c.key).map(r=>{
+  const d=readingDate(r),iso=d?d.toISOString().slice(0,10):"";
+  return {i:dateIndex.get(iso),raw:Number(r[c.key]),scaled:normalized(c,r[c.key]),date:formatDateShort(r)};
+ }).filter(q=>Number.isInteger(q.i))}));
 
- let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Normalized alkalinity, calcium, and magnesium trends">`;
+ let svg=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Normalized alkalinity, calcium, and magnesium trends">`;
  for(let tick=yMin;tick<=yMax;tick++){
   const gy=y(tick);
   svg+=`<line class="major-grid" x1="${left}" y1="${gy}" x2="${w-right}" y2="${gy}"/>`;
-  svg+=`<text class="major-axis" text-anchor="end" x="${left-8}" y="${gy+4}">${tick}</text>`;
+  svg+=`<text class="major-axis" text-anchor="end" x="${left-6}" y="${gy+3}">${tick}</text>`;
  }
-
- // A single normalized comparison band keeps the three trends readable on one axis.
- const targetCenters=config.map(c=>(normalized(c,c.targetMin)+normalized(c,c.targetMax))/2);
- const bandLow=Math.min(...config.map(c=>normalized(c,c.targetMin)));
- const bandHigh=Math.max(...config.map(c=>normalized(c,c.targetMax)));
- svg+=`<rect x="${left}" y="${y(bandHigh)}" width="${w-left-right}" height="${Math.max(2,y(bandLow)-y(bandHigh))}" fill="rgba(79,214,208,.07)" rx="5"><title>Approximate normalized target zone</title></rect>`;
- svg+=`<text class="major-axis" x="${left}" y="18">Normalized comparison scale</text>`;
-
+ // Each element has its own normalized target band; these overlap near the desired operating zone.
+ config.forEach(c=>{
+  const low=normalized(c,c.targetMin),high=normalized(c,c.targetMax);
+  svg+=`<rect x="${left}" y="${y(high)}" width="${w-left-right}" height="${Math.max(2,y(low)-y(high))}" fill="${c.color}" fill-opacity=".045" rx="4"><title>${c.label} target: ${c.targetMin}–${c.targetMax} ${c.unit}</title></rect>`;
+  svg+=`<line x1="${left}" y1="${y(low)}" x2="${w-right}" y2="${y(low)}" stroke="${c.color}" stroke-opacity=".26" stroke-dasharray="4 5"/>`;
+  svg+=`<line x1="${left}" y1="${y(high)}" x2="${w-right}" y2="${y(high)}" stroke="${c.color}" stroke-opacity=".26" stroke-dasharray="4 5"/>`;
+ });
  pointSets.forEach(({c,pts})=>{
   if(!pts.length)return;
   const path=pts.length===1?`M${x(pts[0].i)-1},${y(pts[0].scaled)} L${x(pts[0].i)+1},${y(pts[0].scaled)}`:pts.map((q,i)=>(i?"L":"M")+x(q.i)+","+y(q.scaled)).join(" ");
-  svg+=`<path d="${path}" fill="none" stroke="${c.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.scaled)}" r="4" fill="${c.color}" stroke="#0a202a" stroke-width="2"><title>${q.date}: ${c.label} ${q.raw.toFixed(c.decimals)} ${c.unit} (${q.scaled.toFixed(2)} normalized)</title></circle>`).join("");
+  svg+=`<path d="${path}" fill="none" stroke="${c.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg+=pts.map(q=>`<circle cx="${x(q.i)}" cy="${y(q.scaled)}" r="3.6" fill="${c.color}" stroke="#0a202a" stroke-width="1.7"><title>${q.date}: ${c.label} ${q.raw.toFixed(c.decimals)} ${c.unit} • graph unit ${q.scaled.toFixed(2)}</title></circle>`).join("");
  });
-
- const tickIndices=allDates.length<=6?allDates.map((_,i)=>i):[0,Math.round(n/2),n];
+ const tickIndices=allDates.length<=5?allDates.map((_,i)=>i):[0,Math.round(n/2),n];
  [...new Set(tickIndices)].forEach(i=>{
   const d=new Date(allDates[i]+"T12:00:00");
-  svg+=`<text class="major-date" text-anchor="middle" x="${x(i)}" y="${h-32}">${d.toLocaleDateString([], {month:"short",day:"numeric"})}</text>`;
+  svg+=`<text class="major-date" text-anchor="middle" x="${x(i)}" y="${h-14}">${d.toLocaleDateString([], {month:"short",day:"numeric"})}</text>`;
  });
- svg+=`<g class="major-chart-legend" transform="translate(${left},${h-8})">${config.map((c,i)=>`<g transform="translate(${i*205},0)"><line x1="0" y1="-4" x2="24" y2="-4" stroke="${c.color}" stroke-width="4" stroke-linecap="round"/><circle cx="12" cy="-4" r="4" fill="${c.color}"/><text x="32" y="0">${c.label} ÷ ${c.step}</text></g>`).join("")}</g>`;
  svg+='</svg>';
  el.innerHTML=svg;
 }
