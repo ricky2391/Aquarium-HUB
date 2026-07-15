@@ -139,7 +139,7 @@ const livestock=[
 {group:"Invertebrate",name:"Tiger pistol shrimp (snapping shrimp)",scientific:"Alpheus bellulus",kind:"shrimp",accent:"#f1a55b",summary:"Burrowing snapping shrimp that moves sand and rubble beneath the rockwork.",facts:{Count:"1",Status:"Active",PurchaseDate:"Existing livestock",CurrentSize:"Not recorded",Temperament:"Territorial burrower",Diet:"Omnivore",AdultSize:"2–3 in",Zone:"Sand / rock base"},behavior:"Excavates tunnels and produces a loud, normal snapping sound.",food:"Sinking pellets, small meaty foods, leftovers, and natural detritus.",care:["Keep rockwork secure","Expect ongoing sand movement","Provide small rubble for burrow building","Check that excavations do not undermine coral placement"]},
 {group:"Invertebrate",name:"Electric blue hermit crab",scientific:"Calcinus elegans",kind:"shell",accent:"#478de8",summary:"Colorful algae- and detritus-grazing hermit crab.",facts:{Count:"1",Status:"Active",PurchaseDate:"Existing livestock",CurrentSize:"Not recorded",Temperament:"Semi-aggressive scavenger",Diet:"Omnivore",AdultSize:"About 2 in",Zone:"Rock and sand"},behavior:"Roams the tank grazing and investigating shells and food scraps.",food:"Algae, detritus, leftover foods, and occasional sinking algae foods.",care:["Provide spare shells","Watch for aggression toward snails","Supplement food if the tank is very clean","Keep salinity stable"]},
 {group:"Invertebrate",name:"Zebra hermit crab",scientific:"Calcinus laevimanus",kind:"shell",accent:"#d9d9d2",summary:"Small striped-leg hermit that grazes algae and scavenges detritus.",facts:{Count:"1",Status:"Active",PurchaseDate:"Existing livestock",CurrentSize:"Not recorded",Temperament:"Generally peaceful",Diet:"Omnivore",AdultSize:"About 1 in",Zone:"Rock and sand"},behavior:"Actively explores rockwork and sand for edible films and debris.",food:"Natural algae, detritus, leftover food, and small algae wafers if needed.",care:["Offer appropriately sized spare shells","Watch interactions with snails","Avoid starvation in an ultra-clean tank","Stable salinity supports molting"]},
-{group:"Invertebrate",name:"Yellow-tip hermit crab",scientific:"Hermit crab",kind:"shell",accent:"#e4c64d",summary:"Small yellow-tipped cleanup-crew hermit kept for grazing and scavenging.",facts:{Count:"1",Status:"Active",PurchaseDate:"Existing livestock",CurrentSize:"Not recorded",Temperament:"Generally peaceful",Diet:"Omnivore",AdultSize:"Varies",Zone:"Rock and sand"},behavior:"Moves across the rockwork and sand searching for algae and leftover food.",food:"Algae films, detritus, leftover foods, and occasional sinking foods.",care:["Provide spare shells","Monitor around snails and smaller hermits","Do not rely on detritus alone if food is scarce","Keep iodine and salinity changes gradual"]},
+{group:"Invertebrate",name:"Dwarf yellow tip hermit crab",scientific:"Clibanarius sp.",kind:"shell",accent:"#e4c64d",summary:"The dark blue-black dwarf hermit with pale speckling and yellow-gold tips shown in your LiveAquaria reference photo.",facts:{Count:"1",Status:"Active",PurchaseDate:"Existing livestock",CurrentSize:"Not recorded",Temperament:"Generally peaceful scavenger",Diet:"Omnivore",AdultSize:"Small / dwarf",Zone:"Rock and sand",Reference:"LiveAquaria Dwarf Yellow Tip Hermit Crab"},behavior:"Moves across rock and sand while grazing films and scavenging leftover food. The dark legs and lighter yellow-gold tips distinguish it from brighter generic yellow-leg hermits.",food:"Natural algae films, detritus, leftover marine foods, and occasional sinking algae-based foods.",care:["Provide several appropriately sized spare shells","Monitor interactions with snails and smaller hermits","Supplement food if the aquarium is very clean","Maintain stable salinity and avoid copper medications"]},
 {group:"Coral",name:"Purple hammer coral",scientific:"Fimbriaphyllia paraancora",kind:"coral",accent:"#9f72d9",summary:"The remaining purple branching hammer coral in the display.",facts:{Count:"1",Status:"Active",PurchaseDate:"Not recorded",CurrentSize:"Not recorded",Placement:"Not recorded",Lighting:"Moderate",Flow:"Gentle to moderate indirect",LastDipped:"Not recorded",LastFragged:"Never / not recorded"},behavior:"Should inflate during the light cycle and may extend sweeper tentacles after dark.",food:"Primarily photosynthetic; optional small coral foods can be offered occasionally.",care:["Keep alkalinity and salinity stable","Avoid direct blasting flow","Leave room for sweeper tentacles","Log tissue recession, brown jelly, or failure to expand"]},
 {group:"Coral",name:"Neon yellow octospawn",scientific:"Fimbriaphyllia species",kind:"coral",accent:"#d8ef45",summary:"The remaining neon yellow octospawn coral with fleshy, many-tipped tentacles.",facts:{Count:"1",Status:"Active",PurchaseDate:"Not recorded",CurrentSize:"Not recorded",Placement:"Not recorded",Lighting:"Moderate",Flow:"Gentle random",LastDipped:"Not recorded",LastFragged:"Never / not recorded"},behavior:"Expands broadly when comfortable and may retract from excessive flow, irritation, pests, or unstable chemistry.",food:"Mostly photosynthetic, with optional occasional feeding of appropriately sized coral foods.",care:["Handle only by the skeleton","Maintain stable alkalinity","Keep away from sensitive neighbors","Log bailout, tissue recession, or prolonged retraction immediately"]}
 ];
@@ -167,8 +167,13 @@ const livestockPhotoPages={
  "Tiger pistol shrimp (snapping shrimp)":"Alpheus_bellulus",
  "Electric blue hermit crab":"Calcinus_elegans",
  "Zebra hermit crab":"Calcinus_laevimanus",
+ "Dwarf yellow tip hermit crab":"Clibanarius",
  "Purple hammer coral":"Fimbriaphyllia_paraancora",
  "Neon yellow octospawn":"Euphyllia"
+};
+
+const livestockLocalImages={
+ "Dwarf yellow tip hermit crab":"./images/dwarf_yellow_tip_hermit.jpg"
 };
 const equipmentSources={
  "Radion XR15 G6 Pro ×2":"https://store2.ecotechmarine.com/products/radion-xr15g6pro",
@@ -874,10 +879,10 @@ function factsHtml(facts){
 function livestockCard(x){
  const custom=photoStore()[mediaKey("livestock",x.name)];
  const wiki=livestockPhotoPages[x.name];
- const src=custom||svgData(x.kind,x.name,x.accent);
+ const src=custom||livestockLocalImages[x.name]||svgData(x.kind,x.name,x.accent);
  const inputId=`photo-${btoa(unescape(encodeURIComponent(mediaKey("livestock",x.name)))).replace(/=/g,"")}`;
  return `<article class="profile-card">
-   <div class="profile-image remote-photo"><img data-wiki="${escapeHtml(wiki||x.scientific||x.name)}" src="${src}" alt="${escapeHtml(x.name)}" onerror="this.onerror=null;this.src=svgData(\'${x.kind}\',\'${escapeAttr(x.name)}\',\'${x.accent}\')"></div>
+   <div class="profile-image remote-photo"><img data-wiki="${livestockLocalImages[x.name]?"":escapeHtml(wiki||x.scientific||x.name)}" src="${src}" alt="${escapeHtml(x.name)}" onerror="this.onerror=null;this.src=svgData(\'${x.kind}\',\'${escapeAttr(x.name)}\',\'${x.accent}\')"></div>
    <div class="profile-content">
     <div class="profile-kicker">${escapeHtml(x.group)}${x.scientific?` • ${escapeHtml(x.scientific)}`:""}</div>
     <h4>${escapeHtml(x.name)}</h4>
@@ -933,17 +938,36 @@ function loadRemotePhotos(){
    .catch(()=>{});
  });
 }
+function countUnits(items){
+ return items.reduce((sum,item)=>sum+(Number(item.facts&&item.facts.Count)||1),0);
+}
+function accordionItem(item,type){
+ const card=type==="livestock"?livestockCard(item):equipmentCard(item);
+ const count=Number(item.facts&&item.facts.Count)||1;
+ const countText=type==="livestock"?`<span class="item-count">${count}</span>`:"";
+ return `<details class="nested-item"><summary><span>${escapeHtml(item.name)}</span>${countText}<span class="accordion-chevron">⌄</span></summary><div class="nested-body">${card}</div></details>`;
+}
+function categoryAccordion(title,items,type,id=""){
+ const count=type==="livestock"?countUnits(items):items.length;
+ const noun=type==="livestock"?"total":"devices";
+ return `<details class="category-accordion" ${id?`id="${id}"`:""}><summary><span class="category-title">${escapeHtml(title)}</span><span class="category-count">${count} ${noun}</span><span class="accordion-chevron">⌄</span></summary><div class="category-body">${items.map(i=>accordionItem(i,type)).join("")}</div></details>`;
+}
 function renderTank(){
  document.getElementById("targetList").innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${t.min}–${t.max} ${t.unit}</div></div></div>`).join("");
- const groups=[
-  {name:"Fish",id:"fish-section",title:"Fish"},
-  {name:"Invertebrate",id:"invertebrate-section",title:"Invertebrates"},
-  {name:"Coral",id:"coral-section",title:"Corals"}
+ const livestockGroups=[
+  {key:"Fish",id:"fish-section",title:"Fish"},
+  {key:"Invertebrate",id:"invertebrate-section",title:"Invertebrates"},
+  {key:"Coral",id:"coral-section",title:"Corals"}
  ];
- document.getElementById("livestock").innerHTML=groups.map(g=>`<section class="livestock-section" id="${g.id}"><h4 class="livestock-group-title">${g.title}</h4><div class="media-grid">${livestock.filter(x=>x.group===g.name).map(livestockCard).join("")}</div></section>`).join("");
- document.getElementById("equipment").innerHTML=equipment.map(equipmentCard).join("");
+ document.getElementById("livestock").innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
+ const equipmentOrder=["Lighting","Flow","Filtration","Heating","Dosing","ATO","Monitoring"];
+ const equipmentGroups=[...new Set(equipment.map(x=>x.group))].sort((a,b)=>{
+  const ai=equipmentOrder.indexOf(a),bi=equipmentOrder.indexOf(b);return (ai<0?99:ai)-(bi<0?99:bi);
+ });
+ document.getElementById("equipment").innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
  loadRemotePhotos();
 }
+
 function latestForKey(key){
  const rows=[...state.readings].filter(r=>hasReadingValue(r[key])).sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")));
  return rows[0]||null;

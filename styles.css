@@ -525,3 +525,17 @@ th{background:#12303d}
 .salt-estimate-details{margin-top:5px;font-size:13px;font-weight:700;color:var(--ink)}
 .salt-calculator p{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
 @media(max-width:560px){.salt-calculator-head{align-items:flex-start;flex-direction:column;gap:4px}.salt-calculator-head strong{font-size:24px}}
+
+
+/* v21 nested livestock and equipment accordions */
+#livestock,#equipment{display:grid;grid-template-columns:1fr;gap:12px}
+.category-accordion,.nested-item{border:1px solid var(--line);border-radius:18px;background:rgba(4,17,23,.26);overflow:hidden}
+.category-accordion>summary,.nested-item>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:16px;cursor:pointer;font-weight:800}
+.category-accordion>summary::-webkit-details-marker,.nested-item>summary::-webkit-details-marker{display:none}
+.category-accordion[open]>summary{border-bottom:1px solid var(--line);background:rgba(82,210,199,.07)}
+.nested-item[open]>summary{border-bottom:1px solid var(--line);background:rgba(255,255,255,.035)}
+.category-title{font-size:17px}.category-count{color:var(--teal);font-size:13px;padding:5px 9px;border-radius:999px;background:rgba(82,210,199,.1);white-space:nowrap}
+.item-count{min-width:28px;text-align:center;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:12px}
+.accordion-chevron{font-size:17px;color:var(--muted);transition:transform .18s ease}.category-accordion[open]>summary .accordion-chevron,.nested-item[open]>summary .accordion-chevron{transform:rotate(180deg)}
+.category-body{display:grid;gap:10px;padding:12px}.nested-body{padding:12px}.nested-body .profile-card{margin:0;box-shadow:none}.nested-item>summary span:first-child{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:650px){.category-accordion>summary,.nested-item>summary{padding:14px 12px}.category-title{font-size:16px}.category-count{font-size:12px}.category-body,.nested-body{padding:9px}.nested-body .profile-image{aspect-ratio:4/3}}
