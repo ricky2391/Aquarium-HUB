@@ -1,18 +1,14 @@
-Aquarium HUB v23 — Reorganized Navigation
+Aquarium HUB v24 — Clean Tab Structure
 
 Tabs:
-- Dashboard
-- Readings
-- Maintenance
-- Livestock
-- Equipment
-- Testers
+- Dashboard: reef overview, latest parameters, trends, quick actions, upcoming maintenance
+- Readings: test-entry form and reading history only
+- Maintenance: recommendations, daily checks, feeding, water changes, salt mixing, observations, and schedule
+- Livestock: fish, invertebrates, corals, quarantine, and livestock history only
+- Equipment: system profile, installed equipment, target ranges, and inventory only
+- Testers: testing equipment guides and testing summary only
 
-Major changes:
-- Tank content split into dedicated Livestock and Equipment tabs.
-- Inventory added under Equipment.
-- Problem Solver promoted inside Maintenance.
-- Dashboard quick actions added for readings, water changes, and observations.
-- Existing readings, tasks, observations, water changes, livestock, equipment, feeding, and salt-mixing features preserved.
-
-Upload every file and folder in this package to the root of the GitHub repository.
+Fixes:
+- Removed duplicate Livestock and Equipment HTML IDs that caused tab content to overwrite entire pages.
+- Updated all navigation targets and rendering containers.
+- Preserved all existing local-storage keys and saved user data.

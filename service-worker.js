@@ -1,4 +1,4 @@
-const CACHE_NAME="aquarium-hub-v23-reorganized";
+const CACHE_NAME = "aquarium-hub-v24";
 const ASSETS=[
   './',
   './index.html',

@@ -959,7 +959,7 @@ function renderTank(){
   {key:"Invertebrate",id:"invertebrate-section",title:"Invertebrates"},
   {key:"Coral",id:"coral-section",title:"Corals"}
  ];
- document.getElementById("livestock").innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
+ document.getElementById("livestockList").innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
  const fishTotal=countUnits(livestock.filter(x=>x.group==="Fish"));
  const invertTotal=countUnits(livestock.filter(x=>x.group==="Invertebrate"));
  const coralTotal=countUnits(livestock.filter(x=>x.group==="Coral"));

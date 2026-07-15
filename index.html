@@ -38,7 +38,7 @@
     </div>
     <div class="glance-right">
       <div class="glance-stats">
-        <button class="glance-tile volume" onclick="goToSection('equipment','equipment')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile volume" onclick="goToSection('equipment','equipment-system-overview')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
         <button class="glance-tile fish" onclick="goToSection('livestock','fish-section')" aria-label="Open fish livestock"><span class="glance-icon">🐠</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Fish <span id="glanceFish">0</span></strong></span><span class="tile-arrow">›</span></button>
         <button class="glance-tile invert" onclick="goToSection('livestock','invertebrate-section')" aria-label="Open invertebrate livestock"><span class="glance-icon">⭐</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Invertebrates <span id="glanceInverts">0</span></strong></span><span class="tile-arrow">›</span></button>
         <button class="glance-tile coral" onclick="goToSection('livestock','coral-section')" aria-label="Open coral livestock"><span class="glance-icon">🪸</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Corals <span id="glanceCorals">0</span></strong></span><span class="tile-arrow">›</span></button>
@@ -243,7 +243,7 @@
       </div>
       <div class="card" style="margin-top:16px">
         <div class="section-title"><div><h3>Current livestock</h3><span>Open a category, then open an individual profile</span></div></div>
-        <div id="livestock"></div>
+        <div id="livestockList"></div>
       </div>
       <div class="grid two" style="margin-top:16px">
         <div class="card"><div class="section-title"><h3>Quarantine</h3><span>Future tracking area</span></div><p class="muted-copy">No animals are currently recorded in quarantine.</p></div>
@@ -254,7 +254,7 @@
     <section id="equipment" class="page">
       <div class="hero"><div><h2>Equipment</h2><p>System profile, expandable equipment groups, maintenance details, and supply inventory.</p></div></div>
       <div class="grid two">
-        <div class="card" id="equipment"><div class="section-title"><h3>System overview</h3></div><dl class="profile-list">
+        <div class="card" id="equipment-system-overview"><div class="section-title"><h3>System overview</h3></div><dl class="profile-list">
           <dt>Display</dt><dd>Aqueon 60-gallon / ~65-gallon system reference</dd>
           <dt>Started</dt><dd>March 2025</dd><dt>Salt</dt><dd>Tropic Marin Pro-Reef</dd>
           <dt>Substrate</dt><dd>CaribSea Special Grade</dd><dt>Style</dt><dd>Mixed reef with LPS emphasis</dd>
