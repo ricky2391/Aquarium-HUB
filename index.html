@@ -10,7 +10,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="Reef Control" name="apple-mobile-web-app-title"/>
-<link href="styles.css?v=27" rel="stylesheet"/>
+<link href="styles.css?v=28" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
@@ -192,12 +192,12 @@
 <div><strong>Dry salt storage</strong><p>Seal the bucket or bag tightly and keep it cool and dry. Use a completely dry scoop so moisture does not form hard clumps or alter the mixture.</p></div>
 <div><strong>Mixing equipment</strong><p>After use, rinse the container, pump, heater, tubing, and measuring cup. Periodically remove mineral residue with a reef-safe citric-acid cleaning solution, then rinse thoroughly.</p></div>
 </div>
-</div></details><div class="card observations-library-card">
-<div class="section-title"><div><h3>Observations &amp; action plans</h3><span>Review what you noticed, the recommended solution, and the steps to take</span></div><span class="badge" id="observationCount">0 logged</span></div>
-<div id="observationHistory"></div>
-</div><div class="grid maintenance-guidance">
+</div></details><div class="grid maintenance-guidance">
 <div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alk readings</dd></div></div>
 <div class="card"><div class="section-title"><h3>Bacteria products</h3><span class="badge gold">Goal-based</span></div><p>MicroBacter7 or MicroBacter CLEAN should not be treated as automatic weekly requirements. Use them only for a defined goal, such as after replacing biological media or during a planned cleaning program, and follow the product label.</p></div>
+</div><div class="card observations-library-card">
+<div class="section-title"><div><h3>Observations &amp; action plans</h3><span>Review what you noticed, the recommended solution, and the steps to take</span></div><span class="badge" id="observationCount">0 logged</span></div>
+<div id="observationHistory"></div>
 </div><div class="card problem-solver-launcher">
 <div class="section-title"><div><h3>Problem Solver</h3><span>Describe a fish, coral, algae, pest, water, or equipment problem</span></div><span class="badge coral">Diagnostic tool</span></div>
 <p>Open a guided observation, record what you see, review immediate next steps, and use the research links for current reefkeeping guidance.</p>
@@ -246,14 +246,8 @@
 </div>
 <div class="card inventory-card" style="margin-top:16px">
 <div class="section-title"><div><h3>Inventory</h3><span>Consumables, food, reagents, and replacement media</span></div><span class="badge gold">Supply tracker</span></div>
-<div class="inventory-grid" id="inventoryList">
-<article><span>Salt</span><strong>Tropic Marin Pro-Reef</strong><small>Track bucket level and estimated water changes remaining.</small></article>
-<article><span>Foods</span><strong>Mysis, pellets, nori</strong><small>Track cubes, sheets, and unopened containers.</small></article>
-<article><span>Reagents</span><strong>Hanna test supplies</strong><small>Track tests remaining and expiration dates.</small></article>
-<article><span>Filter media</span><strong>Carbon, GFO, biological media</strong><small>Track installation date and replacement stock.</small></article>
-<article><span>Dosing</span><strong>All-For-Reef</strong><small>Track remaining volume and reorder point.</small></article>
-<article><span>Bacteria</span><strong>MicroBacter7 / CLEAN</strong><small>Track bottle level and use only for a defined goal.</small></article>
-</div>
+<div class="inventory-help">Open a category to view its overall supply level, then open a product to edit the starting amount, amount remaining, unit, expiration date, and automatic usage amount.</div>
+<div id="inventoryList"></div>
 </div>
 </section>
 <section class="page" id="testers">
@@ -269,7 +263,7 @@
 </main>
 </div>
 <div class="mobile-tabs" id="mobileTabs"></div>
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

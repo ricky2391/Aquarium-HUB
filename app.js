@@ -197,6 +197,24 @@ const testerSources={
  "HI98319":"https://hannainst.com/marine-salinity-tester-hi98319.html"
 };
 
+
+const defaultInventory=[
+ {id:"salt-tropic-marin",category:"Salt",name:"Tropic Marin Pro-Reef",current:40,full:40,unit:"cups",expiry:"",usagePerTask:0.5,match:"water change",note:"Automatic usage is calculated from gallons logged at 0.5 cup per gallon at 35 ppt."},
+ {id:"reagent-alk",category:"Test Reagents",name:"Hanna HI772 Alkalinity Reagent",current:25,full:25,unit:"tests",expiry:"",usagePerTask:1,match:"alkalinity test",note:"One test is deducted when alkalinity is saved or its task is completed."},
+ {id:"reagent-ca",category:"Test Reagents",name:"Hanna HI758 Calcium Reagent",current:25,full:25,unit:"tests",expiry:"",usagePerTask:1,match:"calcium",note:"One test is deducted per calcium reading."},
+ {id:"reagent-mg",category:"Test Reagents",name:"Hanna HI783 Magnesium Reagent",current:25,full:25,unit:"tests",expiry:"",usagePerTask:1,match:"magnesium",note:"One test is deducted per magnesium reading."},
+ {id:"reagent-no3",category:"Test Reagents",name:"Hanna HI782 Nitrate Reagent",current:25,full:25,unit:"tests",expiry:"",usagePerTask:1,match:"nitrate",note:"One test is deducted per nitrate reading."},
+ {id:"reagent-po4",category:"Test Reagents",name:"Hanna HI736 Phosphorus Reagent",current:25,full:25,unit:"tests",expiry:"",usagePerTask:1,match:"phosphate",note:"One test is deducted per phosphorus/phosphate reading."},
+ {id:"afr",category:"Dosing",name:"Tropic Marin All-For-Reef",current:1000,full:1000,unit:"mL",expiry:"",usagePerTask:10,match:"all-for-reef|afr|dose",note:"Set Usage per task to your normal daily dose so completed dosing tasks deduct the correct volume."},
+ {id:"mb7",category:"Dosing",name:"MicroBacter7",current:250,full:250,unit:"mL",expiry:"",usagePerTask:6.5,match:"microbacter7",note:"Only deducts when a matching goal-based dosing task is completed."},
+ {id:"mbclean",category:"Dosing",name:"MicroBacter CLEAN",current:500,full:500,unit:"mL",expiry:"",usagePerTask:52,match:"microbacter clean",note:"Only deducts when a matching goal-based dosing task is completed."},
+ {id:"carbon",category:"Filter Media",name:"ROX 0.8 Carbon",current:500,full:500,unit:"mL",expiry:"",usagePerTask:100,match:"carbon",note:"Edit Usage per task to the amount normally replaced."},
+ {id:"gfo",category:"Filter Media",name:"High-Capacity GFO",current:250,full:250,unit:"grams",expiry:"",usagePerTask:50,match:"gfo|phosphate media",note:"Edit Usage per task to the amount normally replaced."},
+ {id:"floss",category:"Filter Media",name:"Filter Floss / Socks",current:20,full:20,unit:"changes",expiry:"",usagePerTask:1,match:"filter floss|filter sock|mechanical filtration",note:"One change is deducted when a matching replacement task is completed."},
+ {id:"mysis",category:"Food",name:"Frozen Mysis",current:20,full:20,unit:"cubes",expiry:"",usagePerTask:0.5,match:"frozen|mysis|feed fish",note:"Optional automatic amount for a completed feeding task."},
+ {id:"nori",category:"Food",name:"Nori Sheets",current:20,full:20,unit:"sheets",expiry:"",usagePerTask:0.25,match:"nori|algae grazing",note:"Set the amount used for each feeding task."}
+];
+
 const testers=[{"code": "HI772", "name": "Marine Alkalinity Checker", "image": "./images/hanna_hi772.jpg", "key": "alk", "unit": "dKH", "summary": "Measures alkalinity directly in dKH and is the primary test used to fine-tune All-For-Reef.", "range": "0.0–20.0 dKH", "reagent": "HI772-26", "frequency": "2–3× weekly while adjusting AFR", "steps": ["Rinse the cuvette with tank water, then fill exactly to the 10 mL line.", "Wipe the cuvette and insert it for the C1 zero reading.", "Add exactly 1.0 mL of HI772 reagent.", "Cap and invert gently several times without creating bubbles.", "Wipe the cuvette again, keep the same orientation, and take the C2 reading."], "tips": ["Use a dedicated 1 mL syringe.", "Test at the same time of day.", "Remove fingerprints and bubbles before both readings."], "mistakes": ["Inaccurate 1 mL reagent volume", "Changing cuvette orientation between C1 and C2", "Testing immediately after dosing into the same area"]}, {"code": "HI758U", "name": "Marine Calcium Checker", "image": "./images/hanna_hi758.jpg", "key": "ca", "unit": "ppm", "summary": "Measures calcium using a very small 0.1 mL aquarium-water sample.", "range": "200–600 ppm", "reagent": "HI758-26", "frequency": "Weekly initially; every 2–4 weeks once stable", "steps": ["Add 1 mL reagent A to a clean cuvette.", "Add RODI water to the 10 mL line, mix, wipe, and zero as C1.", "Add exactly 0.1 mL of aquarium water using the supplied micropipette.", "Add one packet of reagent B.", "Cap and shake vigorously for the specified time, wipe, and read C2."], "tips": ["The 0.1 mL sample volume is the most important accuracy step.", "Use only clean RODI for the blank.", "Keep the micropipette tip free of salt residue."], "mistakes": ["Using 1 mL tank water instead of 0.1 mL", "Poor micropipette technique", "Residual calcium or salt in the cuvette"]}, {"code": "HI783", "name": "Marine Magnesium Checker", "image": "./images/hanna_hi783.jpg", "key": "mg", "unit": "ppm", "summary": "Measures magnesium, which helps stabilize calcium and alkalinity chemistry.", "range": "1000–1800 ppm", "reagent": "HI783-25", "frequency": "Weekly during setup; monthly once stable", "steps": ["Use clean cuvettes, syringes, and pipette tips.", "Prepare the C1 blank exactly as shown in the current reagent-kit quick guide.", "Zero the checker with the C1 cuvette.", "Prepare the C2 sample using the stated aquarium-water and reagent volumes.", "Mix completely, wipe the cuvette, and take the final reading."], "tips": ["Follow the instructions packaged with the current reagent lot.", "Measure every liquid carefully.", "Rinse tools immediately after testing."], "mistakes": ["Following instructions from an older reagent version", "Cross-contaminating the sample syringe", "Incomplete mixing"]}, {"code": "HI782", "name": "Marine Nitrate High Range Checker", "image": "./images/hanna_hi782.jpg", "key": "no3", "unit": "ppm", "summary": "Measures nitrate in a reef-friendly range without manual color matching.", "range": "0.0–75.0 ppm", "reagent": "HI782-25", "frequency": "Weekly", "steps": ["Fill a clean cuvette with 10 mL of aquarium water.", "Wipe the cuvette and take the C1 zero reading.", "Add one HI782 reagent packet.", "Cap and shake/mix for the full instructed period.", "Use the timed reading mode and keep the cuvette clean before C2."], "tips": ["Get all powder into the cuvette.", "Start timing promptly.", "Tap away microbubbles before reading."], "mistakes": ["Reagent powder left in the packet", "Shortened mixing time", "Dirty or scratched cuvette"]}, {"code": "HI736", "name": "Phosphorus Ultra Low Range Checker", "image": "./images/hanna_hi736.jpg", "key": "ppb", "unit": "ppb P", "summary": "Reads ultra-low phosphorus in ppb. Aquarium Hub converts it automatically to phosphate ppm.", "range": "0–200 ppb phosphorus", "reagent": "HI736-25", "frequency": "Weekly or after changing GFO", "steps": ["Fill a clean cuvette with 10 mL aquarium water.", "Wipe it and take the C1 zero reading.", "Add one HI736 reagent packet.", "Shake continuously for 2 minutes.", "Hold the button to start the 3-minute countdown, then read the phosphorus result."], "tips": ["Enter the ppb result into the Readings page.", "Conversion used: ppb phosphorus × 3.066 ÷ 1000.", "Example: 20 ppb phosphorus = 0.061 ppm phosphate."], "mistakes": ["Entering the result directly as phosphate ppm", "Waiting too long before starting the timer", "Powder stuck around the neck or cap"]}, {"code": "HI780", "name": "Marine pH Tester", "image": "", "key": "ph", "unit": "pH", "summary": "A digital probe used for quick pH spot checks alongside the Seneye trend.", "range": "6.3–8.6 pH", "reagent": "pH 7.01 / 10.01 buffers", "frequency": "Weekly", "steps": ["Rinse the probe with RODI water.", "Blot gently—do not rub the glass sensor.", "Immerse the probe in a clean aquarium-water sample.", "Stir gently and wait until the reading stabilizes.", "Rinse and return the cap with storage solution."], "tips": ["Keep the probe hydrated.", "Calibrate with fresh buffers.", "Do not store the probe in RODI water."], "mistakes": ["Allowing the probe to dry", "Using expired or contaminated calibration buffer", "Rubbing the sensing bulb"]}, {"code": "HI98319", "name": "Marine Salinity Tester", "image": "./images/hanna_hi98319.jpg", "key": "sal", "unit": "ppt", "summary": "Measures salinity digitally in ppt or specific gravity.", "range": "0.0–70.0 ppt", "reagent": "35.00 ppt calibration solution", "frequency": "Every water change and weekly", "steps": ["Rinse the probe with RODI water.", "Immerse the probe in the aquarium-water sample.", "Stir gently to release any trapped bubbles.", "Wait for the reading to stabilize.", "Rinse after use and dry the exterior."], "tips": ["Calibrate with 35.00 ppt standard.", "Match new saltwater to the aquarium before a water change.", "Use ppt for the clearest comparison."], "mistakes": ["Air bubbles on the sensor", "Calibrating with tank water", "Testing a very small sample that changes temperature quickly"]}];
 
 const verifiedProductImages={"AI Nero 3": "./images/nero3.jpg", "Maxspect Gyre XF330 Cloud ×2": "./images/gyre_xf330.jpg", "AquaMaxx HF-M HOB Multi Filter": "./images/aquamaxx_hfm_logo_free.jpg", "AquaMaxx FR-S reactor": "./images/aquamaxx_frs_logo_free.jpg", "Helio 200W PTC heater": "./images/helio_heater.jpg", "Seneye": "./images/seneye.jpg"};
@@ -232,6 +250,8 @@ let state={
  serviceHistory:safeJson("reefServiceHistory",{}),
  observations:safeJson("reefObservations",[]),
  recommendationHistory:safeJson("reefRecommendationHistory",[]),
+ inventory:safeJson("reefInventory",defaultInventory),
+ inventoryEvents:safeJson("reefInventoryEvents",{}),
 };
 
 function applyV14RealBaseline(){
@@ -267,6 +287,15 @@ function applyV15MaintenanceMigration(){
  safeSet(migrationKey,"done");
 }
 applyV15MaintenanceMigration();
+
+function normalizeInventory(){
+ const saved=Array.isArray(state.inventory)?state.inventory:[];
+ const byId=Object.fromEntries(saved.map(x=>[x.id,x]));
+ state.inventory=defaultInventory.map(d=>({...d,...(byId[d.id]||{})}));
+ state.inventoryEvents=state.inventoryEvents&&typeof state.inventoryEvents==="object"?state.inventoryEvents:{};
+}
+normalizeInventory();
+
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
  const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
@@ -275,7 +304,9 @@ function persist(showWarning=false){
  const serviceSaved=safeSet("reefServiceHistory",JSON.stringify(state.serviceHistory));
  const observationsSaved=safeSet("reefObservations",JSON.stringify(state.observations||[]));
  const recommendationHistorySaved=safeSet("reefRecommendationHistory",JSON.stringify(state.recommendationHistory||[]));
- if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved||!observationsSaved||!recommendationHistorySaved)){
+ const inventorySaved=safeSet("reefInventory",JSON.stringify(state.inventory||[]));
+ const inventoryEventsSaved=safeSet("reefInventoryEvents",JSON.stringify(state.inventoryEvents||{}));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved||!serviceSaved||!observationsSaved||!recommendationHistorySaved||!inventorySaved||!inventoryEventsSaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -577,6 +608,70 @@ function updateConversion(){
  const po4=readingField("rPo4");
  po4.value=ppb.value?(Number(ppb.value)*3.066/1000).toFixed(3):"";
 }
+
+function inventoryItem(id){return (state.inventory||[]).find(x=>x.id===id)}
+function clampInventory(item){
+ item.full=Math.max(0,Number(item.full)||0);item.current=Math.max(0,Number(item.current)||0);
+ if(item.full>0)item.current=Math.min(item.current,item.full);
+}
+function setInventoryEvent(eventKey,usages){
+ if(!eventKey)return;
+ reverseInventoryEvent(eventKey,false);
+ const applied=[];
+ (usages||[]).forEach(u=>{
+  const item=inventoryItem(u.id),amount=Math.max(0,Number(u.amount)||0);
+  if(!item||!amount)return;
+  item.current=Math.max(0,(Number(item.current)||0)-amount);clampInventory(item);applied.push({id:u.id,amount});
+ });
+ if(applied.length)state.inventoryEvents[eventKey]=applied;
+}
+function reverseInventoryEvent(eventKey,deleteKey=true){
+ const events=state.inventoryEvents&&state.inventoryEvents[eventKey];
+ if(Array.isArray(events))events.forEach(u=>{const item=inventoryItem(u.id);if(item){item.current=(Number(item.current)||0)+(Number(u.amount)||0);clampInventory(item)}});
+ if(deleteKey&&state.inventoryEvents)delete state.inventoryEvents[eventKey];
+}
+function readingInventoryUsages(r){
+ const map={alk:"reagent-alk",ca:"reagent-ca",mg:"reagent-mg",no3:"reagent-no3",ppb:"reagent-po4",po4:"reagent-po4"};
+ const used=[];
+ Object.entries(map).forEach(([key,id])=>{if(hasReadingValue(r[key])&&!used.some(x=>x.id===id))used.push({id,amount:1})});
+ return used;
+}
+function taskInventoryUsages(t){
+ const text=`${t.title||""} ${t.details||""} ${t.type||""}`.toLowerCase(),used=[];
+ const add=(id,amount)=>{if(amount>0&&!used.some(x=>x.id===id))used.push({id,amount})};
+ if(/alkalinity test|test alkalinity/.test(text))add("reagent-alk",1);
+ if(/calcium/.test(text))add("reagent-ca",1);
+ if(/magnesium/.test(text))add("reagent-mg",1);
+ if(/nitrate/.test(text))add("reagent-no3",1);
+ if(/phosphate|phosphorus/.test(text))add("reagent-po4",1);
+ (state.inventory||[]).forEach(item=>{if(!item.match)return;try{if(new RegExp(item.match,"i").test(text))add(item.id,Number(item.usagePerTask)||0)}catch{}});
+ return used;
+}
+function inventoryPercent(item){return Number(item.full)>0?Math.max(0,Math.min(100,Math.round(Number(item.current)/Number(item.full)*100))):0}
+function inventoryStatusClass(p){return p<=15?"critical":p<=35?"low":p<=60?"medium":"good"}
+function formatInventoryNumber(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/,"").replace(/\.$/,"")}
+function saveInventoryItem(id){
+ const item=inventoryItem(id);if(!item)return;
+ const q=s=>document.querySelector(`[data-inventory-id="${CSS.escape(id)}"] ${s}`);
+ const full=Number(q('[data-field="full"]')?.value),current=Number(q('[data-field="current"]')?.value);
+ if(!Number.isFinite(full)||full<=0||!Number.isFinite(current)||current<0){alert("Enter a valid full amount and amount remaining.");return}
+ item.full=full;item.current=Math.min(current,full);item.unit=q('[data-field="unit"]')?.value.trim()||item.unit;item.expiry=q('[data-field="expiry"]')?.value||"";item.usagePerTask=Math.max(0,Number(q('[data-field="usage"]')?.value)||0);
+ persist(true);renderInventory();
+}
+function adjustInventory(id,delta){const item=inventoryItem(id);if(!item)return;item.current=(Number(item.current)||0)+Number(delta||0);clampInventory(item);persist(true);renderInventory()}
+function renderInventory(){
+ const container=document.getElementById("inventoryList");if(!container)return;
+ const order=["Salt","Test Reagents","Dosing","Filter Media","Food"];
+ const categories=[...new Set((state.inventory||[]).map(x=>x.category))].sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b)));
+ container.innerHTML=categories.map(cat=>{
+  const items=state.inventory.filter(x=>x.category===cat),pct=items.length?Math.round(items.reduce((s,x)=>s+inventoryPercent(x),0)/items.length):0;
+  return `<details class="inventory-category category-accordion"><summary><span class="category-title">${escapeHtml(cat)}</span><span class="inventory-category-percent ${inventoryStatusClass(pct)}">${pct}% left</span><span class="accordion-chevron">⌄</span></summary><div class="category-body">${items.map(item=>{
+   const p=inventoryPercent(item),expired=item.expiry&&new Date(item.expiry+"T23:59:59")<new Date();
+   return `<details class="inventory-product nested-item" data-inventory-id="${escapeHtml(item.id)}"><summary><span>${escapeHtml(item.name)}</span><span class="inventory-inline-percent ${inventoryStatusClass(p)}">${p}%</span><span class="accordion-chevron">⌄</span></summary><div class="inventory-product-body"><div class="inventory-meter"><div class="inventory-meter-fill ${inventoryStatusClass(p)}" style="width:${p}%"></div></div><div class="inventory-balance"><strong>${formatInventoryNumber(item.current)} ${escapeHtml(item.unit)}</strong><span>of ${formatInventoryNumber(item.full)} ${escapeHtml(item.unit)} remaining</span></div>${item.expiry?`<div class="inventory-expiry ${expired?"expired":""}">${expired?"Expired":"Expires"}: ${escapeHtml(item.expiry)}</div>`:""}<div class="inventory-edit-grid"><label>Amount remaining<input data-field="current" type="number" min="0" step="any" value="${Number(item.current)||0}"></label><label>Full amount<input data-field="full" type="number" min="0.01" step="any" value="${Number(item.full)||0}"></label><label>Unit<input data-field="unit" value="${escapeHtml(item.unit)}"></label><label>Expiration date<input data-field="expiry" type="date" value="${escapeHtml(item.expiry||"")}"></label><label>Usage per completed task<input data-field="usage" type="number" min="0" step="any" value="${Number(item.usagePerTask)||0}"></label></div><p class="inventory-note">${escapeHtml(item.note||"")}</p><div class="inventory-actions"><button class="btn primary" onclick="saveInventoryItem('${escapeAttr(item.id)}')">Save product</button><button class="btn" onclick="adjustInventory('${escapeAttr(item.id)}',Number(inventoryItem('${escapeAttr(item.id)}').usagePerTask)||1)">Add one usage</button><button class="btn danger" onclick="adjustInventory('${escapeAttr(item.id)}',-(Number(inventoryItem('${escapeAttr(item.id)}').usagePerTask)||1))">Use one</button></div></div></details>`
+  }).join("")}</div></details>`
+ }).join("");
+}
+
 function saveReading(){
  const r={
   id:Date.now(),
@@ -599,6 +694,7 @@ function saveReading(){
  if(!measured.length){alert("Enter at least one test result before saving.");return}
  if(measured.some(v=>!Number.isFinite(v))){alert("One or more results are not valid numbers.");return}
  state.readings.push(r);
+ setInventoryEvent(`reading:${r.id}`,readingInventoryUsages(r));
  persist(true);
  ["rAlk","rCa","rMg","rNo3","rPpb","rPo4","rPh","rSal","rTemp","rAfr","rNotes"].forEach(id=>readingField(id).value="");
  closeReadingForm();
@@ -610,7 +706,7 @@ function renderReadings(){
  const rows=[...state.readings].sort((a,b)=>new Date(b.date+"T"+b.time)-new Date(a.date+"T"+a.time));
  document.getElementById("readingRows").innerHTML=rows.length?rows.map(r=>`<tr><td>${r.date}<br><span style="color:var(--muted)">${r.time||""}</span></td><td>${fmt(r.alk,"alk")}</td><td>${fmt(r.ca,"ca")}</td><td>${fmt(r.mg,"mg")}</td><td>${fmt(r.no3,"no3")}</td><td>${fmt(r.ppb,"ppb")}</td><td>${fmt(r.po4,"po4")}</td><td>${fmt(r.ph,"ph")}</td><td>${fmt(r.sal,"sal")}</td><td>${fmt(r.temp,"temp")}</td><td>${r.afr??"—"}</td><td>${r.notes||""}</td><td><button class="btn danger" onclick="deleteReading(${r.id})">Delete</button></td></tr>`).join(""):'<tr><td colspan="13" class="empty">No readings yet.</td></tr>';
 }
-function deleteReading(id){if(confirm("Delete this reading?")){state.readings=state.readings.filter(r=>r.id!==id);persist(true);renderAll()}}
+function deleteReading(id){if(confirm("Delete this reading?")){reverseInventoryEvent(`reading:${id}`);state.readings=state.readings.filter(r=>r.id!==id);persist(true);renderAll()}}
 function maintenanceDateLabel(task){
  const d=task.dateObj||new Date(task.date+"T12:00:00");
  const today=localISODate(new Date());
@@ -675,7 +771,10 @@ function saveWaterChange(){
  const notes=document.getElementById("waterChangeNotes")?.value.trim()||"";
  if(!date){alert("Choose the water-change date.");return}
  if(!Number.isFinite(gallons)||gallons<=0||gallons>65){alert("Enter a water-change amount between 0 and 65 gallons.");return}
- state.waterChanges.push({id:Date.now(),date,gallons:Number(gallons.toFixed(1)),notes});
+ const entry={id:Date.now(),date,gallons:Number(gallons.toFixed(1)),notes};
+ state.waterChanges.push(entry);
+ const estimate=tropicMarinSaltEstimate(gallons,Number(document.getElementById("saltTargetPpt")?.value||35));
+ setInventoryEvent(`water:${entry.id}`,[{id:"salt-tropic-marin",amount:estimate?estimate.cups:0}]);
  persist(true);
  document.getElementById("waterChangeNotes").value="";
  document.getElementById("waterChangeGallons").value="";
@@ -683,7 +782,7 @@ function saveWaterChange(){
  renderAll();
 }
 function deleteWaterChange(id){
- if(confirm("Delete this water-change entry?")){state.waterChanges=state.waterChanges.filter(w=>Number(w.id)!==Number(id));persist(true);renderAll()}
+ if(confirm("Delete this water-change entry?")){reverseInventoryEvent(`water:${id}`);state.waterChanges=state.waterChanges.filter(w=>Number(w.id)!==Number(id));persist(true);renderAll()}
 }
 
 function observationAdvice(category,subject,details){
@@ -818,7 +917,11 @@ function renderTasks(){
  renderWaterChangePlanner();
 }
 function toggleScheduledTask(encodedId){
- const id=decodeURIComponent(encodedId);state.taskCompletions[id]=!state.taskCompletions[id];persist(true);renderAll();
+ const id=decodeURIComponent(encodedId),task=generatedMaintenanceTasks(30).find(t=>t.id===id),next=!state.taskCompletions[id];
+ state.taskCompletions[id]=next;
+ const eventKey=`task:${id}`;
+ if(next&&task)setInventoryEvent(eventKey,taskInventoryUsages(task));else reverseInventoryEvent(eventKey);
+ persist(true);renderAll();
 }
 function toggleMaintenanceWindow(){maintenanceWindowDays=maintenanceWindowDays===7?30:7;renderTasks()}
 function resetTasks(){
@@ -979,6 +1082,7 @@ function renderEquipmentPage(){
   const ai=equipmentOrder.indexOf(a),bi=equipmentOrder.indexOf(b);return (ai<0?99:ai)-(bi<0?99:bi);
  });
  container.innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
+ renderInventory();
 }
 
 function latestForKey(key){
@@ -1079,4 +1183,4 @@ function appSelfCheck(){
  const pageParents=[...document.querySelectorAll("main > section.page")].map(page=>page.id);
  return {ok:missing.length===0&&pageParents.length===pages.length,missing,pages:pageParents,readings:state.readings.length,tasks:state.tasks.length};
 }
-try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}
+try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,renderInventory,saveInventoryItem,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}

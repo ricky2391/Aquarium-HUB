@@ -1,17 +1,12 @@
-Aquarium HUB v25 — Strict Tab Isolation & Cleanup
+Aquarium HUB v28 — Live Inventory & Unified Controls
 
-Tab contents:
-- Dashboard: overview, parameters, trends, quick actions, and upcoming maintenance.
-- Readings: test entry and reading history only.
-- Maintenance: recommendations, checks, feeding, water changes, salt mixing, observations, and schedule.
-- Livestock: fish, invertebrates, corals, quarantine, and livestock history only.
-- Equipment: system profile, targets, installed equipment, and inventory only.
-- Testers: tester guides and testing summary only.
+Changes:
+- Observations moved directly above Problem Solver.
+- Editable inventory categories with percentage remaining, quantity, full amount, unit, expiration, and usage per task.
+- Saved readings deduct matching Hanna reagents.
+- Logged water changes deduct calculated Tropic Marin salt cups.
+- Completed dosing, media, filter, feeding, and testing tasks deduct configured inventory amounts.
+- Unchecking/deleting linked actions restores the inventory amount.
+- All clickable controls use a consistent colored interactive style.
 
-Fixes:
-- Split Livestock and Equipment rendering into independent functions and containers.
-- Added strict CSS isolation so inactive tabs cannot display or occupy space.
-- Corrected the app self-check to use the current tab and container IDs.
-- Added cache-busted CSS/JavaScript URLs and a new service-worker cache.
-- Removed four unused image assets and the broken unused Apple icon reference.
-- Preserved all existing local-storage keys and saved user data.
+Upload all files and the images folder to the root of the GitHub repository.
