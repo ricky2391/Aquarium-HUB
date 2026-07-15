@@ -306,7 +306,7 @@ function renderMajorElements(rows){
   const h=historyFor(c.key),last=h[h.length-1],value=last?Number(last[c.key]):null,trend=trendMeta(h,c.key,c.decimals,c.unit);
   const previous=h.length>1?h[h.length-2]:null;
   return `<div class="major-stat" style="--element-color:${c.color}">
-   <span><i style="background:${c.color}"></i>${c.short}</span>
+   <span class="element-label ${c.key}"><i class="element-dot ${c.key}-dot" style="background:${c.color}"></i>${c.short}</span>
    <strong>${value===null?"—":value.toFixed(c.decimals)} <em>${value===null?"":c.unit}</em></strong>
    ${trend.html}
    <small>${previous?`Previous: ${formatDateShort(previous)}<br>`:""}Target: ${c.targetMin}–${c.targetMax}</small>

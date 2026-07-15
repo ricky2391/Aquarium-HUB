@@ -56,7 +56,24 @@
   <div class="card"><div class="section-title"><h3>Current AFR</h3><span>Daily dose</span></div><div style="font-size:38px;font-weight:900;color:var(--blue)" id="afrSummary">—</div><div style="color:var(--muted);margin-top:6px">Pulled from the latest saved reading.</div></div>
 </div>
 <div class="grid two dashboard-trend-grid" style="margin-top:16px">
-        <div class="card major-card"><div class="section-title"><div><h3>Major Elements</h3><span>Latest values with normalized combined trends</span></div><span class="major-legend"><i class="alk-dot"></i> Alk <i class="ca-dot"></i> Ca <i class="mg-dot"></i> Mg</span></div><div id="majorSummary" class="major-summary"></div><div class="chart major-chart" id="majorElementsChart"></div></div>
+        <div class="card major-card">
+  <div class="section-title major-title">
+    <div><h3>Major Elements</h3><span>Latest readings and normalized combined trends</span></div>
+    <span class="major-legend" aria-label="Major element colors">
+      <span class="legend-item alk"><i></i>Alkalinity</span>
+      <span class="legend-item ca"><i></i>Calcium</span>
+      <span class="legend-item mg"><i></i>Magnesium</span>
+    </span>
+  </div>
+  <div id="majorSummary" class="major-summary"></div>
+  <div class="major-scale-key" aria-label="Graph display scale">
+    <strong>Graph scale</strong>
+    <span><b class="alk-text">Alk:</b> 1 dKH = 1 unit</span>
+    <span><b class="ca-text">Ca:</b> 50 ppm = 1 unit</span>
+    <span><b class="mg-text">Mg:</b> 150 ppm = 1 unit</span>
+  </div>
+  <div class="chart major-chart" id="majorElementsChart"></div>
+</div>
         <div class="card nutrient-card"><div class="section-title"><div><h3>Nutrients</h3><span>Nitrate and phosphate, shown on independent scales</span></div><span class="nutrient-legend"><i class="no3-dot"></i> NO₃ <i class="po4-dot"></i> PO₄</span></div><div id="nutrientSummary" class="nutrient-summary"></div><div class="chart nutrient-chart" id="nutrientChart"></div></div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
