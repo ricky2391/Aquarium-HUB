@@ -157,7 +157,8 @@ function initNav(){
  ["nav","mobileTabs"].forEach(cid=>{const c=document.getElementById(cid);pages.forEach(([id,label])=>{const b=document.createElement("button");b.textContent=label;b.dataset.page=id;b.onclick=()=>showPage(id);if(id==="dashboard")b.classList.add("active");c.appendChild(b)})});
 }
 function latest(){return [...state.readings].sort((a,b)=>new Date(b.date+"T"+b.time)-new Date(a.date+"T"+a.time))[0]||null}
-function mean(key){const v=state.readings.map(r=>Number(r[key])).filter(Number.isFinite);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
+function hasReadingValue(v){return v!==null&&v!==undefined&&String(v).trim()!==""&&Number.isFinite(Number(v))}
+function mean(key){const v=state.readings.map(r=>r[key]).filter(hasReadingValue).map(Number);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
 function fmt(v,key){if(v==null||v==="")return "—";if(key==="po4")return Number(v).toFixed(3);if(["alk","ph","sal","temp"].includes(key))return Number(v).toFixed(2).replace(/0+$/,"").replace(/\.$/,"");return Math.round(v)}
 function statusClass(v,t){if(v==null)return "";return v>=t.min&&v<=t.max?"good":(v<t.min*.9||v>t.max*1.1?"bad":"warn")}
 function readingDate(r){
@@ -166,7 +167,7 @@ function readingDate(r){
 }
 function parameterHistory(key){
  return state.readings
-  .filter(r=>Number.isFinite(Number(r[key]))&&readingDate(r))
+  .filter(r=>hasReadingValue(r[key])&&readingDate(r))
   .sort((a,b)=>readingDate(a)-readingDate(b));
 }
 function rangeConditionScore(value,t){
@@ -220,11 +221,23 @@ function renderDashboard(){
  // Each dashboard parameter card uses that parameter's newest saved result.
  // This allows partial tests to update immediately without waiting for a full-panel reading.
  Object.values(targets).forEach(t=>{
-  const newest=latestForKey(t.key);
+  const history=parameterHistory(t.key);
+  const newest=history.length?history[history.length-1]:null;
+  const previous=history.length>1?history[history.length-2]:null;
   const v=newest?newest[t.key]:null;
+  let changeHtml='<span class="kpi-change neutral">No reading saved</span>';
+  if(newest&&previous){
+   const delta=Number(newest[t.key])-Number(previous[t.key]);
+   const decimals=t.key==='po4'?3:(["alk","ph","sal","temp"].includes(t.key)?2:0);
+   const threshold=t.key==='po4'?0.0005:0.005;
+   const arrow=Math.abs(delta)<threshold?'→':delta>0?'↑':'↓';
+   const sign=delta>0?'+':'';
+   const cls=Math.abs(delta)<threshold?'neutral':delta>0?'up':'down';
+   changeHtml=`<span class="kpi-change ${cls}">${arrow} ${sign}${delta.toFixed(decimals).replace(/\.?0+$/,'')} ${t.unit} since last</span>`;
+  }else if(newest){changeHtml='<span class="kpi-change neutral">First saved reading</span>'}
   const c=document.createElement("div");
   c.className="card kpi";
-  c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}</div><div class="sub">${t.unit} • target ${t.min}–${t.max}</div>`;
+  c.innerHTML=`<div class="label">${t.label}</div><div class="value ${statusClass(v,t)}">${fmt(v,t.key)}${v!=null?` <small>${t.unit}</small>`:''}</div>${changeHtml}<div class="sub">${newest?`Latest: ${newest.date} • `:''}Target ${t.min}–${t.max} ${t.unit}</div>`;
   k.appendChild(c);
  });
  const ok=Object.values(targets).every(t=>{
@@ -554,11 +567,11 @@ function renderTank(){
  loadRemotePhotos();
 }
 function latestForKey(key){
- const rows=[...state.readings].filter(r=>Number.isFinite(Number(r[key]))).sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")));
+ const rows=[...state.readings].filter(r=>hasReadingValue(r[key])).sort((a,b)=>new Date(b.date+"T"+(b.time||"00:00"))-new Date(a.date+"T"+(a.time||"00:00")));
  return rows[0]||null;
 }
 function averageForKey(key){
- const vals=state.readings.map(r=>Number(r[key])).filter(Number.isFinite);
+ const vals=state.readings.map(r=>r[key]).filter(hasReadingValue).map(Number);
  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
 }
 function daysSince(dateString){

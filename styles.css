@@ -289,3 +289,10 @@ th{background:#12303d}
  .major-chart{min-height:245px!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
  .major-chart svg{width:720px!important;max-width:none!important;min-height:245px!important}
 }
+/* Latest-reading dashboard cards */
+.kpi .value small{font-size:.48em;font-weight:750;color:inherit;opacity:.92}
+.kpi-change{display:inline-flex;align-items:center;margin:7px 0 4px;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.01em}
+.kpi-change.up{color:#79e6a4;background:rgba(121,230,164,.11)}
+.kpi-change.down{color:#ff8e82;background:rgba(255,142,130,.11)}
+.kpi-change.neutral{color:var(--muted);background:rgba(255,255,255,.055)}
+@media(max-width:650px){.kpi .sub{font-size:11px;line-height:1.35}.kpi-change{font-size:10px;padding:4px 7px;max-width:100%;white-space:normal}}
