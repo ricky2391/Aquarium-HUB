@@ -24,23 +24,23 @@ const targets={
  temp:{label:"Temperature",unit:"°F",min:76,max:79,key:"temp",weight:18,testDays:7}
 };
 const maintenanceTemplates={
-  0:[
-    {title:"25-gallon water change",details:"Match temperature and salinity; test the full panel 1–2 hours later",type:"Water change"}
+  daily:[
+    {title:"Livestock and equipment check",details:"Confirm every fish is present and eating, inspect corals for recession or pests, verify temperature, flow, ATO operation, and leaks.",type:"Daily check",cadence:"daily"}
   ],
-  1:[
-    {title:"Alkalinity test",details:"Test at the same time of day",type:"Testing"},
-    {title:"MicroBacter7 — 6.5 mL",details:"Shake well; pause skimmer and UV for 4 hours",type:"Dosing"}
+  weekly:[
+    {weekday:1,title:"Alkalinity test",details:"Test at the same time of day and adjust All-For-Reef only from a clear trend.",type:"Testing"},
+    {weekday:3,title:"Alkalinity test",details:"Compare with the previous reading; avoid correcting a single unexpected result without retesting.",type:"Testing"},
+    {weekday:6,title:"Nutrients, pH, and salinity",details:"Test nitrate, phosphate, pH, and salinity. Inspect trends before changing feeding or media.",type:"Testing"},
+    {weekday:6,title:"Mechanical filtration and skimmer",details:"Replace or rinse filter floss, empty and clean the skimmer cup/neck, and remove trapped detritus.",type:"Filtration"},
+    {weekday:6,title:"Clean glass and inspect rockwork",details:"Clean viewing panels, baste detritus from rockwork, and inspect for algae, vermetids, or damaged coral tissue.",type:"Maintenance"},
+    {weekday:5,title:"ATO and dosing inspection",details:"Check the RODI reservoir, clean exposed sensors, inspect tubing for kinks or siphoning, and confirm dosing output.",type:"Equipment"}
   ],
-  3:[
-    {title:"Alkalinity test",details:"Test at the same time of day",type:"Testing"},
-    {title:"MicroBacter CLEAN — 52 mL",details:"Dilute in about 8 oz tank water; pause skimmer and UV for 4 hours",type:"Dosing"}
-  ],
-  5:[
-    {title:"Equipment inspection",details:"Check ATO, pumps, skimmer, reactor, and dosing line",type:"Equipment"}
-  ],
-  6:[
-    {title:"Full test panel",details:"Alk, Ca, Mg, NO₃, PO₄, pH, salinity, and temperature",type:"Testing"},
-    {title:"Weekly maintenance",details:"Clean glass and skimmer cup, change floss, and baste rocks",type:"Maintenance"}
+  monthly:[
+    {day:1,title:"Full major-elements test",details:"Test calcium and magnesium along with alkalinity. Review consumption before changing supplementation.",type:"Testing"},
+    {day:8,title:"Clean one circulation pump",details:"Rotate pumps so flow is never fully interrupted. Soak and remove calcium buildup, then confirm quiet operation.",type:"Equipment"},
+    {day:15,title:"Chemical media review",details:"Review phosphate trend and reactor flow. Replace carbon if exhausted; replace GFO only when phosphate trend supports it.",type:"Filtration"},
+    {day:22,title:"Heater, probes, and safety inspection",details:"Verify temperature with a second device, inspect cords and mounts, clean sensors, and test equipment alarms/shutoffs.",type:"Safety"},
+    {day:28,title:"Dosing-pump calibration",details:"Measure actual output with a graduated cylinder and inspect tubing, check valves, and reservoir condition.",type:"Dosing"}
   ]
 };
 let maintenanceWindowDays=7;
@@ -49,13 +49,48 @@ function localISODate(d){
  return `${y}-${m}-${day}`;
 }
 function dateAtNoon(date){return new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0,0)}
+function latestParameterValue(key){
+ const history=state.readings.filter(r=>hasReadingValue(r[key])&&readingDate(r)).sort((a,b)=>readingDate(b)-readingDate(a));
+ return history.length?Number(history[0][key]):null;
+}
+function waterChangeRecommendation(){
+ const history=[...(state.waterChanges||[])].filter(w=>w&&w.date&&Number(w.gallons)>0).sort((a,b)=>new Date(b.date+"T12:00:00")-new Date(a.date+"T12:00:00"));
+ const last=history[0]||null;
+ const systemGallons=65;
+ let gallons=15,interval=14,reason="A 15-gallon change is about 23% of the estimated 65-gallon system and is a conservative routine starting point.";
+ if(last){
+  const previous=Number(last.gallons);
+  if(previous>=25){gallons=15;interval=21;reason=`Your last change was ${previous} gallons, so the next routine change can usually be smaller and spaced about three weeks apart if nutrients remain stable.`}
+  else if(previous>=15){gallons=Math.round(previous);interval=14;reason=`Your previous ${previous}-gallon change is a reasonable routine size; the planner keeps a two-week interval.`}
+  else if(previous>=10){gallons=15;interval=10;reason=`Your previous change was ${previous} gallons, so the planner recommends a slightly larger change or a shorter interval.`}
+  else {gallons=15;interval=7;reason=`Your previous change was only ${previous} gallons, so the next change is scheduled sooner.`}
+ }
+ const no3=latestParameterValue("no3"),po4=latestParameterValue("po4");
+ if((no3!==null&&no3>15)||(po4!==null&&po4>.10)){
+  gallons=Math.max(gallons,20);interval=Math.min(interval,7);reason="Nitrate or phosphate is above the dashboard target, so the planner suggests a moderately larger change sooner. Confirm the result before reacting.";
+ }else if((no3!==null&&no3<3)&&(po4!==null&&po4<.02)){
+  gallons=Math.min(gallons,10);interval=Math.max(interval,21);reason="Both nutrients are very low, so the planner avoids an aggressive water change unless another issue requires one.";
+ }
+ const today=dateAtNoon(new Date());
+ const base=last?new Date(last.date+"T12:00:00"):today;
+ const due=new Date(base);due.setDate(base.getDate()+interval);
+ if(!last){due.setTime(today.getTime());due.setDate(today.getDate()+7)}
+ if(due<today)due.setTime(today.getTime());
+ return {last,gallons,interval,due,date:localISODate(due),reason,percent:Math.round(gallons/systemGallons*100)};
+}
 function generatedMaintenanceTasks(days=30){
  const start=dateAtNoon(new Date()),tasks=[];
+ const water=waterChangeRecommendation();
  for(let offset=0;offset<days;offset++){
   const date=new Date(start);date.setDate(start.getDate()+offset);
-  const templates=maintenanceTemplates[date.getDay()]||[];
+  const dateKey=localISODate(date);
+  const templates=[];
+  templates.push(...maintenanceTemplates.daily);
+  templates.push(...maintenanceTemplates.weekly.filter(t=>t.weekday===date.getDay()));
+  templates.push(...maintenanceTemplates.monthly.filter(t=>t.day===date.getDate()));
+  if(dateKey===water.date){templates.push({title:`Recommended ${water.gallons}-gallon water change`,details:`About ${water.percent}% of system volume. Match temperature and salinity, siphon detritus, and log the actual amount afterward.`,type:"Water change"})}
   templates.forEach((template,index)=>{
-   const dateKey=localISODate(date),id=`${dateKey}|${template.title}|${index}`;
+   const id=`${dateKey}|${template.title}|${index}`;
    tasks.push({...template,id,date:dateKey,dateObj:new Date(date),done:Boolean(state.taskCompletions[id])});
   });
  }
@@ -154,12 +189,14 @@ let state={
  readings:safeJson("reefReadings",[]),
  tasks:safeJson("reefTasks",[]),
  taskCompletions:safeJson("reefTaskCompletions",{}),
+ waterChanges:safeJson("reefWaterChanges",[]),
 };
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
  const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
  const completionsSaved=safeSet("reefTaskCompletions",JSON.stringify(state.taskCompletions));
- if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved)){
+ const waterChangesSaved=safeSet("reefWaterChanges",JSON.stringify(state.waterChanges));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved||!waterChangesSaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -500,7 +537,38 @@ function maintenanceDateLabel(task){
 }
 function taskHtml(t){
  const encoded=encodeURIComponent(t.id);
- return `<div class="task scheduled-task ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div class="task-date">${maintenanceDateLabel(t)}</div><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
+ return `<div class="task scheduled-task ${t.type==="Water change"?"water-change-task":""} ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div class="task-date">${maintenanceDateLabel(t)}</div><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
+}
+function waterChangeDateLabel(date){
+ const d=new Date(date+"T12:00:00");
+ return Number.isNaN(d.getTime())?date:d.toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"});
+}
+function renderWaterChangePlanner(){
+ const rec=waterChangeRecommendation(),history=[...(state.waterChanges||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
+ const amount=document.getElementById("recommendedWaterAmount"),due=document.getElementById("recommendedWaterDate"),reason=document.getElementById("waterChangeReason"),last=document.getElementById("lastWaterChange"),list=document.getElementById("waterChangeHistory");
+ if(amount)amount.textContent=`${rec.gallons} gallons (${rec.percent}%)`;
+ if(due)due.textContent=waterChangeDateLabel(rec.date);
+ if(reason)reason.textContent=rec.reason;
+ if(last)last.textContent=rec.last?`${rec.last.gallons} gallons on ${waterChangeDateLabel(rec.last.date)}`:"No water change logged yet";
+ if(list)list.innerHTML=history.length?history.slice(0,8).map(w=>`<div class="water-history-row"><div><strong>${Number(w.gallons)} gallons</strong><span>${waterChangeDateLabel(w.date)}${w.notes?` • ${escapeHtml(w.notes)}`:""}</span></div><button class="btn danger compact" onclick="deleteWaterChange(${Number(w.id)})">Delete</button></div>`).join(""):'<div class="empty compact-empty">No water changes logged yet.</div>';
+ const dateInput=document.getElementById("waterChangeDate"),gallonsInput=document.getElementById("waterChangeGallons");
+ if(dateInput&&!dateInput.value)dateInput.value=localISODate(new Date());
+ if(gallonsInput&&!gallonsInput.value)gallonsInput.value=rec.gallons;
+}
+function saveWaterChange(){
+ const date=document.getElementById("waterChangeDate")?.value;
+ const gallons=Number(document.getElementById("waterChangeGallons")?.value);
+ const notes=document.getElementById("waterChangeNotes")?.value.trim()||"";
+ if(!date){alert("Choose the water-change date.");return}
+ if(!Number.isFinite(gallons)||gallons<=0||gallons>65){alert("Enter a water-change amount between 0 and 65 gallons.");return}
+ state.waterChanges.push({id:Date.now(),date,gallons:Number(gallons.toFixed(1)),notes});
+ persist(true);
+ document.getElementById("waterChangeNotes").value="";
+ document.getElementById("waterChangeGallons").value="";
+ renderAll();
+}
+function deleteWaterChange(id){
+ if(confirm("Delete this water-change entry?")){state.waterChanges=state.waterChanges.filter(w=>Number(w.id)!==Number(id));persist(true);renderAll()}
 }
 function renderTasks(){
  const tasks=generatedMaintenanceTasks(maintenanceWindowDays),list=document.getElementById("taskList");
@@ -509,6 +577,7 @@ function renderTasks(){
  if(title)title.textContent=maintenanceWindowDays===7?"Next 7 days":"Next 30 days";
  if(hint)hint.textContent=`${tasks.filter(t=>!t.done).length} remaining • Dates update automatically`;
  if(button)button.textContent=maintenanceWindowDays===7?"Show all 30 days":"Show next 7 days";
+ renderWaterChangePlanner();
 }
 function toggleScheduledTask(encodedId){
  const id=decodeURIComponent(encodedId);state.taskCompletions[id]=!state.taskCompletions[id];persist(true);renderAll();
@@ -702,7 +771,7 @@ function renderTesters(){
  document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
 }
 function exportData(){
- const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,photos:photoStore()};
+ const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,photos:photoStore()};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -715,6 +784,7 @@ function importData(e){
   if(!d||!Array.isArray(d.readings))throw new Error("Invalid backup format");
   state.readings=d.readings;state.tasks=Array.isArray(d.tasks)?d.tasks:[];
   if(d.taskCompletions&&typeof d.taskCompletions==="object")state.taskCompletions=d.taskCompletions;
+  if(Array.isArray(d.waterChanges))state.waterChanges=d.waterChanges;
   if(d.photos&&typeof d.photos==="object")savePhotoStore(d.photos);
   persist(true);renderAll();alert("Backup imported.");
  }catch(err){console.error(err);alert("That file is not a valid Aquarium Hub backup.")}finally{input.value=""}};

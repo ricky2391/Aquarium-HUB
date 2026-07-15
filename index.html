@@ -105,12 +105,30 @@
 
     <section id="maintenance" class="page">
       <div class="hero"><div><h2>Maintenance</h2><p>Stay on top of testing, water changes, dosing, and equipment care.</p></div><button class="btn" onclick="resetTasks()">Clear completed</button></div>
-      <div class="grid two">
+      <div class="maintenance-layout">
+        <div class="card water-change-planner">
+          <div class="section-title"><div><h3>Water-change planner</h3><span>Recommendations adapt to your history and latest nutrient readings</span></div><span class="badge">65-gallon system</span></div>
+          <div class="water-recommendation-grid">
+            <div class="water-recommendation"><span>Recommended amount</span><strong id="recommendedWaterAmount">15 gallons</strong></div>
+            <div class="water-recommendation"><span>Recommended date</span><strong id="recommendedWaterDate">—</strong></div>
+            <div class="water-recommendation"><span>Last change</span><strong id="lastWaterChange">No water change logged yet</strong></div>
+          </div>
+          <p class="planner-reason" id="waterChangeReason"></p>
+          <div class="water-log-form">
+            <div class="field"><label>Date changed</label><input id="waterChangeDate" type="date"></div>
+            <div class="field"><label>Gallons changed</label><input id="waterChangeGallons" type="number" step="0.5" min="0.5" max="65" inputmode="decimal"></div>
+            <div class="field water-notes"><label>Notes</label><input id="waterChangeNotes" type="text" placeholder="Optional: siphoned sand, matched 35 ppt, etc."></div>
+            <button class="btn primary water-save" onclick="saveWaterChange()">Log water change</button>
+          </div>
+          <div class="water-history"><div class="section-title compact-title"><h3>Recent water changes</h3></div><div id="waterChangeHistory"></div></div>
+        </div>
+
         <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div><div id="taskList"></div></div>
-        <div class="grid">
-          <div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alk readings</dd></div></div>
-          <div class="card"><div class="section-title"><h3>MicroBacter7</h3><span class="badge gold">Weekly</span></div><p><strong>6.5 mL weekly maintenance dose</strong> for a 65-gallon reference volume. Shake well. Add to high flow or biological filtration. Pause skimmer and UV for 4 hours.</p></div>
-          <div class="card"><div class="section-title"><h3>MicroBacter CLEAN</h3><span class="badge coral">Weekly</span></div><p><strong>52 mL weekly maintenance dose</strong> at the label rate previously used for this plan. Dilute into about 8 oz / 250 mL tank water first. Pause skimmer and UV for 4 hours. Avoid adding directly into a pump intake.</p></div>
+
+        <div class="grid maintenance-guidance">
+          <div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alkalinity readings</dd></div></div>
+          <div class="card"><div class="section-title"><h3>Healthy-reef priorities</h3><span class="badge gold">Ongoing</span></div><div class="care-priority-list"><div><strong>Stability first</strong><span>Avoid large, frequent corrections. Confirm unusual test results before changing dosing or media.</span></div><div><strong>Remove waste early</strong><span>Replace dirty floss, clean the skimmer neck, baste rockwork, and siphon accumulated detritus.</span></div><div><strong>Inspect livestock daily</strong><span>Eating, breathing, swimming, coral extension, tissue condition, and aggression are early warning signs.</span></div><div><strong>Maintain flow and temperature</strong><span>Keep pumps clean, verify the heater independently, and make sure the ATO maintains stable salinity.</span></div></div></div>
+          <div class="card"><div class="section-title"><h3>Bacteria products</h3><span class="badge coral">Use only when needed</span></div><p>MicroBacter7 and MicroBacter CLEAN are not required automatic weekly tasks for every stable reef. Use them for a specific goal, follow the current product label, and avoid treating them as substitutes for nutrient control, water changes, or mechanical maintenance.</p></div>
         </div>
       </div>
     </section>
