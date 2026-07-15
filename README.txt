@@ -1,14 +1,17 @@
-Aquarium HUB v24 — Clean Tab Structure
+Aquarium HUB v25 — Strict Tab Isolation & Cleanup
 
-Tabs:
-- Dashboard: reef overview, latest parameters, trends, quick actions, upcoming maintenance
-- Readings: test-entry form and reading history only
-- Maintenance: recommendations, daily checks, feeding, water changes, salt mixing, observations, and schedule
-- Livestock: fish, invertebrates, corals, quarantine, and livestock history only
-- Equipment: system profile, installed equipment, target ranges, and inventory only
-- Testers: testing equipment guides and testing summary only
+Tab contents:
+- Dashboard: overview, parameters, trends, quick actions, and upcoming maintenance.
+- Readings: test entry and reading history only.
+- Maintenance: recommendations, checks, feeding, water changes, salt mixing, observations, and schedule.
+- Livestock: fish, invertebrates, corals, quarantine, and livestock history only.
+- Equipment: system profile, targets, installed equipment, and inventory only.
+- Testers: tester guides and testing summary only.
 
 Fixes:
-- Removed duplicate Livestock and Equipment HTML IDs that caused tab content to overwrite entire pages.
-- Updated all navigation targets and rendering containers.
+- Split Livestock and Equipment rendering into independent functions and containers.
+- Added strict CSS isolation so inactive tabs cannot display or occupy space.
+- Corrected the app self-check to use the current tab and container IDs.
+- Added cache-busted CSS/JavaScript URLs and a new service-worker cache.
+- Removed four unused image assets and the broken unused Apple icon reference.
 - Preserved all existing local-storage keys and saved user data.

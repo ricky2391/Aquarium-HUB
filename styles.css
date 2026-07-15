@@ -564,3 +564,9 @@ th{background:#12303d}
  .inventory-grid{grid-template-columns:1fr}
  .mobile-tabs{overflow-x:auto!important;justify-content:flex-start!important;scrollbar-width:none}.mobile-tabs::-webkit-scrollbar{display:none}.mobile-tabs button{flex:0 0 auto!important;min-width:78px!important;padding:10px 8px!important}
 }
+
+/* v25 strict tab isolation */
+main > section.page{display:none!important;width:100%;min-width:0}
+main > section.page.active{display:block!important}
+main > section.page:not(.active){visibility:hidden!important;height:0!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important}
+#livestockList,#equipmentList{min-width:0;overflow:hidden}

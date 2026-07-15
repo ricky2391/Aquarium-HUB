@@ -952,25 +952,32 @@ function categoryAccordion(title,items,type,id=""){
  const noun=type==="livestock"?"total":"devices";
  return `<details class="category-accordion" ${id?`id="${id}"`:""}><summary><span class="category-title">${escapeHtml(title)}</span><span class="category-count">${count} ${noun}</span><span class="accordion-chevron">⌄</span></summary><div class="category-body">${items.map(i=>accordionItem(i,type)).join("")}</div></details>`;
 }
-function renderTank(){
- document.getElementById("targetList").innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${t.min}–${t.max} ${t.unit}</div></div></div>`).join("");
+function renderLivestockPage(){
+ const container=document.getElementById("livestockList");
+ if(!container)return;
  const livestockGroups=[
   {key:"Fish",id:"fish-section",title:"Fish"},
   {key:"Invertebrate",id:"invertebrate-section",title:"Invertebrates"},
   {key:"Coral",id:"coral-section",title:"Corals"}
  ];
- document.getElementById("livestockList").innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
- const fishTotal=countUnits(livestock.filter(x=>x.group==="Fish"));
- const invertTotal=countUnits(livestock.filter(x=>x.group==="Invertebrate"));
- const coralTotal=countUnits(livestock.filter(x=>x.group==="Coral"));
- const f=document.getElementById("livestockFishTotal"),i=document.getElementById("livestockInvertTotal"),c=document.getElementById("livestockCoralTotal");
- if(f)f.textContent=fishTotal;if(i)i.textContent=invertTotal;if(c)c.textContent=coralTotal;
+ container.innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
+ const totals={
+  livestockFishTotal:countUnits(livestock.filter(x=>x.group==="Fish")),
+  livestockInvertTotal:countUnits(livestock.filter(x=>x.group==="Invertebrate")),
+  livestockCoralTotal:countUnits(livestock.filter(x=>x.group==="Coral"))
+ };
+ Object.entries(totals).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value});
+}
+function renderEquipmentPage(){
+ const targetsContainer=document.getElementById("targetList");
+ if(targetsContainer)targetsContainer.innerHTML=Object.values(targets).map(t=>`<div class="task"><div><div class="task-title">${t.label}</div><div class="task-meta">${t.min}–${t.max} ${t.unit}</div></div></div>`).join("");
+ const container=document.getElementById("equipmentList");
+ if(!container)return;
  const equipmentOrder=["Lighting","Flow","Filtration","Heating","ATO","Monitoring","Controllers","Electrical","Dosing"];
  const equipmentGroups=[...new Set(equipment.map(x=>x.group))].sort((a,b)=>{
   const ai=equipmentOrder.indexOf(a),bi=equipmentOrder.indexOf(b);return (ai<0?99:ai)-(bi<0?99:bi);
  });
- document.getElementById("equipmentList").innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
- loadRemotePhotos();
+ container.innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
 }
 
 function latestForKey(key){
@@ -1054,10 +1061,21 @@ function importData(e){
  rd.onerror=()=>{alert("That backup file could not be read.");input.value=""};
  rd.readAsText(f);
 }
-function renderAll(){renderDashboard();renderReadings();renderTasks();renderObservationTools();renderMaintenanceRecommendations();renderTank();renderTesters()}
+function renderAll(){
+ renderDashboard();
+ renderReadings();
+ renderTasks();
+ renderObservationTools();
+ renderMaintenanceRecommendations();
+ renderLivestockPage();
+ renderEquipmentPage();
+ renderTesters();
+ loadRemotePhotos();
+}
 function appSelfCheck(){
- const required=["dashboard","readings","maintenance","tank","testers","kpis","readingForm","readingRows","taskList","livestock","equipment","testerList","healthScore"];
+ const required=["dashboard","readings","maintenance","livestock","equipment","testers","kpis","readingForm","readingRows","taskList","livestockList","equipmentList","testerList","healthScore"];
  const missing=required.filter(id=>!document.getElementById(id));
- return {ok:missing.length===0,missing,readings:state.readings.length,tasks:state.tasks.length};
+ const pageParents=[...document.querySelectorAll("main > section.page")].map(page=>page.id);
+ return {ok:missing.length===0&&pageParents.length===pages.length,missing,pages:pageParents,readings:state.readings.length,tasks:state.tasks.length};
 }
 try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}
