@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aquarium-hub-v8-latest-values';
+const CACHE_NAME = 'aquarium-hub-v9-normalized-elements';
 const ASSETS=[
   './',
   './index.html',
