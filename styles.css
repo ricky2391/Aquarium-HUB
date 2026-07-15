@@ -575,3 +575,21 @@ main > section.page:not(.active){visibility:hidden!important;height:0!important;
 .reef-glance-actions-label{display:block;margin-bottom:10px;color:var(--muted);font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
 .reef-glance-actions .quick-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media(max-width:560px){.reef-glance-actions .quick-action-grid{grid-template-columns:1fr}.reef-glance-actions{margin-top:16px;padding-top:14px}}
+
+/* v27 compact maintenance cards */
+.collapsible-maintenance-card{padding:0;overflow:hidden}
+.collapsible-card-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px;cursor:pointer;user-select:none}
+.collapsible-card-summary::-webkit-details-marker{display:none}
+.collapsible-card-summary h3{margin:0;font-size:17px}
+.collapsible-card-summary>div>span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.collapsible-summary-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.collapse-chevron{font-size:20px;color:var(--muted);transition:transform .2s ease;line-height:1}
+details[open]>.collapsible-card-summary .collapse-chevron{transform:rotate(180deg)}
+.collapsible-card-body{padding:0 17px 17px;border-top:1px solid var(--line)}
+.collapsible-card-body>:first-child{margin-top:16px}
+@media(max-width:560px){
+  .collapsible-card-summary{padding:14px}
+  .collapsible-card-summary h3{font-size:16px}
+  .collapsible-card-summary .badge{display:none}
+  .collapsible-card-body{padding:0 14px 14px}
+}
