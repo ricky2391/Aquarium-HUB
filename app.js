@@ -1,4 +1,4 @@
-const pages=[["dashboard","Dashboard"],["readings","Readings"],["maintenance","Maintenance"],["tank","Tank"],["testers","Testers"]];
+const pages=[["dashboard","Dashboard"],["readings","Readings"],["maintenance","Maintenance"],["livestock","Livestock"],["equipment","Equipment"],["testers","Testers"]];
 
 function svgData(kind,title,accent="#52d2c7"){
  const safe=String(title).replace(/[&<>"']/g,"");
@@ -960,11 +960,16 @@ function renderTank(){
   {key:"Coral",id:"coral-section",title:"Corals"}
  ];
  document.getElementById("livestock").innerHTML=livestockGroups.map(g=>categoryAccordion(g.title,livestock.filter(x=>x.group===g.key),"livestock",g.id)).join("");
- const equipmentOrder=["Lighting","Flow","Filtration","Heating","Dosing","ATO","Monitoring"];
+ const fishTotal=countUnits(livestock.filter(x=>x.group==="Fish"));
+ const invertTotal=countUnits(livestock.filter(x=>x.group==="Invertebrate"));
+ const coralTotal=countUnits(livestock.filter(x=>x.group==="Coral"));
+ const f=document.getElementById("livestockFishTotal"),i=document.getElementById("livestockInvertTotal"),c=document.getElementById("livestockCoralTotal");
+ if(f)f.textContent=fishTotal;if(i)i.textContent=invertTotal;if(c)c.textContent=coralTotal;
+ const equipmentOrder=["Lighting","Flow","Filtration","Heating","ATO","Monitoring","Controllers","Electrical","Dosing"];
  const equipmentGroups=[...new Set(equipment.map(x=>x.group))].sort((a,b)=>{
   const ai=equipmentOrder.indexOf(a),bi=equipmentOrder.indexOf(b);return (ai<0?99:ai)-(bi<0?99:bi);
  });
- document.getElementById("equipment").innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
+ document.getElementById("equipmentList").innerHTML=equipmentGroups.map(group=>categoryAccordion(group,equipment.filter(x=>x.group===group),"equipment")).join("");
  loadRemotePhotos();
 }
 

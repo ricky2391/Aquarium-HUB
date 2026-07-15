@@ -38,10 +38,10 @@
     </div>
     <div class="glance-right">
       <div class="glance-stats">
-        <button class="glance-tile volume" onclick="goToSection('tank','tank')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
-        <button class="glance-tile fish" onclick="goToSection('tank','fish-section')" aria-label="Open fish livestock"><span class="glance-icon">🐠</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Fish <span id="glanceFish">0</span></strong></span><span class="tile-arrow">›</span></button>
-        <button class="glance-tile invert" onclick="goToSection('tank','invertebrate-section')" aria-label="Open invertebrate livestock"><span class="glance-icon">⭐</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Invertebrates <span id="glanceInverts">0</span></strong></span><span class="tile-arrow">›</span></button>
-        <button class="glance-tile coral" onclick="goToSection('tank','coral-section')" aria-label="Open coral livestock"><span class="glance-icon">🪸</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Corals <span id="glanceCorals">0</span></strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile volume" onclick="goToSection('equipment','equipment')" aria-label="Open tank overview"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile fish" onclick="goToSection('livestock','fish-section')" aria-label="Open fish livestock"><span class="glance-icon">🐠</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Fish <span id="glanceFish">0</span></strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile invert" onclick="goToSection('livestock','invertebrate-section')" aria-label="Open invertebrate livestock"><span class="glance-icon">⭐</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Invertebrates <span id="glanceInverts">0</span></strong></span><span class="tile-arrow">›</span></button>
+        <button class="glance-tile coral" onclick="goToSection('livestock','coral-section')" aria-label="Open coral livestock"><span class="glance-icon">🪸</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Corals <span id="glanceCorals">0</span></strong></span><span class="tile-arrow">›</span></button>
       </div>
       <div class="glance-footer">
         <button class="glance-footer-btn" onclick="goToSection('readings','latest-readings-card')"><span class="footer-icon">📅</span><span><b>Last Full Test</b><small id="lastFullTest">No complete test saved</small></span><span class="tile-arrow">›</span></button>
@@ -75,6 +75,14 @@
   <div class="chart major-chart" id="majorElementsChart"></div>
 </div>
         <div class="card nutrient-card"><div class="section-title"><div><h3>Nutrients</h3><span>Nitrate and phosphate, shown on independent scales</span></div><span class="nutrient-legend"><i class="no3-dot"></i> NO₃ <i class="po4-dot"></i> PO₄</span></div><div id="nutrientSummary" class="nutrient-summary"></div><div class="chart nutrient-chart" id="nutrientChart"></div></div>
+      </div>
+      <div class="card dashboard-quick-actions" style="margin-top:16px">
+        <div class="section-title"><h3>Quick actions</h3><span>Common reef tasks</span></div>
+        <div class="quick-action-grid">
+          <button class="btn primary" onclick="showPage('readings');openReadingForm()">＋ Add reading</button>
+          <button class="btn" onclick="showPage('maintenance');document.getElementById('waterChangeGallons')?.focus()">💧 Log water change</button>
+          <button class="btn" onclick="showPage('maintenance');toggleObservationPanel(true)">＋ Add observation</button>
+        </div>
       </div>
       <div class="card" style="margin-top:16px"><div class="section-title"><h3>Upcoming maintenance</h3><span id="taskCount"></span></div><div id="dashboardTasks"></div></div>
     </section>
@@ -111,6 +119,12 @@
           <div class="section-title"><div><h3>Live reef recommendations</h3><span>Updates instantly when tasks, readings, water changes, or observations change</span></div><span class="badge gold" id="recommendationCount">0 active</span></div>
           <div id="maintenanceRecommendations" class="recommendation-list"></div>
           <div class="recommendation-history"><details><summary>Completed recommendation history</summary><div id="recommendationHistory"></div></details></div>
+        </div>
+
+        <div class="card problem-solver-launcher">
+          <div class="section-title"><div><h3>Problem Solver</h3><span>Describe a fish, coral, algae, pest, water, or equipment problem</span></div><span class="badge coral">Diagnostic tool</span></div>
+          <p>Open a guided observation, record what you see, review immediate next steps, and use the research links for current reefkeeping guidance.</p>
+          <button class="btn primary" onclick="toggleObservationPanel(true)">Open Problem Solver</button>
         </div>
 
         <div class="card water-change-planner">
@@ -220,24 +234,46 @@
       </div>
     </section>
 
-    <section id="tank" class="page">
-      <div class="hero"><div><h2>Aquarium</h2><p>Your livestock, equipment, and target ranges.</p></div></div>
+    <section id="livestock" class="page">
+      <div class="hero"><div><h2>Livestock</h2><p>Fish, invertebrates, and corals with expandable profiles, health notes, and growth history.</p></div></div>
+      <div class="livestock-overview-grid">
+        <div class="overview-stat"><span>Fish</span><strong id="livestockFishTotal">9</strong></div>
+        <div class="overview-stat"><span>Invertebrates</span><strong id="livestockInvertTotal">5</strong></div>
+        <div class="overview-stat"><span>Corals</span><strong id="livestockCoralTotal">2</strong></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><div><h3>Current livestock</h3><span>Open a category, then open an individual profile</span></div></div>
+        <div id="livestock"></div>
+      </div>
+      <div class="grid two" style="margin-top:16px">
+        <div class="card"><div class="section-title"><h3>Quarantine</h3><span>Future tracking area</span></div><p class="muted-copy">No animals are currently recorded in quarantine.</p></div>
+        <div class="card"><div class="section-title"><h3>Wishlist & loss history</h3><span>Planning and records</span></div><p class="muted-copy">Use this area later for planned livestock and historical losses without mixing them into your active counts.</p></div>
+      </div>
+    </section>
+
+    <section id="equipment" class="page">
+      <div class="hero"><div><h2>Equipment</h2><p>System profile, expandable equipment groups, maintenance details, and supply inventory.</p></div></div>
       <div class="grid two">
-        <div class="card"><div class="section-title"><h3>System overview</h3></div><dl class="profile-list">
+        <div class="card" id="equipment"><div class="section-title"><h3>System overview</h3></div><dl class="profile-list">
           <dt>Display</dt><dd>Aqueon 60-gallon / ~65-gallon system reference</dd>
           <dt>Started</dt><dd>March 2025</dd><dt>Salt</dt><dd>Tropic Marin Pro-Reef</dd>
           <dt>Substrate</dt><dd>CaribSea Special Grade</dd><dt>Style</dt><dd>Mixed reef with LPS emphasis</dd>
         </dl></div>
         <div class="card"><div class="section-title"><h3>Target ranges</h3></div><div id="targetList"></div></div>
       </div>
-      <div class="grid two" style="margin-top:16px">
-        <div class="card">
-          <div class="section-title"><h3>Livestock</h3><span>Tap a card to add your own photo</span></div>
-          <div class="media-grid" id="livestock"></div>
-        </div>
-        <div class="card">
-          <div class="section-title"><h3>Equipment</h3><span>Store photos locally on your device</span></div>
-          <div class="media-grid" id="equipment"></div>
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><div><h3>Installed equipment</h3><span>Open a category, then open a device</span></div></div>
+        <div id="equipmentList"></div>
+      </div>
+      <div class="card inventory-card" style="margin-top:16px">
+        <div class="section-title"><div><h3>Inventory</h3><span>Consumables, food, reagents, and replacement media</span></div><span class="badge gold">Supply tracker</span></div>
+        <div class="inventory-grid" id="inventoryList">
+          <article><span>Salt</span><strong>Tropic Marin Pro-Reef</strong><small>Track bucket level and estimated water changes remaining.</small></article>
+          <article><span>Foods</span><strong>Mysis, pellets, nori</strong><small>Track cubes, sheets, and unopened containers.</small></article>
+          <article><span>Reagents</span><strong>Hanna test supplies</strong><small>Track tests remaining and expiration dates.</small></article>
+          <article><span>Filter media</span><strong>Carbon, GFO, biological media</strong><small>Track installation date and replacement stock.</small></article>
+          <article><span>Dosing</span><strong>All-For-Reef</strong><small>Track remaining volume and reorder point.</small></article>
+          <article><span>Bacteria</span><strong>MicroBacter7 / CLEAN</strong><small>Track bottle level and use only for a defined goal.</small></article>
         </div>
       </div>
     </section>
