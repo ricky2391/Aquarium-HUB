@@ -32,3 +32,10 @@ V7 update: Dashboard parameter cards now update independently from the latest sa
 
 
 v11: Optimized portrait-phone layout and added explicit orange calcium dots in Major Elements.
+
+
+v12 changes:
+- Nutrient cards now match Major Elements and show latest/previous dates.
+- Maintenance uses the actual current date.
+- Default view shows the next 7 days; button expands to all 30 days.
+- Completion is saved by exact calendar date and task.

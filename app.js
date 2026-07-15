@@ -23,16 +23,44 @@ const targets={
  sal:{label:"Salinity",unit:"ppt",min:34,max:36,key:"sal",weight:18,testDays:7},
  temp:{label:"Temperature",unit:"°F",min:76,max:79,key:"temp",weight:18,testDays:7}
 };
-const defaultTasks=[
- {title:"25-gallon water change",meta:"Sunday • Match temperature and salinity; test full panel 1–2 hours later"},
- {title:"Alkalinity test",meta:"Monday • Same time of day"},
- {title:"MicroBacter7 — 6.5 mL",meta:"Monday • Shake well; skimmer/UV off 4 hours"},
- {title:"Alkalinity test",meta:"Wednesday • Same time of day"},
- {title:"MicroBacter CLEAN — 52 mL",meta:"Wednesday • Dilute in ~8 oz tank water; skimmer/UV off 4 hours"},
- {title:"Equipment inspection",meta:"Friday • ATO, pumps, skimmer, reactor, dosing line"},
- {title:"Full panel",meta:"Saturday • Alk, Ca, Mg, NO3, PO4, pH, salinity, temperature"},
- {title:"Weekly maintenance",meta:"Saturday • Glass, floss, skimmer cup, baste rocks"}
-];
+const maintenanceTemplates={
+  0:[
+    {title:"25-gallon water change",details:"Match temperature and salinity; test the full panel 1–2 hours later",type:"Water change"}
+  ],
+  1:[
+    {title:"Alkalinity test",details:"Test at the same time of day",type:"Testing"},
+    {title:"MicroBacter7 — 6.5 mL",details:"Shake well; pause skimmer and UV for 4 hours",type:"Dosing"}
+  ],
+  3:[
+    {title:"Alkalinity test",details:"Test at the same time of day",type:"Testing"},
+    {title:"MicroBacter CLEAN — 52 mL",details:"Dilute in about 8 oz tank water; pause skimmer and UV for 4 hours",type:"Dosing"}
+  ],
+  5:[
+    {title:"Equipment inspection",details:"Check ATO, pumps, skimmer, reactor, and dosing line",type:"Equipment"}
+  ],
+  6:[
+    {title:"Full test panel",details:"Alk, Ca, Mg, NO₃, PO₄, pH, salinity, and temperature",type:"Testing"},
+    {title:"Weekly maintenance",details:"Clean glass and skimmer cup, change floss, and baste rocks",type:"Maintenance"}
+  ]
+};
+let maintenanceWindowDays=7;
+function localISODate(d){
+ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+ return `${y}-${m}-${day}`;
+}
+function dateAtNoon(date){return new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0,0)}
+function generatedMaintenanceTasks(days=30){
+ const start=dateAtNoon(new Date()),tasks=[];
+ for(let offset=0;offset<days;offset++){
+  const date=new Date(start);date.setDate(start.getDate()+offset);
+  const templates=maintenanceTemplates[date.getDay()]||[];
+  templates.forEach((template,index)=>{
+   const dateKey=localISODate(date),id=`${dateKey}|${template.title}|${index}`;
+   tasks.push({...template,id,date:dateKey,dateObj:new Date(date),done:Boolean(state.taskCompletions[id])});
+  });
+ }
+ return tasks;
+}
 const livestock=[
 {group:"Fish",name:"Darwin ocellaris clownfish",scientific:"Amphiprion ocellaris",kind:"fish",accent:"#8f98a3",summary:"A hardy clownfish known for its dark coloration and strong pair-bonding behavior.",facts:{Temperament:"Semi-aggressive",Diet:"Omnivore",AdultSize:"3–4 in",Lifespan:"10–20+ years",Growth:"Moderate",Zone:"Midwater / chosen territory"},behavior:"Pairs often establish a preferred corner, coral, or rock as a territory. The larger fish becomes female and may keep the smaller male at a respectful distance.",food:"Offer quality marine pellets, mysis, finely chopped seafood, and occasional enriched frozen foods. Feed small portions once or twice daily.",care:["Reef-safe with corals","May become territorial near a host coral or spawning site","Watch for bullying of a smaller mate","Stable salinity and temperature are more important than chasing exact numbers"]},
 {group:"Fish",name:"Snowflake ocellaris clownfish",scientific:"Amphiprion ocellaris",kind:"fish",accent:"#f4f4f4",summary:"A designer-pattern ocellaris clownfish with the same general care as standard ocellaris.",facts:{Temperament:"Semi-aggressive",Diet:"Omnivore",AdultSize:"3–4 in",Lifespan:"10–20+ years",Growth:"Moderate",Zone:"Midwater / territory"},behavior:"Usually stays close to its mate and may show submissive twitching toward the larger female. It can sleep near a coral, powerhead, or tank corner.",food:"Pellets, flakes, mysis, brine shrimp, chopped marine foods, and occasional enriched frozen fare.",care:["Reef-safe","Pairs can spawn in mature aquariums","The male is usually smaller","Avoid overfeeding rich frozen foods"]},
@@ -124,12 +152,14 @@ function safeJson(key,fallback){
 }
 let state={
  readings:safeJson("reefReadings",[]),
- tasks:safeJson("reefTasks",defaultTasks.map((x,i)=>({...x,done:false,id:i}))),
+ tasks:safeJson("reefTasks",[]),
+ taskCompletions:safeJson("reefTaskCompletions",{}),
 };
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
  const tasksSaved=safeSet("reefTasks",JSON.stringify(state.tasks));
- if(showWarning&&(!readingsSaved||!tasksSaved)){
+ const completionsSaved=safeSet("reefTaskCompletions",JSON.stringify(state.taskCompletions));
+ if(showWarning&&(!readingsSaved||!tasksSaved||!completionsSaved)){
   alert("Your changes are working in this open session, but this browser blocked permanent storage. Open the app in Safari/Chrome outside Private Browsing for permanent saving.");
  }
  return true;
@@ -246,7 +276,9 @@ function renderDashboard(){
   return Number.isFinite(v)&&v>=t.min&&v<=t.max;
  });
  const sb=document.getElementById("statusBadge");if(sb){sb.textContent=!l?"Waiting for readings":ok?"All latest readings in range":"Review latest readings";sb.className="badge "+(!l?"gold":ok?"":"coral")}
- const pending=state.tasks.filter(t=>!t.done).slice(0,5);document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks complete.</div>';document.getElementById("taskCount").textContent=`${state.tasks.filter(t=>!t.done).length} remaining`;
+ const upcoming7=generatedMaintenanceTasks(7),pending=upcoming7.filter(t=>!t.done).slice(0,5);
+ document.getElementById("dashboardTasks").innerHTML=pending.length?pending.map(taskHtml).join(""):'<div class="empty">All tasks in the next 7 days are complete.</div>';
+ document.getElementById("taskCount").textContent=`${upcoming7.filter(t=>!t.done).length} remaining in 7 days`;
  document.getElementById("currentAfr").textContent=l&&l.afr?`${l.afr} mL/day`:"Not set";
  const health=tankHealthScore();
  const healthDisplay=health==null?0:health;
@@ -261,8 +293,8 @@ function renderDashboard(){
  document.getElementById("glanceFish").textContent=livestockCount("Fish");
  document.getElementById("glanceInverts").textContent=livestockCount("Invertebrate");
  document.getElementById("glanceCorals").textContent=livestockCount("Coral");
- const doneCount=state.tasks.filter(t=>t.done).length;
- document.getElementById("maintenanceScore").textContent=Math.round((doneCount/Math.max(1,state.tasks.length))*100)+"%";
+ const monthTasks=generatedMaintenanceTasks(30),doneCount=monthTasks.filter(t=>t.done).length;
+ document.getElementById("maintenanceScore").textContent=Math.round((doneCount/Math.max(1,monthTasks.length))*100)+"%";
  document.getElementById("afrSummary").textContent=l&&l.afr?`${l.afr} mL`:"—";
  renderMajorElements(state.readings.slice(-14));
  renderNutrients(state.readings.slice(-14));
@@ -369,13 +401,28 @@ function renderNutrients(rows){
  const el=document.getElementById("nutrientChart");
  const summary=document.getElementById("nutrientSummary");
  if(!el||!summary)return;
- const no3Row=[...clean].reverse().find(r=>r.no3!==null&&Number.isFinite(Number(r.no3)));
- const po4Row=[...clean].reverse().find(r=>r.po4!==null&&Number.isFinite(Number(r.po4)));
- const no3Latest=no3Row?Number(no3Row.no3):null;
- const po4Latest=po4Row?Number(po4Row.po4):null;
- const no3Trend=trendMeta(clean,"no3",1,"ppm");
- const po4Trend=trendMeta(clean,"po4",3,"ppm");
- summary.innerHTML=`<div class="nutrient-stat"><span>Nitrate</span><strong style="color:var(--blue)">${no3Latest===null?"—":no3Latest.toFixed(1)+" ppm"}</strong>${no3Trend.html}<small>Target 5–15 ppm</small></div><div class="nutrient-stat"><span>Phosphate</span><strong style="color:var(--gold)">${po4Latest===null?"—":po4Latest.toFixed(3)+" ppm"}</strong>${po4Trend.html}<small>Target 0.03–0.10 ppm</small></div>`;
+ const chronological=[...clean].sort((a,b)=>readingDate(a)-readingDate(b));
+ const no3History=chronological.filter(r=>r.no3!==null&&Number.isFinite(Number(r.no3)));
+ const po4History=chronological.filter(r=>r.po4!==null&&Number.isFinite(Number(r.po4)));
+ const no3Row=no3History[no3History.length-1],po4Row=po4History[po4History.length-1];
+ const no3Latest=no3Row?Number(no3Row.no3):null,po4Latest=po4Row?Number(po4Row.po4):null;
+ const no3Trend=trendMeta(no3History,"no3",1,"ppm"),po4Trend=trendMeta(po4History,"po4",3,"ppm");
+ const dateShort=r=>{const d=r&&readingDate(r);return d?d.toLocaleDateString([], {month:"short",day:"numeric"}):""};
+ const no3Previous=no3History.length>1?no3History[no3History.length-2]:null;
+ const po4Previous=po4History.length>1?po4History[po4History.length-2]:null;
+ summary.innerHTML=`
+  <div class="nutrient-stat" style="--nutrient-color:#67b8ff">
+   <span><i style="background:#67b8ff"></i>Nitrate</span>
+   <strong>${no3Latest===null?"—":no3Latest.toFixed(1)} <em>${no3Latest===null?"":"ppm"}</em></strong>
+   ${no3Trend.html}
+   <small>${no3Row?`Latest: ${dateShort(no3Row)}<br>`:""}${no3Previous?`Previous: ${dateShort(no3Previous)}<br>`:""}Target: 5–15 ppm</small>
+  </div>
+  <div class="nutrient-stat" style="--nutrient-color:#f1c86b">
+   <span><i style="background:#f1c86b"></i>Phosphate</span>
+   <strong>${po4Latest===null?"—":po4Latest.toFixed(3)} <em>${po4Latest===null?"":"ppm"}</em></strong>
+   ${po4Trend.html}
+   <small>${po4Row?`Latest: ${dateShort(po4Row)}<br>`:""}${po4Previous?`Previous: ${dateShort(po4Previous)}<br>`:""}Target: 0.03–0.10 ppm</small>
+  </div>`;
  const no3=clean.map((r,i)=>({i,v:r.no3===null?null:Number(r.no3),date:r.date})).filter(x=>Number.isFinite(x.v));
  const po4=clean.map((r,i)=>({i,v:r.po4===null?null:Number(r.po4),date:r.date})).filter(x=>Number.isFinite(x.v));
  if(!no3.length&&!po4.length){el.innerHTML='<div class="empty">Add nitrate or phosphate readings to see nutrient trends.</div>';return}
@@ -444,10 +491,34 @@ function renderReadings(){
  document.getElementById("readingRows").innerHTML=rows.length?rows.map(r=>`<tr><td>${r.date}<br><span style="color:var(--muted)">${r.time||""}</span></td><td>${fmt(r.alk,"alk")}</td><td>${fmt(r.ca,"ca")}</td><td>${fmt(r.mg,"mg")}</td><td>${fmt(r.no3,"no3")}</td><td>${fmt(r.ppb,"ppb")}</td><td>${fmt(r.po4,"po4")}</td><td>${fmt(r.ph,"ph")}</td><td>${fmt(r.sal,"sal")}</td><td>${fmt(r.temp,"temp")}</td><td>${r.afr??"—"}</td><td>${r.notes||""}</td><td><button class="btn danger" onclick="deleteReading(${r.id})">Delete</button></td></tr>`).join(""):'<tr><td colspan="13" class="empty">No readings yet.</td></tr>';
 }
 function deleteReading(id){if(confirm("Delete this reading?")){state.readings=state.readings.filter(r=>r.id!==id);persist(true);renderAll()}}
-function taskHtml(t){return `<div class="task ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${t.id})"><div><div class="task-title">${t.title}</div><div class="task-meta">${t.meta}</div></div></div>`}
-function renderTasks(){document.getElementById("taskList").innerHTML=state.tasks.map(taskHtml).join("")}
-function toggleTask(id){const t=state.tasks.find(x=>x.id===id);if(t){t.done=!t.done;persist(true);renderAll()}}
-function resetTasks(){if(confirm("Reset all maintenance tasks for the month?")){state.tasks=defaultTasks.map((x,i)=>({...x,done:false,id:i}));persist(true);renderAll()}}
+function maintenanceDateLabel(task){
+ const d=task.dateObj||new Date(task.date+"T12:00:00");
+ const today=localISODate(new Date());
+ const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+ const prefix=task.date===today?"Today":task.date===localISODate(tomorrow)?"Tomorrow":d.toLocaleDateString([], {weekday:"short"});
+ return `${prefix} • ${d.toLocaleDateString([], {month:"short",day:"numeric"})}`;
+}
+function taskHtml(t){
+ const encoded=encodeURIComponent(t.id);
+ return `<div class="task scheduled-task ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleScheduledTask('${encoded}')"><div class="task-date">${maintenanceDateLabel(t)}</div><div><div class="task-title">${t.title}</div><div class="task-meta">${t.details}</div></div><span class="task-type">${t.type}</span></div>`;
+}
+function renderTasks(){
+ const tasks=generatedMaintenanceTasks(maintenanceWindowDays),list=document.getElementById("taskList");
+ list.innerHTML=tasks.length?tasks.map(taskHtml).join(""):'<div class="empty">No scheduled tasks in this period.</div>';
+ const title=document.getElementById("maintenanceWindowTitle"),hint=document.getElementById("maintenanceWindowHint"),button=document.getElementById("maintenanceWindowToggle");
+ if(title)title.textContent=maintenanceWindowDays===7?"Next 7 days":"Next 30 days";
+ if(hint)hint.textContent=`${tasks.filter(t=>!t.done).length} remaining • Dates update automatically`;
+ if(button)button.textContent=maintenanceWindowDays===7?"Show all 30 days":"Show next 7 days";
+}
+function toggleScheduledTask(encodedId){
+ const id=decodeURIComponent(encodedId);state.taskCompletions[id]=!state.taskCompletions[id];persist(true);renderAll();
+}
+function toggleMaintenanceWindow(){maintenanceWindowDays=maintenanceWindowDays===7?30:7;renderTasks()}
+function resetTasks(){
+ if(confirm("Clear completed maintenance checks for the next 30 days?")){
+  generatedMaintenanceTasks(30).forEach(t=>delete state.taskCompletions[t.id]);persist(true);renderAll();
+ }
+}
 function photoStore(){return safeJson("reefPhotos",{})}
 function savePhotoStore(s){return safeSet("reefPhotos",JSON.stringify(s))}
 function mediaKey(group,name){return `${group}:${name}`}
@@ -631,7 +702,7 @@ function renderTesters(){
  document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
 }
 function exportData(){
- const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,photos:photoStore()};
+ const bundle={version:1,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,photos:photoStore()};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -641,8 +712,9 @@ function importData(e){
  const rd=new FileReader();
  rd.onload=()=>{try{
   const d=JSON.parse(rd.result);
-  if(!d||!Array.isArray(d.readings)||!Array.isArray(d.tasks))throw new Error("Invalid backup format");
-  state.readings=d.readings;state.tasks=d.tasks;
+  if(!d||!Array.isArray(d.readings))throw new Error("Invalid backup format");
+  state.readings=d.readings;state.tasks=Array.isArray(d.tasks)?d.tasks:[];
+  if(d.taskCompletions&&typeof d.taskCompletions==="object")state.taskCompletions=d.taskCompletions;
   if(d.photos&&typeof d.photos==="object")savePhotoStore(d.photos);
   persist(true);renderAll();alert("Backup imported.");
  }catch(err){console.error(err);alert("That file is not a valid Aquarium Hub backup.")}finally{input.value=""}};

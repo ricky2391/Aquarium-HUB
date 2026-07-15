@@ -104,9 +104,9 @@
     </section>
 
     <section id="maintenance" class="page">
-      <div class="hero"><div><h2>Maintenance</h2><p>Stay on top of testing, water changes, dosing, and equipment care.</p></div><button class="btn primary" onclick="resetTasks()">Reset month</button></div>
+      <div class="hero"><div><h2>Maintenance</h2><p>Stay on top of testing, water changes, dosing, and equipment care.</p></div><button class="btn" onclick="resetTasks()">Clear completed</button></div>
       <div class="grid two">
-        <div class="card"><div class="section-title"><h3>30-day schedule</h3><span>Check off as completed</span></div><div id="taskList"></div></div>
+        <div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div><div id="taskList"></div></div>
         <div class="grid">
           <div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alk readings</dd></div></div>
           <div class="card"><div class="section-title"><h3>MicroBacter7</h3><span class="badge gold">Weekly</span></div><p><strong>6.5 mL weekly maintenance dose</strong> for a 65-gallon reference volume. Shake well. Add to high flow or biological filtration. Pause skimmer and UV for 4 hours.</p></div>
