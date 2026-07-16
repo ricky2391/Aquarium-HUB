@@ -660,3 +660,74 @@ details[open]>.collapsible-card-summary .collapse-chevron{transform:rotate(180de
 .inventory-product-guidance.critical{background:rgba(255,129,116,.1);border:1px solid rgba(255,129,116,.18)}.inventory-product-guidance.critical strong{color:var(--red)}
 .reorder-btn{background:linear-gradient(135deg,rgba(99,184,255,.22),rgba(81,212,201,.16));border-color:rgba(99,184,255,.25);color:var(--blue);font-weight:850}
 @media(max-width:560px){.inventory-category-card>summary{grid-template-columns:42px minmax(0,1fr) auto;padding:13px;min-height:104px}.inventory-category-card>summary>.accordion-chevron{display:none}.inventory-category-icon{width:42px;height:42px;border-radius:13px;font-size:20px}.inventory-category-copy p{font-size:10.5px}.inventory-ring.category{width:46px;height:46px}.inventory-actions .reorder-btn{order:-1}}
+
+
+/* v32 full-app polish and alignment pass */
+:root{--tap-min:44px}
+html,body{max-width:100%;overflow-x:hidden}
+.app,.page,.card,.grid,.topbar,.hero,.section-title,.task,.profile-list,.media-grid,.inventory-category-card,.inventory-product-card{min-width:0}
+img,svg,canvas{max-width:100%}
+.btn,.nav button,.mobile-tabs button,summary,[role="button"]{min-height:var(--tap-min)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;line-height:1.2;text-align:center;white-space:normal}
+.card{overflow:hidden}
+.section-title,.card-head,.hero,.task,.recommendation-head{min-width:0}
+.section-title>div,.card-head>div,.hero>div,.task>div{min-width:0}
+h1,h2,h3,h4,p,span,strong,small,dd,dt,label{overflow-wrap:anywhere}
+input,select,textarea{max-width:100%;min-width:0}
+
+/* Inventory: percentage appears only in collapsed summaries. */
+.inventory-overview.inventory-overview-text{display:block;padding:14px 15px;margin-bottom:12px}
+.inventory-overview-text .inventory-balance{display:grid;gap:5px}
+.inventory-overview-text .inventory-balance strong{font-size:22px;line-height:1.25;display:flex;flex-wrap:wrap;align-items:baseline;gap:5px}
+.inventory-overview-text .inventory-balance strong em{font-style:normal;font-size:13px;font-weight:700;color:var(--muted)}
+.inventory-product-body .inventory-ring.hero{display:none}
+.inventory-product-card>summary,.inventory-category-card>summary{overflow:hidden}
+.inventory-product-heading,.inventory-category-copy{overflow:hidden}
+.inventory-product-name,.category-title{display:block;max-width:100%}
+.inventory-ring{isolation:isolate;overflow:hidden}
+.inventory-ring:before{z-index:0}
+.inventory-ring span{display:grid;place-items:center;width:100%;height:100%;line-height:1;text-align:center}
+.inventory-product-card>summary .inventory-ring.product{flex:none}
+.inventory-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.inventory-actions .btn{width:100%;min-width:0}
+
+/* Uniform accordion and clickable-card alignment. */
+details>summary{list-style:none}
+details>summary::-webkit-details-marker{display:none}
+.accordion-chevron{display:grid;place-items:center;width:28px;height:28px;flex:none;transition:transform .2s ease}
+details[open]>summary .accordion-chevron{transform:rotate(180deg)}
+.category-accordion>summary,.nested-item>summary,.collapsible-card-summary,.inventory-product-card>summary{width:100%}
+
+/* Phone portrait consistency. */
+@media(max-width:700px){
+ .app{padding-left:10px;padding-right:10px}
+ .topbar{gap:10px;padding:12px}
+ .brand{min-width:0}.brand h1{white-space:normal}
+ .hero{align-items:stretch}
+ .card{padding:14px;border-radius:17px}
+ .grid{gap:12px}
+ .section-title,.card-head{align-items:flex-start;flex-wrap:wrap}
+ .section-title>.btn,.card-head>.btn{width:100%}
+ .inventory-category-card>summary{grid-template-columns:42px minmax(0,1fr) 46px;gap:9px;padding:12px;min-height:unset}
+ .inventory-category-card>summary>.accordion-chevron{display:none}
+ .inventory-category-status{max-width:100%}
+ .inventory-product-card>summary{grid-template-columns:minmax(0,1fr) 42px 26px;gap:8px;padding:12px}
+ .inventory-product-body{padding:12px}
+ .inventory-edit-grid.refined{grid-template-columns:1fr}
+ .inventory-actions{grid-template-columns:1fr}
+ .inventory-overview-text .inventory-balance strong{font-size:20px}
+ .profile-list{grid-template-columns:minmax(90px,35%) minmax(0,1fr)}
+ .task{grid-template-columns:auto minmax(0,1fr);align-items:start}
+ .task>*:last-child:not(:only-child){grid-column:2}
+ .mobile-tabs{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+ .mobile-tabs::-webkit-scrollbar{display:none}
+}
+@media(max-width:390px){
+ .app{padding-left:8px;padding-right:8px}
+ .card{padding:12px}
+ .inventory-category-card>summary{grid-template-columns:38px minmax(0,1fr) 42px}
+ .inventory-category-icon{width:38px;height:38px}
+ .inventory-ring.category{width:42px;height:42px}
+ .inventory-product-card>summary{grid-template-columns:minmax(0,1fr) 40px 22px}
+ .inventory-ring.product{width:40px;height:40px}
+}
