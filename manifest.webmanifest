@@ -3,6 +3,6 @@
   "short_name": "Aquarium Hub",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#08161e",
-  "theme_color": "#08161e"
+  "background_color": "#04131b",
+  "theme_color": "#04131b"
 }

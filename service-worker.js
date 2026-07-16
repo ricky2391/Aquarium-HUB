@@ -1,6 +1,6 @@
-const CACHE_NAME = "aquarium-hub-v32";
+const CACHE_NAME = "aquarium-hub-v33";
 const ASSETS = [
-  './', './index.html', './manifest.webmanifest', './styles.css?v=32', './app.js?v=32',
+  './', './index.html', './manifest.webmanifest', './styles.css?v=33', './app.js?v=33',
   './images/dwarf_yellow_tip_hermit.jpg', './images/aquamaxx_frs_logo_free.jpg',
   './images/aquamaxx_hfm_logo_free.jpg', './images/gyre_xf330.jpg',
   './images/hanna_hi736.jpg', './images/hanna_hi758.jpg', './images/hanna_hi772.jpg',
