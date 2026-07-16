@@ -653,9 +653,10 @@ function taskInventoryUsages(t){
 }
 function inventoryPercent(item){return Number(item.full)>0?Math.max(0,Math.min(100,Math.round(Number(item.current)/Number(item.full)*100))):0}
 function inventoryStatusClass(p){return p<=15?"critical":p<=35?"low":p<=60?"medium":"good"}
+function formatInventoryNumber(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/g,"").replace(/\.$/,"")}
 function inventoryStatusText(p){return p<=15?"Critical":p<=35?"Low":p<=60?"Watch":"Good"}
 const inventoryCategoryInfo={
- "Salt Mix":{icon:"🌊",purpose:"Used to prepare new saltwater for water changes and emergency replacement water.",note:"Track cups remaining so you know how many future water changes your supply can support."},
+ "Salt":{icon:"🌊",purpose:"Used to prepare new saltwater for water changes and emergency replacement water.",note:"Track cups remaining so you know how many future water changes your supply can support."},
  "Test Reagents":{icon:"🧪",purpose:"Used by your Hanna checkers to measure alkalinity, calcium, magnesium, nitrate, phosphate, pH, and salinity.",note:"Low reagent stock can delay important testing. Reorder before you reach the final few tests."},
  "Dosing":{icon:"💧",purpose:"Liquid additives used to maintain major elements, support biological filtration, or address a specific reef-care goal.",note:"Only record doses you actually use. Avoid automatic bacteria dosing unless there is a clear reason."},
  "Filter Media":{icon:"♻️",purpose:"Mechanical and chemical media used to remove debris, organics, discoloration, and excess nutrients.",note:"Replace based on condition, test results, and flow—not only on a fixed calendar."},
@@ -672,7 +673,7 @@ function categoryStatus(items){
 }
 function inventoryPolicy(item){
  const id=item.id;
- if(id==="salt")return {expiry:false,usage:false,kind:"Dry salt mix"};
+ if(id==="salt-tropic-marin")return {expiry:false,usage:false,kind:"Dry salt mix"};
  if(id.startsWith("reagent-"))return {expiry:true,usage:false,kind:"Test reagent"};
  if(["afr","mb7","mbclean"].includes(id))return {expiry:true,usage:true,usageLabel:"Dose used per completed task",kind:"Liquid additive"};
  if(["mysis","nori"].includes(id))return {expiry:true,usage:true,usageLabel:"Amount used per feeding task",kind:"Food"};
@@ -708,7 +709,7 @@ function saveInventoryItem(id){
 function adjustInventory(id,delta){const item=inventoryItem(id);if(!item)return;item.current=(Number(item.current)||0)+Number(delta||0);clampInventory(item);persist(true);renderInventory()}
 function renderInventory(){
  const container=document.getElementById("inventoryList");if(!container)return;
- const order=["Salt Mix","Test Reagents","Dosing","Filter Media","Food"];
+ const order=["Salt","Test Reagents","Dosing","Filter Media","Food"];
  const categories=[...new Set((state.inventory||[]).map(x=>x.category))].sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b)));
  container.innerHTML=categories.map(cat=>{
   const items=state.inventory.filter(x=>x.category===cat),pct=items.length?Math.round(items.reduce((s,x)=>s+inventoryPercent(x),0)/items.length):0;
