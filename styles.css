@@ -637,3 +637,26 @@ details[open]>.collapsible-card-summary .collapse-chevron{transform:rotate(180de
 .inventory-edit-grid.refined{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inventory-edit-grid.refined label{padding:10px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025)}.inventory-edit-grid.refined label>span{font-size:11px;color:var(--muted);font-weight:800}.inventory-edit-grid.refined label>small{font-size:10px;color:var(--muted)}.inventory-edit-grid.refined input{margin-top:5px}
 .inventory-actions{padding-top:2px}.inventory-actions .btn{min-height:42px}
 @media(max-width:560px){.professional-inventory-category>summary,.professional-inventory-product>summary{padding:12px;gap:9px}.inventory-ring.category{width:48px;height:48px}.inventory-ring.product{width:42px;height:42px}.inventory-overview{grid-template-columns:auto 1fr;gap:12px}.inventory-ring.hero{width:76px;height:76px}.inventory-edit-grid.refined{grid-template-columns:1fr}.inventory-balance strong{font-size:21px}}
+
+/* v30 category-led inventory */
+.inventory-category-card{border:1px solid rgba(255,255,255,.11);border-radius:22px;overflow:hidden;background:linear-gradient(155deg,rgba(16,45,57,.96),rgba(7,25,34,.98));box-shadow:0 16px 38px rgba(0,0,0,.18);margin-bottom:13px}
+.inventory-category-card>summary{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:16px;background:linear-gradient(135deg,rgba(81,212,201,.14),rgba(99,184,255,.055));min-height:112px}
+.inventory-category-card[open]>summary{border-bottom:1px solid var(--line)}
+.inventory-category-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:23px;background:rgba(255,255,255,.065);border:1px solid var(--line)}
+.inventory-category-copy p{margin:4px 0 8px;color:var(--muted);font-size:11px;line-height:1.4}
+.inventory-category-status{display:grid;gap:2px;padding:8px 10px;border-radius:12px;font-size:10px;line-height:1.35}
+.inventory-category-status strong{font-size:11px}.inventory-category-status span{color:var(--muted)}
+.inventory-category-status.good{background:rgba(126,226,168,.09);border:1px solid rgba(126,226,168,.16)}.inventory-category-status.good strong{color:var(--green)}
+.inventory-category-status.medium{background:rgba(245,204,112,.09);border:1px solid rgba(245,204,112,.16)}.inventory-category-status.medium strong{color:var(--yellow)}
+.inventory-category-status.low{background:rgba(255,171,114,.1);border:1px solid rgba(255,171,114,.18)}.inventory-category-status.low strong{color:var(--orange)}
+.inventory-category-status.critical{background:rgba(255,129,116,.11);border:1px solid rgba(255,129,116,.2)}.inventory-category-status.critical strong{color:var(--red)}
+.inventory-category-note{display:grid;gap:3px;padding:12px 15px;background:rgba(99,184,255,.045);border-bottom:1px solid var(--line)}.inventory-category-note strong{font-size:11px;color:var(--blue)}.inventory-category-note span{font-size:11px;color:var(--muted);line-height:1.45}
+.inventory-product-card{border:1px solid rgba(255,255,255,.09);border-radius:17px;overflow:hidden;background:rgba(8,29,38,.9)}
+.inventory-product-card>summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:13px;background:rgba(255,255,255,.025)}
+.inventory-product-guidance{display:grid;gap:3px;padding:11px 12px;border-radius:13px;margin-bottom:12px}.inventory-product-guidance strong{font-size:12px}.inventory-product-guidance span{font-size:11px;color:var(--muted);line-height:1.4}
+.inventory-product-guidance.good{background:rgba(126,226,168,.08);border:1px solid rgba(126,226,168,.14)}.inventory-product-guidance.good strong{color:var(--green)}
+.inventory-product-guidance.medium{background:rgba(245,204,112,.08);border:1px solid rgba(245,204,112,.14)}.inventory-product-guidance.medium strong{color:var(--yellow)}
+.inventory-product-guidance.low{background:rgba(255,171,114,.09);border:1px solid rgba(255,171,114,.16)}.inventory-product-guidance.low strong{color:var(--orange)}
+.inventory-product-guidance.critical{background:rgba(255,129,116,.1);border:1px solid rgba(255,129,116,.18)}.inventory-product-guidance.critical strong{color:var(--red)}
+.reorder-btn{background:linear-gradient(135deg,rgba(99,184,255,.22),rgba(81,212,201,.16));border-color:rgba(99,184,255,.25);color:var(--blue);font-weight:850}
+@media(max-width:560px){.inventory-category-card>summary{grid-template-columns:42px minmax(0,1fr) auto;padding:13px;min-height:104px}.inventory-category-card>summary>.accordion-chevron{display:none}.inventory-category-icon{width:42px;height:42px;border-radius:13px;font-size:20px}.inventory-category-copy p{font-size:10.5px}.inventory-ring.category{width:46px;height:46px}.inventory-actions .reorder-btn{order:-1}}

@@ -124,6 +124,10 @@ function generatedMaintenanceTasks(days=30){
    const id=`${dateKey}|${template.title}|${index}`;
    tasks.push({...template,id,date:dateKey,dateObj:new Date(date),done:Boolean(state.taskCompletions[id])});
   });
+  (state.tasks||[]).filter(t=>t.date===dateKey).forEach((t,index)=>{
+   const id=t.id||`custom|${dateKey}|${t.title}|${index}`;
+   tasks.push({...t,id,date:dateKey,dateObj:new Date(date),done:Boolean(state.taskCompletions[id])});
+  });
  }
  return tasks;
 }
@@ -649,49 +653,76 @@ function taskInventoryUsages(t){
 }
 function inventoryPercent(item){return Number(item.full)>0?Math.max(0,Math.min(100,Math.round(Number(item.current)/Number(item.full)*100))):0}
 function inventoryStatusClass(p){return p<=15?"critical":p<=35?"low":p<=60?"medium":"good"}
-function formatInventoryNumber(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/," ").trim().replace(/\.$/,"")}
+function inventoryStatusText(p){return p<=15?"Critical":p<=35?"Low":p<=60?"Watch":"Good"}
+const inventoryCategoryInfo={
+ "Salt Mix":{icon:"🌊",purpose:"Used to prepare new saltwater for water changes and emergency replacement water.",note:"Track cups remaining so you know how many future water changes your supply can support."},
+ "Test Reagents":{icon:"🧪",purpose:"Used by your Hanna checkers to measure alkalinity, calcium, magnesium, nitrate, phosphate, pH, and salinity.",note:"Low reagent stock can delay important testing. Reorder before you reach the final few tests."},
+ "Dosing":{icon:"💧",purpose:"Liquid additives used to maintain major elements, support biological filtration, or address a specific reef-care goal.",note:"Only record doses you actually use. Avoid automatic bacteria dosing unless there is a clear reason."},
+ "Filter Media":{icon:"♻️",purpose:"Mechanical and chemical media used to remove debris, organics, discoloration, and excess nutrients.",note:"Replace based on condition, test results, and flow—not only on a fixed calendar."},
+ "Food":{icon:"🍽️",purpose:"Frozen, dry, and algae-based foods used to maintain fish body condition and support coral and invertebrate nutrition.",note:"Keep enough variety on hand for both the tangs and the smaller firefish."}
+};
+function categoryStatus(items){
+ const lows=items.filter(x=>inventoryPercent(x)<=35);
+ const critical=lows.filter(x=>inventoryPercent(x)<=15);
+ if(critical.length)return {cls:"critical",label:"Order now",note:`${critical.map(x=>x.name).join(", ")} ${critical.length===1?"is":"are"} critically low.`};
+ if(lows.length)return {cls:"low",label:"Plan order",note:`Low on ${lows.map(x=>x.name).join(", ")}. Add a reorder reminder before the next use.`};
+ const pct=items.length?Math.round(items.reduce((s,x)=>s+inventoryPercent(x),0)/items.length):0;
+ if(pct<=60)return {cls:"medium",label:"Monitor",note:"Inventory is usable, but review amounts before your next maintenance cycle."};
+ return {cls:"good",label:"Stocked",note:"Current stock levels look adequate for routine reef care."};
+}
 function inventoryPolicy(item){
- const id=String(item.id||"");
- if(id==="salt-tropic-marin")return {expiry:false,usage:false,usageLabel:"Automatically calculated from logged water-change gallons",kind:"Dry salt mix"};
- if(id==="floss")return {expiry:false,usage:true,usageLabel:"Amount used per replacement",kind:"Mechanical filtration"};
- if(["carbon","gfo"].includes(id))return {expiry:false,usage:true,usageLabel:"Amount used per media change",kind:"Dry filter media"};
- if(id.startsWith("reagent-"))return {expiry:true,usage:false,usageLabel:"One test deducted automatically",kind:"Test reagent"};
+ const id=item.id;
+ if(id==="salt")return {expiry:false,usage:false,kind:"Dry salt mix"};
+ if(id.startsWith("reagent-"))return {expiry:true,usage:false,kind:"Test reagent"};
  if(["afr","mb7","mbclean"].includes(id))return {expiry:true,usage:true,usageLabel:"Dose used per completed task",kind:"Liquid additive"};
- if(id==="mysis")return {expiry:true,usage:true,usageLabel:"Amount used per feeding",kind:"Frozen food"};
- if(id==="nori")return {expiry:true,usage:true,usageLabel:"Amount used per feeding",kind:"Dry food"};
+ if(["mysis","nori"].includes(id))return {expiry:true,usage:true,usageLabel:"Amount used per feeding task",kind:"Food"};
+ if(id==="floss")return {expiry:false,usage:true,usageLabel:"Units used per replacement",kind:"Mechanical media"};
+ if(["carbon","gfo"].includes(id))return {expiry:false,usage:true,usageLabel:"Amount used per replacement",kind:"Chemical media"};
  return {expiry:false,usage:true,usageLabel:"Amount used per completed task",kind:"Supply"};
 }
 function inventoryCircle(p,size="large"){
  const cls=inventoryStatusClass(p);
  return `<span class="inventory-ring ${cls} ${size}" style="--inventory-pct:${p}%"><span>${p}%</span></span>`;
 }
+function addReorderReminder(id){
+ const item=inventoryItem(id);if(!item)return;
+ const pct=inventoryPercent(item),today=localISODate(new Date());
+ const existing=(state.tasks||[]).find(t=>t.inventoryId===id&&!state.taskCompletions[t.id]);
+ if(existing){alert(`A reorder reminder for ${item.name} is already active.`);return}
+ if(!confirm(`Add “Order ${item.name}” to today's maintenance tasks?`))return;
+ const taskId=`reorder|${id}|${Date.now()}`;
+ state.tasks=Array.isArray(state.tasks)?state.tasks:[];
+ state.tasks.push({id:taskId,date:today,title:`Order ${item.name}`,details:`Inventory is ${pct}% remaining (${formatInventoryNumber(item.current)} ${item.unit}). Reorder before the next required use.`,type:"Inventory",inventoryId:id});
+ persist(true);renderAll();showPage("maintenance");
+}
 function saveInventoryItem(id){
  const item=inventoryItem(id);if(!item)return;
  const q=s=>document.querySelector(`[data-inventory-id="${CSS.escape(id)}"] ${s}`);
- const full=Number(q('[data-field="full"]')?.value),current=Number(q('[data-field="current"]')?.value);
- if(!Number.isFinite(full)||full<=0||!Number.isFinite(current)||current<0){alert("Enter a valid full amount and amount remaining.");return}
+ item.current=Math.max(0,Number(q('[data-field="current"]')?.value)||0);
+ item.full=Math.max(.0001,Number(q('[data-field="full"]')?.value)||1);
  const policy=inventoryPolicy(item);
- item.full=full;item.current=Math.min(current,full);
  if(policy.expiry)item.expiry=q('[data-field="expiry"]')?.value||"";else item.expiry="";
- if(policy.usage)item.usagePerTask=Math.max(0,Number(q('[data-field="usage"]')?.value)||0);
- persist(true);renderInventory();
+ if(policy.usage)item.usagePerTask=Math.max(0,Number(q('[data-field="usagePerTask"]')?.value)||0);
+ clampInventory(item);persist(true);renderInventory();
 }
 function adjustInventory(id,delta){const item=inventoryItem(id);if(!item)return;item.current=(Number(item.current)||0)+Number(delta||0);clampInventory(item);persist(true);renderInventory()}
 function renderInventory(){
  const container=document.getElementById("inventoryList");if(!container)return;
- const order=["Salt","Test Reagents","Dosing","Filter Media","Food"];
+ const order=["Salt Mix","Test Reagents","Dosing","Filter Media","Food"];
  const categories=[...new Set((state.inventory||[]).map(x=>x.category))].sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b)));
  container.innerHTML=categories.map(cat=>{
   const items=state.inventory.filter(x=>x.category===cat),pct=items.length?Math.round(items.reduce((s,x)=>s+inventoryPercent(x),0)/items.length):0;
-  const lowCount=items.filter(x=>inventoryPercent(x)<=35).length;
-  return `<details class="inventory-category professional-inventory-category"><summary><div class="inventory-category-copy"><span class="category-title">${escapeHtml(cat)}</span><small>${items.length} product${items.length===1?"":"s"}${lowCount?` • ${lowCount} low`:""}</small></div>${inventoryCircle(pct,"category")}<span class="accordion-chevron">⌄</span></summary><div class="category-body inventory-product-list">${items.map(item=>{
+  const info=inventoryCategoryInfo[cat]||{icon:"📦",purpose:"Supplies used for routine reef care.",note:"Review levels regularly."};
+  const status=categoryStatus(items),lowCount=items.filter(x=>inventoryPercent(x)<=35).length;
+  return `<details class="inventory-category inventory-category-card"><summary><div class="inventory-category-icon">${info.icon}</div><div class="inventory-category-copy"><span class="category-title">${escapeHtml(cat)}</span><p>${escapeHtml(info.purpose)}</p><div class="inventory-category-status ${status.cls}"><strong>${status.label}</strong><span>${escapeHtml(status.note)}</span></div></div>${inventoryCircle(pct,"category")}<span class="accordion-chevron">⌄</span></summary><div class="inventory-category-note"><strong>Good to know</strong><span>${escapeHtml(info.note)}</span></div><div class="category-body inventory-product-list">${items.map(item=>{
    const p=inventoryPercent(item),policy=inventoryPolicy(item),expired=policy.expiry&&item.expiry&&new Date(item.expiry+"T23:59:59")<new Date();
-   const expiryField=policy.expiry?`<label><span>Expiration / best-by</span><input data-field="expiry" type="date" value="${escapeHtml(item.expiry||"")}"></label>`:"";
-   const usageField=policy.usage?`<label><span>${escapeHtml(policy.usageLabel)}</span><input data-field="usage" type="number" min="0" step="any" value="${Number(item.usagePerTask)||0}"><small>${escapeHtml(item.unit)} per action</small></label>`:"";
+   const expiryField=policy.expiry?`<label><span>Expiration / best by</span><input data-field="expiry" type="date" value="${escapeHtml(item.expiry||"")}"></label>`:"";
+   const usageField=policy.usage?`<label><span>${escapeHtml(policy.usageLabel)}</span><input data-field="usagePerTask" type="number" min="0" step="any" value="${Number(item.usagePerTask)||0}"><small>${escapeHtml(item.unit)}</small></label>`:"";
    const expiryLine=policy.expiry&&item.expiry?`<span class="inventory-date ${expired?"expired":""}">${expired?"Expired":"Expires"} ${escapeHtml(formatShortDate(item.expiry))}</span>`:"";
-   const actionAmount=Number(item.usagePerTask)||1;
-   return `<details class="inventory-product professional-inventory-product" data-inventory-id="${escapeHtml(item.id)}"><summary><div class="inventory-product-heading"><span class="inventory-product-name">${escapeHtml(item.name)}</span><small>${escapeHtml(policy.kind)}</small></div>${inventoryCircle(p,"product")}<span class="accordion-chevron">⌄</span></summary><div class="inventory-product-body"><div class="inventory-overview"><div>${inventoryCircle(p,"hero")}</div><div class="inventory-balance"><span>Remaining</span><strong>${formatInventoryNumber(item.current)} ${escapeHtml(item.unit)}</strong><small>of ${formatInventoryNumber(item.full)} ${escapeHtml(item.unit)}</small>${expiryLine}</div></div><div class="inventory-edit-grid refined"><label><span>Amount remaining</span><input data-field="current" type="number" min="0" step="any" value="${Number(item.current)||0}"><small>${escapeHtml(item.unit)}</small></label><label><span>Package / full amount</span><input data-field="full" type="number" min="0.01" step="any" value="${Number(item.full)||0}"><small>${escapeHtml(item.unit)}</small></label>${expiryField}${usageField}</div><p class="inventory-note">${escapeHtml(item.note||"")}</p><div class="inventory-actions"><button class="btn primary" onclick="saveInventoryItem('${escapeAttr(item.id)}')">Save changes</button>${policy.usage?`<button class="btn" onclick="adjustInventory('${escapeAttr(item.id)}',${actionAmount})">Restore one use</button><button class="btn danger" onclick="adjustInventory('${escapeAttr(item.id)}',-${actionAmount})">Record one use</button>`:""}</div></div></details>`
-  }).join("")}</div></details>`
+   const actionAmount=Math.max(.01,Number(item.usagePerTask)||1),statusText=inventoryStatusText(p);
+   const productAdvice=p<=15?"Order now—this may not cover the next planned use.":p<=35?"Plan on ordering soon so testing or maintenance is not interrupted.":p<=60?"Monitor this item and review it before the next maintenance cycle.":"Stock level is currently adequate.";
+   return `<details class="inventory-product inventory-product-card" data-inventory-id="${escapeHtml(item.id)}"><summary><div class="inventory-product-heading"><span class="inventory-product-name">${escapeHtml(item.name)}</span><small>${escapeHtml(policy.kind)} • ${statusText}</small></div>${inventoryCircle(p,"product")}<span class="accordion-chevron">⌄</span></summary><div class="inventory-product-body"><div class="inventory-overview"><div>${inventoryCircle(p,"hero")}</div><div class="inventory-balance"><span>Remaining</span><strong>${formatInventoryNumber(item.current)} ${escapeHtml(item.unit)}</strong><small>of ${formatInventoryNumber(item.full)} ${escapeHtml(item.unit)}</small>${expiryLine}</div></div><div class="inventory-product-guidance ${inventoryStatusClass(p)}"><strong>${statusText} inventory</strong><span>${escapeHtml(productAdvice)}</span></div><div class="inventory-edit-grid refined"><label><span>Amount remaining</span><input data-field="current" type="number" min="0" step="any" value="${Number(item.current)||0}"><small>${escapeHtml(item.unit)}</small></label><label><span>Package / full amount</span><input data-field="full" type="number" min="0.01" step="any" value="${Number(item.full)||0}"><small>${escapeHtml(item.unit)}</small></label>${expiryField}${usageField}</div><p class="inventory-note">${escapeHtml(item.note||"")}</p><div class="inventory-actions"><button class="btn primary" onclick="saveInventoryItem('${escapeAttr(item.id)}')">Save changes</button><button class="btn reorder-btn" onclick="addReorderReminder('${escapeAttr(item.id)}')">＋ Add order reminder</button>${policy.usage?`<button class="btn" onclick="adjustInventory('${escapeAttr(item.id)}',${actionAmount})">Restore one use</button><button class="btn danger" onclick="adjustInventory('${escapeAttr(item.id)}',-${actionAmount})">Record one use</button>`:""}</div></div></details>`;
+  }).join("")}</div></details>`;
  }).join("");
 }
 
@@ -1167,7 +1198,7 @@ function renderTesters(){
  document.getElementById("recommendedTest").textContent=priorities[0]?.t.code||"Alk";
 }
 function exportData(){
- const bundle={version:2,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,serviceHistory:state.serviceHistory,observations:state.observations,photos:photoStore()};
+ const bundle={version:2,exportedAt:new Date().toISOString(),readings:state.readings,tasks:state.tasks,taskCompletions:state.taskCompletions,waterChanges:state.waterChanges,serviceHistory:state.serviceHistory,observations:state.observations,inventory:state.inventory,inventoryEvents:state.inventoryEvents,photos:photoStore()};
  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="aquarium-hub-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
