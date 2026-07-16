@@ -649,13 +649,31 @@ function taskInventoryUsages(t){
 }
 function inventoryPercent(item){return Number(item.full)>0?Math.max(0,Math.min(100,Math.round(Number(item.current)/Number(item.full)*100))):0}
 function inventoryStatusClass(p){return p<=15?"critical":p<=35?"low":p<=60?"medium":"good"}
-function formatInventoryNumber(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/,"").replace(/\.$/,"")}
+function formatInventoryNumber(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/0+$/," ").trim().replace(/\.$/,"")}
+function inventoryPolicy(item){
+ const id=String(item.id||"");
+ if(id==="salt-tropic-marin")return {expiry:false,usage:false,usageLabel:"Automatically calculated from logged water-change gallons",kind:"Dry salt mix"};
+ if(id==="floss")return {expiry:false,usage:true,usageLabel:"Amount used per replacement",kind:"Mechanical filtration"};
+ if(["carbon","gfo"].includes(id))return {expiry:false,usage:true,usageLabel:"Amount used per media change",kind:"Dry filter media"};
+ if(id.startsWith("reagent-"))return {expiry:true,usage:false,usageLabel:"One test deducted automatically",kind:"Test reagent"};
+ if(["afr","mb7","mbclean"].includes(id))return {expiry:true,usage:true,usageLabel:"Dose used per completed task",kind:"Liquid additive"};
+ if(id==="mysis")return {expiry:true,usage:true,usageLabel:"Amount used per feeding",kind:"Frozen food"};
+ if(id==="nori")return {expiry:true,usage:true,usageLabel:"Amount used per feeding",kind:"Dry food"};
+ return {expiry:false,usage:true,usageLabel:"Amount used per completed task",kind:"Supply"};
+}
+function inventoryCircle(p,size="large"){
+ const cls=inventoryStatusClass(p);
+ return `<span class="inventory-ring ${cls} ${size}" style="--inventory-pct:${p}%"><span>${p}%</span></span>`;
+}
 function saveInventoryItem(id){
  const item=inventoryItem(id);if(!item)return;
  const q=s=>document.querySelector(`[data-inventory-id="${CSS.escape(id)}"] ${s}`);
  const full=Number(q('[data-field="full"]')?.value),current=Number(q('[data-field="current"]')?.value);
  if(!Number.isFinite(full)||full<=0||!Number.isFinite(current)||current<0){alert("Enter a valid full amount and amount remaining.");return}
- item.full=full;item.current=Math.min(current,full);item.unit=q('[data-field="unit"]')?.value.trim()||item.unit;item.expiry=q('[data-field="expiry"]')?.value||"";item.usagePerTask=Math.max(0,Number(q('[data-field="usage"]')?.value)||0);
+ const policy=inventoryPolicy(item);
+ item.full=full;item.current=Math.min(current,full);
+ if(policy.expiry)item.expiry=q('[data-field="expiry"]')?.value||"";else item.expiry="";
+ if(policy.usage)item.usagePerTask=Math.max(0,Number(q('[data-field="usage"]')?.value)||0);
  persist(true);renderInventory();
 }
 function adjustInventory(id,delta){const item=inventoryItem(id);if(!item)return;item.current=(Number(item.current)||0)+Number(delta||0);clampInventory(item);persist(true);renderInventory()}
@@ -665,9 +683,14 @@ function renderInventory(){
  const categories=[...new Set((state.inventory||[]).map(x=>x.category))].sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b)));
  container.innerHTML=categories.map(cat=>{
   const items=state.inventory.filter(x=>x.category===cat),pct=items.length?Math.round(items.reduce((s,x)=>s+inventoryPercent(x),0)/items.length):0;
-  return `<details class="inventory-category category-accordion"><summary><span class="category-title">${escapeHtml(cat)}</span><span class="inventory-category-percent ${inventoryStatusClass(pct)}">${pct}% left</span><span class="accordion-chevron">⌄</span></summary><div class="category-body">${items.map(item=>{
-   const p=inventoryPercent(item),expired=item.expiry&&new Date(item.expiry+"T23:59:59")<new Date();
-   return `<details class="inventory-product nested-item" data-inventory-id="${escapeHtml(item.id)}"><summary><span>${escapeHtml(item.name)}</span><span class="inventory-inline-percent ${inventoryStatusClass(p)}">${p}%</span><span class="accordion-chevron">⌄</span></summary><div class="inventory-product-body"><div class="inventory-meter"><div class="inventory-meter-fill ${inventoryStatusClass(p)}" style="width:${p}%"></div></div><div class="inventory-balance"><strong>${formatInventoryNumber(item.current)} ${escapeHtml(item.unit)}</strong><span>of ${formatInventoryNumber(item.full)} ${escapeHtml(item.unit)} remaining</span></div>${item.expiry?`<div class="inventory-expiry ${expired?"expired":""}">${expired?"Expired":"Expires"}: ${escapeHtml(item.expiry)}</div>`:""}<div class="inventory-edit-grid"><label>Amount remaining<input data-field="current" type="number" min="0" step="any" value="${Number(item.current)||0}"></label><label>Full amount<input data-field="full" type="number" min="0.01" step="any" value="${Number(item.full)||0}"></label><label>Unit<input data-field="unit" value="${escapeHtml(item.unit)}"></label><label>Expiration date<input data-field="expiry" type="date" value="${escapeHtml(item.expiry||"")}"></label><label>Usage per completed task<input data-field="usage" type="number" min="0" step="any" value="${Number(item.usagePerTask)||0}"></label></div><p class="inventory-note">${escapeHtml(item.note||"")}</p><div class="inventory-actions"><button class="btn primary" onclick="saveInventoryItem('${escapeAttr(item.id)}')">Save product</button><button class="btn" onclick="adjustInventory('${escapeAttr(item.id)}',Number(inventoryItem('${escapeAttr(item.id)}').usagePerTask)||1)">Add one usage</button><button class="btn danger" onclick="adjustInventory('${escapeAttr(item.id)}',-(Number(inventoryItem('${escapeAttr(item.id)}').usagePerTask)||1))">Use one</button></div></div></details>`
+  const lowCount=items.filter(x=>inventoryPercent(x)<=35).length;
+  return `<details class="inventory-category professional-inventory-category"><summary><div class="inventory-category-copy"><span class="category-title">${escapeHtml(cat)}</span><small>${items.length} product${items.length===1?"":"s"}${lowCount?` • ${lowCount} low`:""}</small></div>${inventoryCircle(pct,"category")}<span class="accordion-chevron">⌄</span></summary><div class="category-body inventory-product-list">${items.map(item=>{
+   const p=inventoryPercent(item),policy=inventoryPolicy(item),expired=policy.expiry&&item.expiry&&new Date(item.expiry+"T23:59:59")<new Date();
+   const expiryField=policy.expiry?`<label><span>Expiration / best-by</span><input data-field="expiry" type="date" value="${escapeHtml(item.expiry||"")}"></label>`:"";
+   const usageField=policy.usage?`<label><span>${escapeHtml(policy.usageLabel)}</span><input data-field="usage" type="number" min="0" step="any" value="${Number(item.usagePerTask)||0}"><small>${escapeHtml(item.unit)} per action</small></label>`:"";
+   const expiryLine=policy.expiry&&item.expiry?`<span class="inventory-date ${expired?"expired":""}">${expired?"Expired":"Expires"} ${escapeHtml(formatShortDate(item.expiry))}</span>`:"";
+   const actionAmount=Number(item.usagePerTask)||1;
+   return `<details class="inventory-product professional-inventory-product" data-inventory-id="${escapeHtml(item.id)}"><summary><div class="inventory-product-heading"><span class="inventory-product-name">${escapeHtml(item.name)}</span><small>${escapeHtml(policy.kind)}</small></div>${inventoryCircle(p,"product")}<span class="accordion-chevron">⌄</span></summary><div class="inventory-product-body"><div class="inventory-overview"><div>${inventoryCircle(p,"hero")}</div><div class="inventory-balance"><span>Remaining</span><strong>${formatInventoryNumber(item.current)} ${escapeHtml(item.unit)}</strong><small>of ${formatInventoryNumber(item.full)} ${escapeHtml(item.unit)}</small>${expiryLine}</div></div><div class="inventory-edit-grid refined"><label><span>Amount remaining</span><input data-field="current" type="number" min="0" step="any" value="${Number(item.current)||0}"><small>${escapeHtml(item.unit)}</small></label><label><span>Package / full amount</span><input data-field="full" type="number" min="0.01" step="any" value="${Number(item.full)||0}"><small>${escapeHtml(item.unit)}</small></label>${expiryField}${usageField}</div><p class="inventory-note">${escapeHtml(item.note||"")}</p><div class="inventory-actions"><button class="btn primary" onclick="saveInventoryItem('${escapeAttr(item.id)}')">Save changes</button>${policy.usage?`<button class="btn" onclick="adjustInventory('${escapeAttr(item.id)}',${actionAmount})">Restore one use</button><button class="btn danger" onclick="adjustInventory('${escapeAttr(item.id)}',-${actionAmount})">Record one use</button>`:""}</div></div></details>`
   }).join("")}</div></details>`
  }).join("");
 }
