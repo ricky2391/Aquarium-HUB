@@ -342,9 +342,9 @@ function buildThirtyDayDemoData(){
  safeSet('reefObservations',JSON.stringify(state.observations));
  safeSet('reefRecommendationHistory',JSON.stringify(state.recommendationHistory));
  safeSet('reefTaskCompletions',JSON.stringify(state.taskCompletions));
- safeSet('aquariumHubDemo30Days','loaded');
+ safeSet('aquariumHubDemo30DaysV37','loaded');
 }
-function resetThirtyDayDemo(){
+window.resetThirtyDayDemo=function resetThirtyDayDemo(){
  if(!confirm('Reload the 30-day sample data? This replaces changes made in this demo copy.'))return;
  buildThirtyDayDemoData();
  renderAll();
@@ -359,7 +359,7 @@ function normalizeInventory(){
  state.inventoryEvents=state.inventoryEvents&&typeof state.inventoryEvents==="object"?state.inventoryEvents:{};
 }
 normalizeInventory();
-if(safeGet('aquariumHubDemo30Days','')!=='loaded')buildThirtyDayDemoData();
+if(safeGet('aquariumHubDemo30DaysV37','')!=='loaded')buildThirtyDayDemoData();
 
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
@@ -1312,3 +1312,5 @@ try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,r
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFlowChecks);else initFlowChecks();
 })();
+
+window.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('reloadDemoBtn');if(b)b.addEventListener('click',window.resetThirtyDayDemo);});
