@@ -10,7 +10,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="Reef Control" name="apple-mobile-web-app-title"/>
-<link href="styles.css?v=34" rel="stylesheet"/>
+<link href="styles.css?v=36" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
@@ -20,7 +20,7 @@
 <div class="actions"><button class="btn" onclick="exportData()">Export</button><label class="btn">Import<input accept=".json" hidden="" onchange="importData(event)" type="file"/></label></div>
 </header>
 <main>
-<section class="page active" id="dashboard">
+<section class="page active" id="dashboard"><div class="demo-banner"><div><strong>30-day demo mode</strong><span>Sample readings, maintenance, water changes, observations, and flow-validation results are preloaded so you can test the finished app.</span></div><button class="btn" onclick="resetThirtyDayDemo()">Reload sample</button></div>
 <section aria-label="Reef at a Glance" class="reef-glance">
 <div class="reef-glance-head">
 <div><span class="eyebrow">SYSTEM OVERVIEW</span><h3>Reef at a Glance</h3><p>Your 65-gallon mixed reef</p></div>

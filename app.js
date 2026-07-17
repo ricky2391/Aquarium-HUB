@@ -292,6 +292,66 @@ function applyV15MaintenanceMigration(){
 }
 applyV15MaintenanceMigration();
 
+
+function buildThirtyDayDemoData(){
+ const today=dateAtNoon(new Date());
+ const readings=[];
+ const values=[
+  [8.1,438,1360,11.8,19,0.058,8.05,35.0,77.4,12.0],
+  [8.0,436,1355,11.2,18,0.055,8.07,35.0,77.5,12.0],
+  [7.9,434,1352,10.7,17,0.052,8.08,34.9,77.6,12.5],
+  [8.0,435,1354,10.2,18,0.055,8.10,35.0,77.5,12.5],
+  [8.1,437,1357,9.8,19,0.058,8.12,35.0,77.4,13.0],
+  [8.2,439,1360,9.4,18,0.055,8.13,35.1,77.6,13.0],
+  [8.2,440,1362,9.1,17,0.052,8.15,35.0,77.7,13.0],
+  [8.3,442,1365,8.8,18,0.055,8.16,35.0,77.6,13.5],
+  [8.3,443,1367,8.5,19,0.058,8.17,35.1,77.5,13.5],
+  [8.4,445,1370,8.2,18,0.055,8.18,35.0,77.6,14.0],
+  [8.4,446,1372,8.0,17,0.052,8.19,35.0,77.5,14.0]
+ ];
+ values.forEach((v,i)=>{
+  const d=new Date(today);d.setDate(today.getDate()-30+i*3);
+  readings.push({id:3600000+i,date:localISODate(d),time:'18:30',alk:v[0],ca:v[1],mg:v[2],no3:v[3],ppb:v[4],po4:v[5],ph:v[6],sal:v[7],temp:v[8],afr:v[9],notes:i===0?'DEMO: Initial 30-day baseline':i===5?'DEMO: Flow adjusted 5% after particle test':i===10?'DEMO: Stable 30-day example':'DEMO: Routine test'});
+ });
+ const wc1=new Date(today);wc1.setDate(today.getDate()-28);
+ const wc2=new Date(today);wc2.setDate(today.getDate()-14);
+ state.readings=readings;
+ state.waterChanges=[
+  {id:4600001,date:localISODate(wc1),gallons:20,notes:'DEMO: Initial cleanup and detritus siphon'},
+  {id:4600002,date:localISODate(wc2),gallons:15,notes:'DEMO: Routine water change; matched 35 ppt'}
+ ];
+ state.serviceHistory={equipmentCleaned:localISODate(wc1),bioMediaReplaced:addDaysISO(localISODate(wc1),-35),reactorMediaReplaced:localISODate(wc2)};
+ state.observations=[
+  {id:5600001,date:addDaysISO(localISODate(today),-24),category:'Flow',subject:'Rear center pocket',details:'DEMO: A small amount of food settled behind the center arch during the first particle test.',recommendation:'Rotate one rear cage slightly upward and increase the Nero minimum by 5%. Re-test before changing anything else.'},
+  {id:5600002,date:addDaysISO(localISODate(today),-17),category:'Coral behavior',subject:'Hammer coral',details:'DEMO: Hammer showed full extension but leaned consistently in one direction.',recommendation:'Reduce the closest daytime gyre block by 5% or widen the nearest director. Observe for three days.'},
+  {id:5600003,date:addDaysISO(localISODate(today),-7),category:'General',subject:'30-day progress',details:'DEMO: Sand remained stable, surface agitation was strong, and detritus collection was reduced.',recommendation:'Keep the current layout and make only one small adjustment if a repeat particle test shows a persistent pocket.'}
+ ];
+ state.recommendationHistory=[
+  {title:'Particle-test adjustment completed',date:addDaysISO(localISODate(today),-23)},
+  {title:'Routine 15-gallon water change completed',date:addDaysISO(localISODate(today),-14)},
+  {title:'Flow validation review completed',date:addDaysISO(localISODate(today),-7)}
+ ];
+ state.tasks=[];
+ state.taskCompletions={};
+ // Populate the upcoming 30-day calendar so the demo shows realistic progress.
+ const generated=generatedMaintenanceTasks(30);
+ generated.forEach((t,i)=>{if(i%5!==0)state.taskCompletions[t.id]=true});
+ safeSet('reefReadings',JSON.stringify(state.readings));
+ safeSet('reefWaterChanges',JSON.stringify(state.waterChanges));
+ safeSet('reefServiceHistory',JSON.stringify(state.serviceHistory));
+ safeSet('reefObservations',JSON.stringify(state.observations));
+ safeSet('reefRecommendationHistory',JSON.stringify(state.recommendationHistory));
+ safeSet('reefTaskCompletions',JSON.stringify(state.taskCompletions));
+ safeSet('aquariumHubDemo30Days','loaded');
+}
+function resetThirtyDayDemo(){
+ if(!confirm('Reload the 30-day sample data? This replaces changes made in this demo copy.'))return;
+ buildThirtyDayDemoData();
+ renderAll();
+ showPage('dashboard');
+ alert('The 30-day demo has been restored.');
+}
+
 function normalizeInventory(){
  const saved=Array.isArray(state.inventory)?state.inventory:[];
  const byId=Object.fromEntries(saved.map(x=>[x.id,x]));
@@ -299,6 +359,7 @@ function normalizeInventory(){
  state.inventoryEvents=state.inventoryEvents&&typeof state.inventoryEvents==="object"?state.inventoryEvents:{};
 }
 normalizeInventory();
+if(safeGet('aquariumHubDemo30Days','')!=='loaded')buildThirtyDayDemoData();
 
 function persist(showWarning=false){
  const readingsSaved=safeSet("reefReadings",JSON.stringify(state.readings));
@@ -1238,7 +1299,7 @@ function appSelfCheck(){
  const pageParents=[...document.querySelectorAll("main > section.page")].map(page=>page.id);
  return {ok:missing.length===0&&pageParents.length===pages.length,missing,pages:pageParents,readings:state.readings.length,tasks:state.tasks.length};
 }
-try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,renderInventory,saveInventoryItem,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}
+try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,renderInventory,saveInventoryItem,appSelfCheck,resetThirtyDayDemo,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}
 
 // v35 Flow Lab validation persistence
 (function(){
