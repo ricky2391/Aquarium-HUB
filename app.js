@@ -1239,3 +1239,15 @@ function appSelfCheck(){
  return {ok:missing.length===0&&pageParents.length===pages.length,missing,pages:pageParents,readings:state.readings.length,tasks:state.tasks.length};
 }
 try{initNav();renderAll();window.AquariumHub={showPage,goToSection,saveReading,renderAll,renderInventory,saveInventoryItem,appSelfCheck,state}}catch(err){console.error("Aquarium Hub failed to initialize:",err);alert("Aquarium Hub could not finish loading. Please reload the page.")}
+
+// v35 Flow Lab validation persistence
+(function(){
+  function initFlowChecks(){
+    document.querySelectorAll('[data-flow-check]').forEach(cb=>{
+      const key='reefFlowCheck_'+cb.dataset.flowCheck;
+      cb.checked=localStorage.getItem(key)==='1';
+      cb.addEventListener('change',()=>localStorage.setItem(key,cb.checked?'1':'0'));
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFlowChecks);else initFlowChecks();
+})();

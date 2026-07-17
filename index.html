@@ -232,51 +232,88 @@
 </section>
 
 <section class="page" id="flow">
-<div class="hero"><div><span class="badge">FLOW LAB</span><h2 style="margin-top:10px">Flow &amp; circulation</h2><p>Tank-specific pump placement, aquascape mapping, cage/director setup, and controller schedules.</p></div><span class="badge gold">Mapping in progress</span></div>
+<div class="hero"><div><span class="badge">FLOW LAB</span><h2 style="margin-top:10px">Flow &amp; circulation</h2><p>Complete tank-specific placement, cage/director setup, Syna-G programming, Nero programming, and validation.</p></div><span class="badge gold">Commissioning plan v1</span></div>
 <div class="flow-status-grid">
-<div class="card flow-status-card"><span>Display</span><strong>48 × 18 in</strong><small>Aqueon 60-gallon breeder footprint</small></div>
-<div class="card flow-status-card"><span>Primary flow</span><strong>2 × XF330</strong><small>Four cages and four directors per pump</small></div>
-<div class="card flow-status-card"><span>Supplemental flow</span><strong>Nero 3</strong><small>Targeted cross-current through the rockwork</small></div>
-<div class="card flow-status-card"><span>Current phase</span><strong>Aquascape map</strong><small>Placement and schedule follow the pathway analysis</small></div>
+<div class="card flow-status-card"><span>Display footprint</span><strong>48 × 18 in</strong><small>Aqueon 60-gallon breeder</small></div>
+<div class="card flow-status-card"><span>Primary pumps</span><strong>2 × XF330</strong><small>4 cages + 4 directors per pump</small></div>
+<div class="card flow-status-card"><span>Supplemental pump</span><strong>Nero 3</strong><small>Back-glass cross-current</small></div>
+<div class="card flow-status-card"><span>Program status</span><strong>Ready to install</strong><small>Fine-tune after particle testing</small></div>
 </div>
+
 <div class="grid two flow-media-grid" style="margin-top:16px">
-<div class="card"><div class="section-title"><div><h3>Top-down aquascape reference</h3><span>Used to map front, rear, and through-rock channels</span></div></div><img class="flow-reference-image" src="media/aquascape-top.jpg" alt="Top-down view of the aquarium aquascape"></div>
-<div class="card"><div class="section-title"><div><h3>Front aquascape reference</h3><span>Used to map arches, shelves, and vertical clearance</span></div></div><img class="flow-reference-image" src="media/aquascape-front.jpg" alt="Front view of the aquarium aquascape"></div>
+<div class="card"><div class="section-title"><div><h3>Top-down aquascape</h3><span>Front/back channels and island clearance</span></div></div><div class="flow-map-wrap"><img class="flow-reference-image" src="media/aquascape-top.jpg" alt="Top-down aquascape"><svg class="flow-overlay" viewBox="0 0 1000 620" preserveAspectRatio="none"><path class="flow-arrow primary" d="M90 120 C280 50 470 130 560 250 C650 370 820 300 920 120"/><path class="flow-arrow return" d="M920 520 C730 590 570 510 470 430 C330 320 190 430 80 520"/><path class="flow-arrow cross" d="M500 560 C500 470 500 380 500 270"/></svg></div><div class="flow-legend"><span><i class="lg primary"></i>Upper broad circulation</span><span><i class="lg return"></i>Rear/lower return</span><span><i class="lg cross"></i>Nero cross-current</span></div></div>
+<div class="card"><div class="section-title"><div><h3>Front aquascape</h3><span>Arch, shelves, lower openings, and sand clearance</span></div></div><div class="flow-map-wrap"><img class="flow-reference-image" src="media/aquascape-front.jpg" alt="Front aquascape"><svg class="flow-overlay" viewBox="0 0 1000 620" preserveAspectRatio="none"><path class="flow-arrow primary" d="M40 130 C260 80 380 160 500 220 C630 285 790 150 960 120"/><path class="flow-arrow return" d="M960 490 C750 540 640 500 500 440 C360 380 210 500 40 510"/><path class="flow-arrow cross" d="M500 580 C500 500 500 430 500 330"/></svg></div><p class="flow-caption">The first goal is a broad upper sheet that crosses the top and openings; the return path should remain above the sand and behind/around the islands. The Nero breaks up laminar flow through the central opening.</p></div>
 </div>
-<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Full review video</h3><span>Top and front passes from the current aquascape</span></div><span class="badge">Source footage</span></div><video class="flow-video" controls preload="metadata" poster="media/aquascape-front.jpg"><source src="media/aquascape-review.mp4" type="video/mp4">Your browser does not support video playback.</video></div>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Reference video</h3><span>Current top and front passes</span></div><span class="badge">Source footage</span></div><video class="flow-video" controls preload="metadata" poster="media/aquascape-front.jpg"><source src="media/aquascape-review.mp4" type="video/mp4"></video></div>
+
 <div class="grid two" style="margin-top:16px">
-<div class="card"><div class="section-title"><h3>Confirmed XF330 hardware model</h3><span>Use this terminology throughout the app</span></div><div class="flow-confirm-list">
-<div><b>Mounting</b><span>Each gyre mounts horizontally on a side panel, with its long body running from the front glass toward the back glass.</span></div>
-<div><b>Cages</b><span>Four rotatable flow-cage sections per pump. Cage rotation changes the vertical outlet angle.</span></div>
-<div><b>Directors</b><span>Four adjustable directors per pump. Directors shape horizontal spread and steer flow toward the front, straight across, or toward the back.</span></div>
-<div><b>Naming</b><span>Left pump and right pump are named from the viewer's perspective while facing the front glass.</span></div>
+<div class="card"><div class="section-title"><h3>Phase 1 — Aquascape map</h3><span>Primary pathways and likely collection zones</span></div><div class="flow-path-grid compact">
+<div class="flow-path"><span>P1</span><div><b>Main central arch</b><small>Primary turbulence corridor.</small></div></div>
+<div class="flow-path"><span>P2</span><div><b>Lower openings</b><small>Low-level detritus lift.</small></div></div>
+<div class="flow-path"><span>P3</span><div><b>Left island passages</b><small>Flow split and re-entry.</small></div></div>
+<div class="flow-path"><span>P4</span><div><b>Right island passages</b><small>Flow split and re-entry.</small></div></div>
+<div class="flow-path"><span>P5</span><div><b>Rear channel</b><small>Return/export route.</small></div></div>
+<div class="flow-path"><span>P6</span><div><b>Front sand channel</b><small>Gentle sweeping return.</small></div></div>
 </div></div>
-<div class="card"><div class="section-title"><h3>Flow design objectives</h3><span>What the final setup must accomplish</span></div><div class="flow-objective-grid">
-<div><strong>01</strong><span>Move water through the main arch and lower openings.</span></div>
-<div><strong>02</strong><span>Maintain a rear return path behind the rockwork.</span></div>
-<div><strong>03</strong><span>Keep the front sand channel active without creating dunes.</span></div>
-<div><strong>04</strong><span>Create variable turbulence for Euphyllia and upper SPS zones.</span></div>
-<div><strong>05</strong><span>Carry suspended detritus toward the rear filtration intake.</span></div>
+<div class="card"><div class="section-title"><h3>Likely dead-spot watch list</h3><span>Verify with food-particle testing</span></div><div class="flow-confirm-list">
+<div><b>D1</b><span>Behind the central arch at the rear-bottom edge.</span></div><div><b>D2</b><span>Behind the left structure near the back glass.</span></div><div><b>D3</b><span>Inside the right structure's lower sheltered pocket.</span></div><div><b>D4</b><span>Any front corner where sand begins to accumulate in a ridge.</span></div>
 </div></div>
 </div>
-<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Aquascape pathway map</h3><span>Working map based on the latest video</span></div><span class="badge gold">Verify with particle test</span></div>
-<div class="flow-path-grid">
-<div class="flow-path"><span>P1</span><div><b>Main center arch</b><small>Primary through-flow and turbulence corridor.</small></div></div>
-<div class="flow-path"><span>P2</span><div><b>Lower openings</b><small>Detritus-lift route above the sand and below overhangs.</small></div></div>
-<div class="flow-path"><span>P3</span><div><b>Left structure passages</b><small>Secondary route through and around the left island.</small></div></div>
-<div class="flow-path"><span>P4</span><div><b>Right structure passages</b><small>Secondary route through and around the right island.</small></div></div>
-<div class="flow-path"><span>P5</span><div><b>Rear channel</b><small>Return and export route toward HOB filtration.</small></div></div>
-<div class="flow-path"><span>P6</span><div><b>Front sand channel</b><small>Broad low-level movement without sustained sand displacement.</small></div></div>
-</div></div>
-<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Controller programming workspace</h3><span>Final values will be entered after physical placement and particle validation</span></div><span class="badge">Syna-G + Mobius</span></div>
-<div class="table-wrap flow-table"><table><thead><tr><th>Phase</th><th>Status</th><th>Output</th><th>Validation</th></tr></thead><tbody>
-<tr><td>1. Aquascape mapping</td><td><span class="flow-chip done">In progress</span></td><td>Top/front pathway map</td><td>Latest video loaded above</td></tr>
-<tr><td>2. Pump placement</td><td><span class="flow-chip next">Next</span></td><td>Side-panel height and front/back position</td><td>Confirm clearance and glass access</td></tr>
-<tr><td>3. Cage/director setup</td><td><span class="flow-chip pending">Pending</span></td><td>Eight cage angles + eight director settings</td><td>Visual particle movement</td></tr>
-<tr><td>4. Syna-G schedule</td><td><span class="flow-chip pending">Pending</span></td><td>Mode, speed, duration, ramps, synchronization</td><td>Sand, coral motion, detritus export</td></tr>
-<tr><td>5. Nero 3 schedule</td><td><span class="flow-chip pending">Pending</span></td><td>Complementary Mobius program</td><td>No direct conflict with gyre loops</td></tr>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Phase 2 — Pump placement</h3><span>Starting positions before particle validation</span></div><span class="badge gold">Measure from pump center</span></div>
+<div class="pump-placement-grid">
+<div class="pump-placement"><h4>Left XF330</h4><dl><dt>Side</dt><dd>Left side panel, facing the tank</dd><dt>Orientation</dt><dd>Horizontal; long body runs front-to-back</dd><dt>Height</dt><dd>Pump center about 4.5–5.5 in below the water surface</dd><dt>Front/back position</dt><dd>Centered on the side panel (about 9 in from front and back glass)</dd><dt>Purpose</dt><dd>Broad upper/mid-level sheet and surface exchange</dd></dl></div>
+<div class="pump-placement"><h4>Right XF330</h4><dl><dt>Side</dt><dd>Right side panel, facing the tank</dd><dt>Orientation</dt><dd>Horizontal; long body runs front-to-back</dd><dt>Height</dt><dd>Pump center about 6.5–7.5 in below the water surface</dd><dt>Front/back position</dt><dd>Centered on the side panel (about 9 in from front and back glass)</dd><dt>Purpose</dt><dd>Mid/lower return without directly sweeping the sand</dd></dl></div>
+<div class="pump-placement"><h4>Nero 3</h4><dl><dt>Location</dt><dd>Back glass, slightly left of tank center</dd><dt>Height</dt><dd>Mid-height, approximately level with the central opening</dd><dt>Aim</dt><dd>5–10° upward through the central arch toward the front-center/right</dd><dt>Purpose</dt><dd>Break up the gyre sheet and prevent a protected center-back pocket</dd></dl></div>
+</div><p class="flow-caption">These are installation starting points—not immutable measurements. A 1–2 in movement may be more useful than adding 10% speed if the particle test shows a persistent pocket.</p></div>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Phase 3 — Cage and director setup</h3><span>Four cage sections and four directors on each XF330</span></div><span class="badge">Start broad, not focused</span></div>
+<div class="table-wrap flow-table"><table><thead><tr><th>Pump</th><th>Section</th><th>Cage vertical angle</th><th>Director horizontal pattern</th><th>Purpose</th></tr></thead><tbody>
+<tr><td rowspan="4"><b>Left XF330</b></td><td>Front side — Cage 1</td><td>5° upward</td><td>Wide, slight bias toward front half</td><td>Surface ripple and front-upper circulation</td></tr>
+<tr><td>Front side — Cage 2</td><td>Level</td><td>Straight/wide</td><td>Upper-middle sheet through left openings</td></tr>
+<tr><td>Back side — Cage 3</td><td>5° downward</td><td>Straight/wide</td><td>Penetrate the central arch without blasting sand</td></tr>
+<tr><td>Back side — Cage 4</td><td>Level</td><td>Slight bias toward back half</td><td>Feed rear return channel</td></tr>
+<tr><td rowspan="4"><b>Right XF330</b></td><td>Front side — Cage 1</td><td>5° upward</td><td>Wide, slight bias toward front half</td><td>Lift front return and prevent corner settling</td></tr>
+<tr><td>Front side — Cage 2</td><td>Level</td><td>Straight/wide</td><td>Cross the lower-middle opening</td></tr>
+<tr><td>Back side — Cage 3</td><td>5° upward</td><td>Straight/wide</td><td>Lift rear-bottom water behind right island</td></tr>
+<tr><td>Back side — Cage 4</td><td>Level</td><td>Slight bias toward back half</td><td>Complete rear perimeter return</td></tr>
+</tbody></table></div><div class="flow-note inline-note"><strong>Adjustment rule</strong><p>Move one cage one small step or one director one small step at a time. Do not change cage angle, director pattern, pump position, and speed together.</p></div></div>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Phase 4 — Syna-G Cloud schedule</h3><span>Every field shown only where the selected mode uses it</span></div><span class="badge coral">Commissioning v1</span></div>
+<div class="table-wrap flow-table"><table><thead><tr><th>Time</th><th>Pattern</th><th>Link-up</th><th>Pump speed / high</th><th>Low</th><th>Ramp up</th><th>Ramp down</th><th>High duration</th><th>Low duration</th><th>Pattern duration</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>12:00 AM–7:00 AM</td><td>Constant</td><td>Synchronized</td><td>22%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Stable night circulation</td></tr>
+<tr><td>7:00–10:00 AM</td><td>Gradual pulsing</td><td>Timed Delay</td><td>30%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>20 s</td><td>Gentle morning build</td></tr>
+<tr><td>10:00 AM–2:00 PM</td><td>Alternating</td><td>Timed Delay</td><td>50%</td><td>25%</td><td>20 s</td><td>20 s</td><td>60 s</td><td>30 s</td><td>—</td><td>Main broad circulation</td></tr>
+<tr><td>2:00–4:00 PM</td><td>Random</td><td>Anti-Synchronized</td><td>50%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Variable peak turbulence</td></tr>
+<tr><td>4:00–4:10 PM</td><td>Alternating</td><td>Anti-Synchronized</td><td>+25%</td><td>-35%</td><td>10 s</td><td>10 s</td><td>10 s</td><td>30 s</td><td>—</td><td>Brief reverse detritus flush</td></tr>
+<tr><td>4:10–7:00 PM</td><td>Alternating</td><td>Timed Delay</td><td>55%</td><td>25%</td><td>20 s</td><td>20 s</td><td>75 s</td><td>30 s</td><td>—</td><td>Afternoon circulation peak</td></tr>
+<tr><td>7:00–10:00 PM</td><td>Gradual pulsing</td><td>Reverse Timed Delay</td><td>35%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>25 s</td><td>Changing evening sway</td></tr>
+<tr><td>10:00 PM–12:00 AM</td><td>Constant</td><td>Synchronized</td><td>25%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Wind-down</td></tr>
+</tbody></table></div><p class="flow-caption">Negative percentage indicates reverse rotation. If the app applies reverse differently on your controller, confirm with one pump at 10% before saving the full schedule.</p></div>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Phase 5 — Nero 3 schedule</h3><span>Mobius program that complements rather than fights the gyres</span></div></div>
+<div class="table-wrap flow-table"><table><thead><tr><th>Time</th><th>Mode</th><th>Min</th><th>Max</th><th>Variance</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>12:00 AM–7:00 AM</td><td>Constant</td><td>15%</td><td>15%</td><td>—</td><td>Quiet center-back circulation</td></tr>
+<tr><td>7:00–10:00 AM</td><td>Random</td><td>15%</td><td>25%</td><td>Low</td><td>Break up morning sheet</td></tr>
+<tr><td>10:00 AM–2:00 PM</td><td>Random</td><td>22%</td><td>35%</td><td>Medium</td><td>Cross-current through arch</td></tr>
+<tr><td>2:00–4:00 PM</td><td>Random</td><td>25%</td><td>40%</td><td>Medium</td><td>Peak turbulence</td></tr>
+<tr><td>4:00–4:10 PM</td><td>Constant</td><td>35%</td><td>35%</td><td>—</td><td>Carry lifted debris toward filtration</td></tr>
+<tr><td>4:10–7:00 PM</td><td>Random</td><td>25%</td><td>40%</td><td>Medium</td><td>Mixed afternoon flow</td></tr>
+<tr><td>7:00–10:00 PM</td><td>Random</td><td>18%</td><td>30%</td><td>Low</td><td>Evening movement</td></tr>
+<tr><td>10:00 PM–12:00 AM</td><td>Constant</td><td>18%</td><td>18%</td><td>—</td><td>Stable wind-down</td></tr>
 </tbody></table></div></div>
-<div class="card flow-note" style="margin-top:16px"><strong>Current recommendation policy</strong><p>No pump height, cage angle, or permanent schedule is treated as final until the aquascape pathways are confirmed and the installed pumps are tested with visible suspended particles. This prevents generic settings from being mistaken for tank-specific measurements.</p></div>
+
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Phase 6 — Seven-day validation</h3><span>Use this checklist after installing the pumps</span></div><span class="badge gold">Saved on this device</span></div><div class="flow-validation" id="flowValidation">
+<label><input type="checkbox" data-flow-check="day1"> <span><b>Day 1:</b> Verify no sand is moving continuously and the surface has a broad ripple.</span></label>
+<label><input type="checkbox" data-flow-check="day2"> <span><b>Day 2:</b> Add a small amount of thawed food particles and watch P1–P6.</span></label>
+<label><input type="checkbox" data-flow-check="day3"> <span><b>Day 3:</b> Check behind the center arch and both rear corners for settling.</span></label>
+<label><input type="checkbox" data-flow-check="day4"> <span><b>Day 4:</b> Confirm Euphyllia shows irregular sway, not tissue pinned in one direction.</span></label>
+<label><input type="checkbox" data-flow-check="day5"> <span><b>Day 5:</b> Confirm fish can rest at night and are not forced to swim continuously.</span></label>
+<label><input type="checkbox" data-flow-check="day7"> <span><b>Day 7:</b> Change only one variable: 5% speed, 1–2 in pump position, or one cage/director step.</span></label>
+</div></div>
+
+<div class="card flow-note" style="margin-top:16px"><strong>What “complete” means here</strong><p>The physical plan, cage/director configuration, Syna-G schedule, Nero schedule, maps, and validation workflow are now included. The only remaining refinement is empirical: after the pumps are installed, the particle test will show whether a specific cage, director, or pump needs a small adjustment. No static model can replace that final observation.</p></div>
 </section>
 
 <section class="page" id="equipment">
@@ -312,7 +349,7 @@
 </main>
 </div>
 <div class="mobile-tabs" id="mobileTabs"></div>
-<script src="app.js?v=34"></script>
+<script src="app.js?v=35"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
