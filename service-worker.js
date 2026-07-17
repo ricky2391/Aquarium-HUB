@@ -1,11 +1,12 @@
-const CACHE_NAME = "aquarium-hub-v33";
+const CACHE_NAME = "aquarium-hub-v34";
 const ASSETS = [
-  './', './index.html', './manifest.webmanifest', './styles.css?v=33', './app.js?v=33',
+  './', './index.html', './manifest.webmanifest', './styles.css?v=34', './app.js?v=34',
   './images/dwarf_yellow_tip_hermit.jpg', './images/aquamaxx_frs_logo_free.jpg',
   './images/aquamaxx_hfm_logo_free.jpg', './images/gyre_xf330.jpg',
   './images/hanna_hi736.jpg', './images/hanna_hi758.jpg', './images/hanna_hi772.jpg',
   './images/hanna_hi782.jpg', './images/hanna_hi783.jpg', './images/hanna_hi98319.jpg',
-  './images/helio_heater.jpg', './images/nero3.jpg', './images/seneye.jpg'
+  './images/helio_heater.jpg', './images/nero3.jpg', './images/seneye.jpg',
+  './media/aquascape-top.jpg', './media/aquascape-front.jpg', './media/aquascape-review.mp4'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => Promise.allSettled(ASSETS.map(asset => cache.add(asset)))));

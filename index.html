@@ -10,7 +10,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="Reef Control" name="apple-mobile-web-app-title"/>
-<link href="styles.css?v=33" rel="stylesheet"/>
+<link href="styles.css?v=34" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
@@ -230,6 +230,55 @@
 <div class="card"><div class="section-title"><h3>Wishlist &amp; loss history</h3><span>Planning and records</span></div><p class="muted-copy">Use this area later for planned livestock and historical losses without mixing them into your active counts.</p></div>
 </div>
 </section>
+
+<section class="page" id="flow">
+<div class="hero"><div><span class="badge">FLOW LAB</span><h2 style="margin-top:10px">Flow &amp; circulation</h2><p>Tank-specific pump placement, aquascape mapping, cage/director setup, and controller schedules.</p></div><span class="badge gold">Mapping in progress</span></div>
+<div class="flow-status-grid">
+<div class="card flow-status-card"><span>Display</span><strong>48 × 18 in</strong><small>Aqueon 60-gallon breeder footprint</small></div>
+<div class="card flow-status-card"><span>Primary flow</span><strong>2 × XF330</strong><small>Four cages and four directors per pump</small></div>
+<div class="card flow-status-card"><span>Supplemental flow</span><strong>Nero 3</strong><small>Targeted cross-current through the rockwork</small></div>
+<div class="card flow-status-card"><span>Current phase</span><strong>Aquascape map</strong><small>Placement and schedule follow the pathway analysis</small></div>
+</div>
+<div class="grid two flow-media-grid" style="margin-top:16px">
+<div class="card"><div class="section-title"><div><h3>Top-down aquascape reference</h3><span>Used to map front, rear, and through-rock channels</span></div></div><img class="flow-reference-image" src="media/aquascape-top.jpg" alt="Top-down view of the aquarium aquascape"></div>
+<div class="card"><div class="section-title"><div><h3>Front aquascape reference</h3><span>Used to map arches, shelves, and vertical clearance</span></div></div><img class="flow-reference-image" src="media/aquascape-front.jpg" alt="Front view of the aquarium aquascape"></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Full review video</h3><span>Top and front passes from the current aquascape</span></div><span class="badge">Source footage</span></div><video class="flow-video" controls preload="metadata" poster="media/aquascape-front.jpg"><source src="media/aquascape-review.mp4" type="video/mp4">Your browser does not support video playback.</video></div>
+<div class="grid two" style="margin-top:16px">
+<div class="card"><div class="section-title"><h3>Confirmed XF330 hardware model</h3><span>Use this terminology throughout the app</span></div><div class="flow-confirm-list">
+<div><b>Mounting</b><span>Each gyre mounts horizontally on a side panel, with its long body running from the front glass toward the back glass.</span></div>
+<div><b>Cages</b><span>Four rotatable flow-cage sections per pump. Cage rotation changes the vertical outlet angle.</span></div>
+<div><b>Directors</b><span>Four adjustable directors per pump. Directors shape horizontal spread and steer flow toward the front, straight across, or toward the back.</span></div>
+<div><b>Naming</b><span>Left pump and right pump are named from the viewer's perspective while facing the front glass.</span></div>
+</div></div>
+<div class="card"><div class="section-title"><h3>Flow design objectives</h3><span>What the final setup must accomplish</span></div><div class="flow-objective-grid">
+<div><strong>01</strong><span>Move water through the main arch and lower openings.</span></div>
+<div><strong>02</strong><span>Maintain a rear return path behind the rockwork.</span></div>
+<div><strong>03</strong><span>Keep the front sand channel active without creating dunes.</span></div>
+<div><strong>04</strong><span>Create variable turbulence for Euphyllia and upper SPS zones.</span></div>
+<div><strong>05</strong><span>Carry suspended detritus toward the rear filtration intake.</span></div>
+</div></div>
+</div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Aquascape pathway map</h3><span>Working map based on the latest video</span></div><span class="badge gold">Verify with particle test</span></div>
+<div class="flow-path-grid">
+<div class="flow-path"><span>P1</span><div><b>Main center arch</b><small>Primary through-flow and turbulence corridor.</small></div></div>
+<div class="flow-path"><span>P2</span><div><b>Lower openings</b><small>Detritus-lift route above the sand and below overhangs.</small></div></div>
+<div class="flow-path"><span>P3</span><div><b>Left structure passages</b><small>Secondary route through and around the left island.</small></div></div>
+<div class="flow-path"><span>P4</span><div><b>Right structure passages</b><small>Secondary route through and around the right island.</small></div></div>
+<div class="flow-path"><span>P5</span><div><b>Rear channel</b><small>Return and export route toward HOB filtration.</small></div></div>
+<div class="flow-path"><span>P6</span><div><b>Front sand channel</b><small>Broad low-level movement without sustained sand displacement.</small></div></div>
+</div></div>
+<div class="card" style="margin-top:16px"><div class="section-title"><div><h3>Controller programming workspace</h3><span>Final values will be entered after physical placement and particle validation</span></div><span class="badge">Syna-G + Mobius</span></div>
+<div class="table-wrap flow-table"><table><thead><tr><th>Phase</th><th>Status</th><th>Output</th><th>Validation</th></tr></thead><tbody>
+<tr><td>1. Aquascape mapping</td><td><span class="flow-chip done">In progress</span></td><td>Top/front pathway map</td><td>Latest video loaded above</td></tr>
+<tr><td>2. Pump placement</td><td><span class="flow-chip next">Next</span></td><td>Side-panel height and front/back position</td><td>Confirm clearance and glass access</td></tr>
+<tr><td>3. Cage/director setup</td><td><span class="flow-chip pending">Pending</span></td><td>Eight cage angles + eight director settings</td><td>Visual particle movement</td></tr>
+<tr><td>4. Syna-G schedule</td><td><span class="flow-chip pending">Pending</span></td><td>Mode, speed, duration, ramps, synchronization</td><td>Sand, coral motion, detritus export</td></tr>
+<tr><td>5. Nero 3 schedule</td><td><span class="flow-chip pending">Pending</span></td><td>Complementary Mobius program</td><td>No direct conflict with gyre loops</td></tr>
+</tbody></table></div></div>
+<div class="card flow-note" style="margin-top:16px"><strong>Current recommendation policy</strong><p>No pump height, cage angle, or permanent schedule is treated as final until the aquascape pathways are confirmed and the installed pumps are tested with visible suspended particles. This prevents generic settings from being mistaken for tank-specific measurements.</p></div>
+</section>
+
 <section class="page" id="equipment">
 <div class="hero"><div><h2>Equipment</h2><p>System profile, expandable equipment groups, maintenance details, and supply inventory.</p></div></div>
 <div class="grid two">
@@ -263,7 +312,7 @@
 </main>
 </div>
 <div class="mobile-tabs" id="mobileTabs"></div>
-<script src="app.js?v=33"></script>
+<script src="app.js?v=34"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

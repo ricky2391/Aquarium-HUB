@@ -1,4 +1,4 @@
-const pages=[["dashboard","Dashboard"],["readings","Readings"],["maintenance","Maintenance"],["livestock","Livestock"],["equipment","Equipment"],["testers","Testers"]];
+const pages=[["dashboard","Dashboard"],["readings","Readings"],["maintenance","Maintenance"],["livestock","Livestock"],["flow","Flow"],["equipment","Equipment"],["testers","Testers"]];
 
 function svgData(kind,title,accent="#52d2c7"){
  const safe=String(title).replace(/[&<>"']/g,"");
