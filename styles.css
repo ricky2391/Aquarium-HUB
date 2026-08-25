@@ -908,3 +908,122 @@ tr:hover td{background:rgba(67,223,206,.035)}
 
 /* v35 Complete Flow Lab */
 .flow-map-wrap{position:relative;overflow:hidden;border-radius:14px}.flow-map-wrap .flow-reference-image{aspect-ratio:16/10}.flow-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.flow-arrow{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:16 12;filter:drop-shadow(0 0 5px rgba(0,0,0,.7))}.flow-arrow.primary{stroke:#4bd8ff}.flow-arrow.return{stroke:#7ee0a2}.flow-arrow.cross{stroke:#f1c86b}.flow-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;color:var(--muted);font-size:12px}.flow-legend span{display:flex;align-items:center;gap:7px}.flow-legend i{width:24px;height:4px;border-radius:99px}.flow-legend .primary{background:#4bd8ff}.flow-legend .return{background:#7ee0a2}.flow-legend .cross{background:#f1c86b}.flow-caption{color:var(--muted);line-height:1.55;margin:10px 0 0}.flow-path-grid.compact{grid-template-columns:1fr 1fr}.pump-placement-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.pump-placement{padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025)}.pump-placement h4{margin:0 0 10px;color:var(--aqua)}.pump-placement dl{display:grid;grid-template-columns:120px 1fr;gap:8px 10px;margin:0}.pump-placement dt{color:var(--muted);font-size:12px;font-weight:850}.pump-placement dd{margin:0;line-height:1.4}.inline-note{margin-top:12px;padding:12px}.flow-validation{display:grid;gap:10px}.flow-validation label{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025);cursor:pointer}.flow-validation input{margin-top:3px;accent-color:var(--teal)}.flow-validation span{line-height:1.45}.flow-table th,.flow-table td{white-space:normal;min-width:88px;vertical-align:top}.flow-table td:first-child{min-width:145px}@media(max-width:900px){.pump-placement-grid{grid-template-columns:1fr}.flow-path-grid.compact{grid-template-columns:1fr}}@media(max-width:560px){.pump-placement dl{grid-template-columns:1fr;gap:3px}.flow-map-wrap .flow-reference-image{aspect-ratio:4/3}}
+
+/* ============================================================
+   v36 — Ocean & Reef Visual Refresh
+   Deeper water backdrop, coral accent pops, gentle motion.
+   ============================================================ */
+:root{
+  --reef-coral-soft: rgba(255,137,120,.16);
+  --reef-teal-soft: rgba(67,223,206,.16);
+  --reef-blue-soft: rgba(84,191,255,.14);
+}
+
+/* Deeper water backdrop with drifting caustic light + slow bubbles */
+body{
+  position:relative;
+  background:
+    radial-gradient(circle at 12% -6%, rgba(67,223,206,.22), transparent 30%),
+    radial-gradient(circle at 96% 8%, rgba(84,191,255,.16), transparent 28%),
+    radial-gradient(circle at 78% 92%, rgba(255,137,120,.10), transparent 32%),
+    radial-gradient(circle at 4% 82%, rgba(180,151,255,.08), transparent 30%),
+    linear-gradient(180deg,#03121a 0%,#082532 46%,#04131b 100%);
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+body::before{
+  background-size:130px 170px,190px 230px,220px 260px;
+  animation:reef-drift 46s ease-in-out infinite alternate;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:
+    radial-gradient(circle 3px at 6% 96%, rgba(115,231,255,.30), transparent 60%),
+    radial-gradient(circle 2px at 22% 100%, rgba(255,255,255,.22), transparent 60%),
+    radial-gradient(circle 4px at 47% 98%, rgba(115,231,255,.24), transparent 60%),
+    radial-gradient(circle 2px at 68% 100%, rgba(255,255,255,.18), transparent 60%),
+    radial-gradient(circle 3px at 85% 97%, rgba(115,231,255,.26), transparent 60%),
+    radial-gradient(circle 2px at 95% 99%, rgba(255,255,255,.2), transparent 60%);
+  background-repeat:no-repeat;
+  animation:reef-bubbles 18s linear infinite;
+}
+@keyframes reef-drift{
+  0%{background-position:0 0,0 0,0 0}
+  100%{background-position:24px -18px,-20px 16px,14px -12px}
+}
+@keyframes reef-bubbles{
+  0%{background-position-y:100%,105%,102%,108%,101%,106%;opacity:.55}
+  92%{opacity:.5}
+  100%{background-position-y:-10%,-14%,-8%,-16%,-9%,-13%;opacity:0}
+}
+@media (prefers-reduced-motion: reduce){
+  body::before,body::after{animation:none}
+}
+
+/* Wavy divider beneath the topbar for a nautical edge */
+.topbar{position:sticky;overflow:visible}
+.topbar::after{
+  content:"";position:absolute;left:6%;right:6%;bottom:-9px;height:9px;pointer-events:none;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='12' viewBox='0 0 60 12'%3E%3Cpath d='M0 6 Q 7.5 0 15 6 T 30 6 T 45 6 T 60 6' fill='none' stroke='%2343dfce' stroke-width='2' opacity='.55'/%3E%3C/svg%3E");
+  background-repeat:repeat-x;background-size:60px 12px;
+}
+
+/* Reef-glow brand mark */
+.logo{
+  position:relative;
+  background:linear-gradient(150deg,var(--aqua) 0%,var(--teal) 45%,var(--coral) 120%);
+  box-shadow:0 0 0 3px rgba(255,137,120,.14),0 8px 22px rgba(67,223,206,.30),inset 0 1px 0 rgba(255,255,255,.5);
+}
+.brand h1{
+  background:linear-gradient(100deg,var(--ink) 30%,var(--teal) 65%,var(--coral) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* Coral livestock tile gets its namesake color */
+.glance-tile.coral{
+  background:linear-gradient(145deg,rgba(255,137,120,.16),rgba(22,53,66,.92));
+}
+.glance-tile.coral .glance-icon{background:rgba(255,137,120,.22)}
+.glance-tile.fish{background:linear-gradient(145deg,rgba(67,223,206,.14),rgba(22,53,66,.92))}
+.glance-tile.invert{background:linear-gradient(145deg,rgba(180,151,255,.14),rgba(22,53,66,.92))}
+.glance-tile.volume{background:linear-gradient(145deg,rgba(84,191,255,.14),rgba(22,53,66,.92))}
+
+/* Coral-flecked halo around the tank-health ring */
+.health-ring-large{
+  box-shadow:
+    0 0 0 10px rgba(67,223,206,.05),
+    0 0 0 20px rgba(255,137,120,.035),
+    0 0 44px rgba(126,224,162,.10);
+}
+
+/* Reef-glance decorative rings pick up coral too */
+.reef-glance{position:relative;overflow:hidden}
+.reef-glance:before{
+  content:"";position:absolute;left:-30px;top:-30px;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,137,120,.14),transparent 70%);pointer-events:none;
+}
+
+/* Warmer, livelier buttons */
+.btn{transition:.2s transform,.2s box-shadow,.2s background,.2s border-color}
+.btn:hover{transform:translateY(-1px);border-color:rgba(255,137,120,.35);box-shadow:0 8px 20px rgba(0,0,0,.22)}
+.btn.primary:hover{box-shadow:0 10px 26px rgba(67,223,206,.32),0 0 0 3px rgba(255,137,120,.14)!important}
+.nav button{transition:.2s color,.2s background}
+
+/* Section-title underline alternates through the reef palette */
+.section-title:nth-of-type(3n) h3:after,.card-head:nth-of-type(3n) h3:after{background:linear-gradient(90deg,var(--coral),var(--gold))}
+.section-title:nth-of-type(3n+2) h3:after,.card-head:nth-of-type(3n+2) h3:after{background:linear-gradient(90deg,var(--purple),var(--blue))}
+
+/* Slim reef-colored scrollbar */
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(4,19,27,.6)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--teal),var(--coral));border-radius:99px;border:2px solid rgba(4,19,27,.6)}
+*{scrollbar-color:var(--teal) rgba(4,19,27,.6)}
+
+/* Friendlier focus ring across inputs and interactive tiles */
+.glance-tile:focus-visible,.btn:focus-visible,.nav button:focus-visible,.mobile-tabs button:focus-visible{
+  outline:2px solid var(--coral);outline-offset:2px;
+}
+
+@media(max-width:650px){
+  .topbar::after{left:4%;right:4%}
+}
