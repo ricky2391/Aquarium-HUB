@@ -13,12 +13,12 @@
 <link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
 <link href="icons/favicon-16.png" rel="icon" sizes="16x16" type="image/png"/>
 <link href="icons/apple-touch-icon.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=38" rel="stylesheet"/>
+<link href="styles.css?v=37" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
 <header class="topbar">
-<div class="brand"><div class="logo"><img src="icons/icon-192.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit"/></div><div><h1>Aquarium Hub</h1><small>65-gallon mixed reef • Premium V1</small></div></div>
+<div class="brand"><div class="logo"><img src="icons/icon-192.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit"/></div><div><h1>Aquarium Hub</h1><small>Aqueon 60-gallon breeder • Premium V1</small></div></div>
 <nav class="nav" id="nav"></nav>
 <div class="actions"><button class="btn" onclick="exportData()">Export</button><label class="btn">Import<input accept=".json" hidden="" onchange="importData(event)" type="file"/></label></div>
 </header>
@@ -26,7 +26,7 @@
 <section class="page active" id="dashboard">
 <section aria-label="Reef at a Glance" class="reef-glance">
 <div class="reef-glance-head">
-<div><span class="eyebrow">SYSTEM OVERVIEW</span><h3>Reef at a Glance</h3><p>Your 65-gallon mixed reef</p></div>
+<div><span class="eyebrow">SYSTEM OVERVIEW</span><h3>Reef at a Glance</h3><p>Your Aqueon 60-gallon breeder</p></div>
 <span class="live-pill"><i></i> Live dashboard</span>
 </div>
 <div class="reef-glance-main">
@@ -38,7 +38,7 @@
 </div>
 <div class="glance-right">
 <div class="glance-stats">
-<button aria-label="Open tank overview" class="glance-tile volume" onclick="goToSection('equipment','equipment-system-overview')"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>65 gallons</strong></span><span class="tile-arrow">›</span></button>
+<button aria-label="Open tank overview" class="glance-tile volume" onclick="goToSection('equipment','equipment-system-overview')"><span class="glance-icon">💧</span><span class="glance-copy"><span class="glance-label">Total Volume</span><strong>60 gallons</strong></span><span class="tile-arrow">›</span></button>
 <button aria-label="Open fish livestock" class="glance-tile fish" onclick="goToSection('livestock','fish-section')"><span class="glance-icon">🐠</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Fish <span id="glanceFish">0</span></strong></span><span class="tile-arrow">›</span></button>
 <button aria-label="Open invertebrate livestock" class="glance-tile invert" onclick="goToSection('livestock','invertebrate-section')"><span class="glance-icon">⭐</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Invertebrates <span id="glanceInverts">0</span></strong></span><span class="tile-arrow">›</span></button>
 <button aria-label="Open coral livestock" class="glance-tile coral" onclick="goToSection('livestock','coral-section')"><span class="glance-icon">🪸</span><span class="glance-copy"><span class="glance-label">Livestock</span><strong>Corals <span id="glanceCorals">0</span></strong></span><span class="tile-arrow">›</span></button>
@@ -129,38 +129,35 @@
 
 <div class="feeding-overview">
 <div class="feeding-stat"><span>Fish meals</span><strong>2× daily</strong><small>Small portions; finish within about 1–2 minutes</small></div>
-<div class="feeding-stat"><span>Algae grazing</span><strong>Daily</strong><small>Nori for the Yellow Tang and Tomini Tang</small></div>
-<div class="feeding-stat"><span>Coral feeding</span><strong>Optional weekly</strong><small>Very small targeted portion only when fully extended</small></div>
+<div class="feeding-stat"><span>Algae grazing</span><strong>Daily</strong><small>Nori for the Yellow Tang</small></div>
+
 </div>
 <div class="feeding-schedule">
 <article class="feeding-row">
 <div class="feeding-time">Morning<br/><strong>9:00 AM</strong></div>
-<div><h4>Small frozen or pellet meal</h4><p><strong>Feed:</strong> Thawed mysis, calanus, enriched brine, or quality marine pellets.</p><p><strong>Amount:</strong> Start with roughly ¼ frozen cube total or a small pinch of pellets. Add in two small portions; stop when food is no longer being eaten immediately.</p><p><strong>For:</strong> Firefish, clowns, chromis, both tangs, and opportunistic shrimp.</p></div>
+<div><h4>Small frozen or pellet meal</h4><p><strong>Feed:</strong> Thawed mysis, calanus, enriched brine, or quality marine pellets.</p><p><strong>Amount:</strong> Start with roughly ¼ frozen cube total or a small pinch of pellets. Add in two small portions; stop when food is no longer being eaten immediately.</p><p><strong>For:</strong> Firefish, clowns, chromis, the Yellow Tang, and opportunistic shrimp.</p></div>
 </article>
 <article class="feeding-row">
 <div class="feeding-time">Midday<br/><strong>Grazing</strong></div>
-<div><h4>Nori for both tangs</h4><p><strong>Feed:</strong> Plain dried marine algae on a clip or secured to a rock.</p><p><strong>Amount:</strong> Begin with about a 2 × 3 inch sheet shared by the Yellow Tang and Tomini Tang; adjust so most is consumed during the day.</p><p><strong>For:</strong> Continuous herbivorous grazing, body condition, and reduced picking at inappropriate surfaces.</p></div>
+<div><h4>Nori for the Yellow Tang</h4><p><strong>Feed:</strong> Plain dried marine algae on a clip or secured to a rock.</p><p><strong>Amount:</strong> Begin with a modest piece for the Yellow Tang and adjust so most is consumed during the day.</p><p><strong>For:</strong> Continuous herbivorous grazing, body condition, and reduced picking at inappropriate surfaces.</p></div>
 </article>
 <article class="feeding-row">
 <div class="feeding-time">Evening<br/><strong>6:00 PM</strong></div>
 <div><h4>Varied protein meal</h4><p><strong>Feed:</strong> Rotate mysis, finely chopped seafood blend, calanus, or pellets rather than relying on one food.</p><p><strong>Amount:</strong> Another small meal—approximately ¼ frozen cube total or the pellet equivalent, divided so shy firefish receive food.</p><p><strong>For:</strong> Maintaining weight and giving the firefish and chromis a second opportunity to feed.</p></div>
 </article>
-<article class="feeding-row optional-feed">
-<div class="feeding-time">Weekly<br/><strong>Optional</strong></div>
-<div><h4>Target-feed the hammer and octospawn</h4><p><strong>Feed:</strong> One or two tiny mysis pieces or a small amount of suitable coral food after the fish meal.</p><p><strong>Amount:</strong> Only what each coral can capture without food sitting on the tissue.</p><p><strong>For:</strong> Supplemental nutrition; not required if the corals are healthy and receive adequate light and dissolved nutrients.</p></div>
-</article>
+
 </div>
 <div class="feeding-notes">
 <h4>Feeding rules</h4>
 <ul>
 <li>Thaw frozen food in a small cup and avoid pouring excess packing liquid into the aquarium.</li>
-<li>Spread food across the tank so the four firefish and the chromis are not outcompeted.</li>
+<li>Spread food across the tank so the firefish and chromis are not outcompeted.</li>
 <li>Watch body shape and appetite. Increase or reduce portions gradually—not from a single feeding.</li>
 <li>Remove uneaten nori before it breaks apart, and reduce food if nitrate or phosphate rises persistently.</li>
 <li>Hermits and shrimp usually scavenge leftovers; dedicated feeding is only needed when little food reaches them.</li>
 </ul>
 </div>
-</div></details><div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><div class="schedule-actions"><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div></div><div id="taskList"></div></div><details class="card collapsible-maintenance-card water-change-planner"><summary class="collapsible-card-summary"><div><h3>Water-change planner</h3><span>Adaptive amount, date, salt estimate, and history</span></div><div class="collapsible-summary-right"><span class="badge">65-gallon system</span><span class="collapse-chevron">⌄</span></div></summary><div class="collapsible-card-body">
+</div></details><div class="card maintenance-schedule-card"><div class="section-title"><div><h3 id="maintenanceWindowTitle">Next 7 days</h3><span id="maintenanceWindowHint">Dates update automatically</span></div><div class="schedule-actions"><button class="btn primary" id="maintenanceWindowToggle" onclick="toggleMaintenanceWindow()">Show all 30 days</button></div></div><div id="taskList"></div></div><details class="card collapsible-maintenance-card water-change-planner"><summary class="collapsible-card-summary"><div><h3>Water-change planner</h3><span>Adaptive amount, date, salt estimate, and history</span></div><div class="collapsible-summary-right"><span class="badge">60-gallon display</span><span class="collapse-chevron">⌄</span></div></summary><div class="collapsible-card-body">
 
 <div class="water-recommendation-grid">
 <div class="water-recommendation"><span>Recommended amount</span><strong id="recommendedWaterAmount">—</strong></div>
@@ -170,7 +167,7 @@
 <p class="planner-reason" id="waterChangeReason"></p>
 <div class="water-log-form">
 <div class="field"><label>Date</label><input id="waterChangeDate" type="date"/></div>
-<div class="field"><label>Gallons changed</label><input id="waterChangeGallons" inputmode="decimal" max="65" min="0.1" oninput="updateSaltEstimate()" step="0.1" type="number"/></div>
+<div class="field"><label>Gallons changed</label><input id="waterChangeGallons" inputmode="decimal" max="60" min="0.1" oninput="updateSaltEstimate()" step="0.1" type="number"/></div>
 <div class="field"><label>Target salinity</label><select id="saltTargetPpt" onchange="updateSaltEstimate()"><option selected="" value="35">35 ppt</option><option value="34">34 ppt</option><option value="36">36 ppt</option></select></div>
 <div aria-live="polite" class="salt-calculator" id="saltCalculator">
 <div class="salt-calculator-head"><span>Tropic Marin Pro-Reef starting amount</span><strong id="saltEstimatePrimary">—</strong></div>
@@ -196,7 +193,7 @@
 <div><strong>Mixing equipment</strong><p>After use, rinse the container, pump, heater, tubing, and measuring cup. Periodically remove mineral residue with a reef-safe citric-acid cleaning solution, then rinse thoroughly.</p></div>
 </div>
 </div></details><div class="grid maintenance-guidance">
-<div class="card"><div class="section-title"><h3>All-For-Reef</h3><span class="badge">Kamoer F1</span></div><p>Calibrate the pump, dose into high flow, and adjust only from a clear alkalinity trend. Use AFR primarily for maintenance—not large corrections.</p><div class="profile-list"><dt>Current dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually after 2–3 consistent alk readings</dd></div></div>
+<div class="card"><div class="section-title"><h3>Optional All-For-Reef tracking</h3><span class="badge">Only if in use</span></div><p>This field is retained so historical dosing records are not lost. Do not treat All-For-Reef or a dosing pump as installed equipment unless you confirm it is currently in use.</p><div class="profile-list"><dt>Latest logged dose</dt><dd id="currentAfr">Not set</dd><dt>Adjustment rule</dt><dd>Change gradually only after a clear alkalinity trend</dd></div></div>
 <div class="card"><div class="section-title"><h3>Bacteria products</h3><span class="badge gold">Goal-based</span></div><p>MicroBacter7 or MicroBacter CLEAN should not be treated as automatic weekly requirements. Use them only for a defined goal, such as after replacing biological media or during a planned cleaning program, and follow the product label.</p></div>
 </div><div class="card observations-library-card">
 <div class="section-title"><div><h3>Observations &amp; action plans</h3><span>Review what you noticed, the recommended solution, and the steps to take</span></div><span class="badge" id="observationCount">0 logged</span></div>
@@ -210,7 +207,7 @@
 <div class="observation-form">
 <div class="field"><label>Date</label><input id="observationDate" type="date"/></div>
 <div class="field"><label>Category</label><select id="observationCategory"><option>General</option><option>Algae</option><option>Pest</option><option>Fish behavior</option><option>Coral behavior</option><option>Water quality</option><option>Equipment</option></select></div>
-<div class="field"><label>Subject</label><input id="observationSubject" placeholder="Example: Chromis, octospawn, brown algae"/></div>
+<div class="field"><label>Subject</label><input id="observationSubject" placeholder="Example: Chromis, hair algae, unusual behavior"/></div>
 <div class="field observation-details"><label>What did you notice?</label><textarea id="observationDetails" placeholder="Describe color, location, duration, behavior, appetite, tissue condition, or anything else you see."></textarea></div>
 <button class="btn primary observation-save" onclick="saveObservation()">Save and show recommendation</button>
 </div>
@@ -323,9 +320,9 @@
 <div class="hero"><div><h2>Equipment</h2><p>System profile, expandable equipment groups, maintenance details, and supply inventory.</p></div></div>
 <div class="grid two">
 <div class="card" id="equipment-system-overview"><div class="section-title"><h3>System overview</h3></div><dl class="profile-list">
-<dt>Display</dt><dd>Aqueon 60-gallon / ~65-gallon system reference</dd>
+<dt>Display</dt><dd>Aqueon 60-gallon breeder</dd>
 <dt>Started</dt><dd>March 2025</dd><dt>Salt</dt><dd>Tropic Marin Pro-Reef</dd>
-<dt>Substrate</dt><dd>CaribSea Special Grade</dd><dt>Style</dt><dd>Mixed reef with LPS emphasis</dd>
+<dt>Substrate</dt><dd>CaribSea Special Grade</dd><dt>Style</dt><dd>Fish/invertebrate system • 0 corals currently</dd>
 </dl></div>
 <div class="card"><div class="section-title"><h3>Target ranges</h3></div><div id="targetList"></div></div>
 </div>
@@ -352,7 +349,8 @@
 </main>
 </div>
 <div class="mobile-tabs" id="mobileTabs"></div>
-<script src="app.js?v=35"></script>
+<script src="tank-config.js?v=36"></script>
+<script src="app.js?v=36"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
